@@ -70,7 +70,6 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .cats input:focus-visible+label{outline:3px solid var(--p1);outline-offset:2px}
 .cats input:disabled+label{cursor:default;opacity:.65}
 .cats.small label{padding:5px 12px;font-size:.88rem}
-.cats .cnt{opacity:.6;font-weight:400;margin-left:2px;font-variant-numeric:tabular-nums}
 .filters{display:grid;gap:12px;padding:14px;border:1px dashed var(--line);border-radius:12px}
 .fhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
 .fgroup{display:grid;gap:6px}
@@ -626,18 +625,18 @@ function filtersHTML(cat, f, disabled) {
   const groups = groupOptions(cat);
   if (!groups.length) return "";
   const sel = cleanFilters(cat, f), all = itemsOf(cat), n = filteredItems(cat, sel).length;
-  if (disabled && !Object.keys(sel).length) return `<span class="status" style="font-size:.88rem">No filters: all ${all.length} items are in play.</span>`;
+  if (disabled && !Object.keys(sel).length) return `<span class="status" style="font-size:.88rem">No filters: everything in this category is in play.</span>`;
   const rows = groups.map(g => {
     const chips = g.opts.map(o => {
       const c = all.filter(o.test).length; if (!c) return "";
       const id = `f-${g.id}-${o.key}`;
-      return `<input type="checkbox" id="${esc(id)}" data-g="${esc(g.id)}" data-k="${esc(o.key)}" ${(sel[g.id] || []).includes(o.key) ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="${esc(id)}">${esc(o.label)}<span class="cnt">${c}</span></label>`;
+      return `<input type="checkbox" id="${esc(id)}" data-g="${esc(g.id)}" data-k="${esc(o.key)}" ${(sel[g.id] || []).includes(o.key) ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="${esc(id)}">${esc(o.label)}</label>`;
     }).join("");
     return `<div class="fgroup"><span class="flabel">${esc(g.label)}</span><div class="cats small">${chips}</div></div>`;
   }).join("");
   const low = n < MIN_POOL;
   return `<div class="filters"><div class="fhead"><span class="label">Filters${disabled ? " (host picks)" : " (optional)"}</span>
-    <span class="status${low ? " err" : ""}">${n} of ${all.length} items match${low ? `. Pick at least ${MIN_POOL} to start.` : ""}</span></div>${rows}</div>`;
+    ${low ? `<span class="status err">Not enough items match. Try broader filters.</span>` : ""}</div>${rows}</div>`;
 }
 function readFilters(root) {
   const f = {};

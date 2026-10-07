@@ -244,7 +244,29 @@ const pick = a => a[Math.floor(Math.random() * a.length)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const wikiUrl = it => "https://en.wikipedia.org/wiki/Special:Search?go=Go&search=" + encodeURIComponent(it.wiki || it.name);
 // Only ever called with a secret the CURRENT viewer is allowed to see (the one they answer for).
-const wikiLinkHTML = it => it ? `<a class="wikilink" href="${wikiUrl(it)}" target="_blank" rel="noopener">Wikipedia ↗</a>` : "";
+const hasWiki = it => !!it && !it.custom && it.wiki !== "";
+const wikiLinkHTML = it => hasWiki(it) ? `<a class="wikilink" href="${wikiUrl(it)}" target="_blank" rel="noopener">Wikipedia ↗</a>` : "";
+// Custom secrets: a player writes the secret their opponent has to guess. No clues or Wikipedia link.
+const customItem = name => ({ name: String(name).trim().slice(0, 60), wiki: "", custom: true, hints: [] });
+const customKind = k => String(k || "").trim().slice(0, 30) || "Custom";
+function modeChips(custom, disabled) {
+  return [["catalog", "From the catalog"], ["custom", "Write your own"]].map(([v, l], i) =>
+    `<input type="radio" name="smode" id="smode-${i}" value="${v}" ${(v === "custom") === !!custom ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="smode-${i}">${l}</label>`).join("");
+}
+function writeFormHTML(id, forName, secretVal, kindVal) {
+  return `<form class="writeform" id="${id}" style="display:grid;gap:14px">
+    <div class="field"><label class="label" for="wSecret">Secret for ${esc(forName)}</label>
+      <input id="wSecret" maxlength="60" value="${esc(secretVal || "")}" placeholder="Grandma's lasagna" autocomplete="off"></div>
+    <div class="field"><label class="label" for="wKind">What kind of thing is it? (optional, ${esc(forName)} sees this)</label>
+      <input id="wKind" maxlength="30" value="${esc(kindVal || "")}" placeholder="Food" autocomplete="off"></div>
+    <span class="status err" id="wErr"></span>
+    <button class="go" type="submit">Lock it in</button></form>`;
+}
+function readWriteForm() {
+  const secret = (document.getElementById("wSecret").value || "").trim(), kind = document.getElementById("wKind").value;
+  if (secret.length < 2) { document.getElementById("wErr").textContent = "Type a secret first."; document.getElementById("wSecret").focus(); return null; }
+  return { item: customItem(secret), kind: customKind(kind) };
+}
 const rid = (n, abc = "abcdefghijkmnpqrstuvwxyz23456789") => Array.from({length: n}, () => abc[Math.floor(Math.random() * abc.length)]).join("");
 const CODE_ABC = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const mkStore = s => ({
@@ -295,7 +317,7 @@ function dealFrom(catSetting, parity, filters) {
 // ---------- App state ----------
 let screen = "home";   // home | local-setup | local | online
 const params = new URLSearchParams(location.search);
-const draft = { name: LS.get("tq:name") || "", code: (params.get("join") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6), p1: "Player 1", p2: "Player 2", cat: "Mix", filters: {} };
+const draft = { name: LS.get("tq:name") || "", code: (params.get("join") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6), p1: "Player 1", p2: "Player 2", cat: "Mix", filters: {}, custom: false };
 let statusMsg = "", statusErr = false, lastConsoleKey = "";
 const setStatus = (m, err) => { statusMsg = m || ""; statusErr = !!err; };
 const PeerOK = typeof window.Peer === "function";
@@ -304,7 +326,13 @@ const PeerOK = typeof window.Peer === "function";
 // SAME-SCREEN MODE (pass the device to answer)
 // ===================================================================
 let L = null;
-function localNew(n1, n2, catChoice, filters) {
+function localNew(n1, n2, catChoice, filters, custom) {
+  if (custom) {
+    L = { players: [{ name: n1, cat: "?", item: null, entries: [] }, { name: n2, cat: "?", item: null, entries: [] }],
+          turn: Math.random() < .5 ? 0 : 1, catChoice, filters, custom: true, writer: 0, stage: "wpass", pending: null };
+    screen = "local"; setStatus(""); lastConsoleKey = "";
+    render(); return;
+  }
   filters = normalizeFilters(catChoice, filters);
   const a = dealFrom(catChoice, 0, filters), b = dealFrom(catChoice === "Mix" ? "Mix" : a.cat, 1, filters);
   L = { players: [{ name: n1, cat: a.cat, item: a.item, entries: [] }, { name: n2, cat: b.cat, item: b.item, entries: [] }],
@@ -347,17 +375,18 @@ function localRecord(action, code) {
 function localVM() {
   const st = localOver();
   return {
-    mode: "local", over: st.over, winner: st.winner, turn: L.turn, endedBy: st.endedBy,
+    mode: "local", over: st.over, winner: st.winner, turn: L.turn, endedBy: st.endedBy, custom: !!L.custom,
     players: L.players.map(p => {
       const used = countR(p.entries);
       return { name: p.name, cat: p.cat, entries: p.entries, used, hints: hintsFor(p.item, used),
-        secretLine: st.over ? `<b>${esc(p.item.name)}</b>` : "<b>hidden</b>", reveal: p.item };
+        secretLine: st.over && p.item ? `<b>${esc(p.item.name)}</b>` : "<b>hidden</b>", reveal: p.item };
     })
   };
 }
 function renderCover() {
   const cv = document.getElementById("cover");
   if (screen !== "local" || !L || L.stage === "ask") { cv.hidden = true; return; }
+  if (L.stage === "wpass" || L.stage === "write" || L.stage === "start") { renderWriteCover(cv); return; }
   const asker = L.players[L.turn], ans = L.players[1 - L.turn];
   cv.className = "cover p" + (L.stage === "back" ? L.turn + 1 : 2 - L.turn);
   if (L.stage === "pass") {
@@ -385,6 +414,39 @@ function renderCover() {
   const first = cv.querySelector("button"); if (first) first.focus();
 }
 
+// Same-screen custom secrets: each player writes the other's secret while the other looks away.
+function renderWriteCover(cv) {
+  const w = L.writer, writer = L.players[w], target = L.players[1 - w];
+  if (L.stage === "start") {
+    const first = L.players[L.turn];
+    cv.className = "cover p" + (L.turn + 1);
+    cv.innerHTML = `<div class="card"><h2>Secrets are set</h2><p class="lede" style="margin:0">Pass to ${esc(first.name)}, who asks first.</p>
+      <button class="go" id="coverGo">I'm ${esc(first.name)}</button></div>`;
+    document.getElementById("coverGo").onclick = () => { L.stage = "ask"; render(); focusInput(); };
+  } else if (L.stage === "wpass") {
+    cv.className = "cover p" + (w + 1);
+    cv.innerHTML = `<div class="card"><h2>${esc(writer.name)} writes ${esc(target.name)}'s secret</h2>
+      <p class="lede" style="margin:0">${esc(target.name)}, look away. ${esc(writer.name)}, think of something for ${esc(target.name)} to guess: a person, place, thing, anything you can answer yes-or-no questions about.</p>
+      <button class="go" id="coverGo">I'm ${esc(writer.name)}. Let me write</button></div>`;
+    document.getElementById("coverGo").onclick = () => { L.stage = "write"; render(); };
+  } else {
+    cv.className = "cover p" + (w + 1);
+    cv.innerHTML = `<div class="card"><h2>Write ${esc(target.name)}'s secret</h2>${writeFormHTML("lwForm", target.name)}</div>`;
+    document.getElementById("lwForm").onsubmit = e => {
+      e.preventDefault();
+      const r = readWriteForm(); if (!r) return;
+      target.item = r.item; target.cat = r.kind;
+      if (w === 0) { L.writer = 1; L.stage = "wpass"; } else L.stage = "start";
+      render();
+    };
+    cv.hidden = false;
+    document.getElementById("wSecret").focus();
+    return;
+  }
+  cv.hidden = false;
+  const b = cv.querySelector("button"); if (b) b.focus();
+}
+
 // ===================================================================
 // ONLINE MODE (PeerJS, direct browser-to-browser)
 // Each device deals and answers for its OPPONENT's secret, so nobody's
@@ -393,7 +455,7 @@ function renderCover() {
 const myPid = SS.get("tq:pid") || (() => { const p = rid(12); SS.set("tq:pid", p); return p; })();
 let O = null;
 function freshOnline(code, host) {
-  return { code, host, cat: "Mix", filters: {}, g: null, first: 0, partner: null, oc: null, secret: null, myCat: null,
+  return { code, host, cat: "Mix", filters: {}, custom: false, g: null, first: 0, partner: null, oc: null, secret: null, myCat: null,
     myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, oppName: "", ended: false, oppEnded: false };
 }
 function onlineEnter(code, host) {
@@ -468,12 +530,12 @@ function sideObj() {
   const s = O.st, st = s.g && s.secret ? onlineState() : null;
   return {
     v: 1, pid: myPid, name: (draft.name || "Player").slice(0, 24), host: !!s.host,
-    cat: s.host ? s.cat : null, flt: s.host ? normalizeFilters(s.cat, s.filters) : null, g: s.g, first: s.host ? s.first : null, partner: s.host ? s.partner : null, oc: s.oc,
+    cat: s.host ? s.cat : null, flt: s.host ? normalizeFilters(s.cat, s.filters) : null, cust: s.host ? !!s.custom : null, g: s.g, first: s.host ? s.first : null, partner: s.host ? s.partner : null, oc: s.oc,
     q: s.myQs.map(x => [x.id, x.kind, x.text]),
     a: Object.keys(s.myAns).map(Number).map(id => [id, s.myAns[id]]),
     h: st ? hintsFor(s.secret, st.R[1 - st.me]) : [],
     end: !!s.ended,
-    rv: st && st.over ? [s.secret.name, s.secret.wiki || s.secret.name] : null
+    rv: st && st.over ? [s.secret.name, s.secret.custom ? "" : (s.secret.wiki || s.secret.name)] : null
   };
 }
 function sendSide(force) {
@@ -485,9 +547,10 @@ function sendSide(force) {
   O.lastSent = str;
   try { O.conn.send({ t: "side", side }); } catch (e) {}
 }
-function newOnlineGame(g, catSetting, first, filters) {
-  const s = O.st, d = dealFrom(catSetting, s.host ? 0 : 1, filters);
-  Object.assign(s, { g, first, oc: d.cat, secret: d.item, myCat: null, myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, ended: false, oppEnded: false });
+function newOnlineGame(g, catSetting, first, filters, custom) {
+  const s = O.st, d = custom ? { cat: null, item: null } : dealFrom(catSetting, s.host ? 0 : 1, filters);
+  O.wDraft = { secret: "", kind: "" };
+  Object.assign(s, { g, first, gameCustom: !!custom, oc: d.cat, secret: d.item, myCat: null, myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, ended: false, oppEnded: false });
   setStatus(""); lastConsoleKey = "";
   sendSide();
 }
@@ -495,13 +558,13 @@ function hostStart() {
   const s = O.st;
   if (!O.opp || O.opp.host) return;
   s.partner = O.opp.pid;
-  newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1, s.filters);
+  newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1, s.filters, s.custom);
   render();
 }
 function onOppSide() {
   const s = O.st, P = O.opp;
   s.oppName = String(P.name || "Opponent").slice(0, 24);
-  if (!s.host && P.host && P.g && P.partner === myPid && P.g !== s.g) newOnlineGame(P.g, P.cat, P.first === 1 ? 1 : 0, P.flt);
+  if (!s.host && P.host && P.g && P.partner === myPid && P.g !== s.g) newOnlineGame(P.g, P.cat, P.first === 1 ? 1 : 0, P.flt, P.cust === true);
   if (s.g && P.g === s.g) {
     const okId = id => Number.isInteger(id) && id > 0 && id < 200;
     for (const it of Array.isArray(P.q) ? P.q : []) {
@@ -567,7 +630,7 @@ function onlineVM() {
     secretLine: `<b>${esc(s.secret.name)}</b>${st.over ? "" : " (you answer for this) " + wikiLinkHTML(s.secret)}`, reveal: s.secret };
   const players = []; players[st.me] = meP; players[1 - st.me] = themP;
   const endedBy = st.endedBy === "you" ? "You" : st.endedBy === "opp" ? oppName : null;
-  return { mode: "online", over: st.over, winner: st.winner, turn: st.turn, me: st.me, players, st, oppName, endedBy };
+  return { mode: "online", over: st.over, winner: st.winner, turn: st.turn, me: st.me, players, st, oppName, endedBy, custom: !!s.gameCustom };
 }
 
 // ===================================================================
@@ -685,25 +748,33 @@ function localSetupHTML() {
       <div class="field p1"><label class="label" for="n1">Player 1</label><input id="n1" maxlength="20" value="${esc(draft.p1)}" autocomplete="off"></div>
       <div class="field p2"><label class="label" for="n2">Player 2</label><input id="n2" maxlength="20" value="${esc(draft.p2)}" autocomplete="off"></div>
     </div>
-    <div style="display:grid;gap:10px"><span class="label">Category</span><div class="cats" id="catBox">${catChips(draft.cat)}</div></div>
-    <div id="filterBox">${filtersHTML(draft.cat, draft.filters)}</div>
-    <button class="go" type="submit" id="dealBtn" ${poolOK(draft.cat, draft.filters) ? "" : "disabled"}>${poolOK(draft.cat, draft.filters) ? "Deal secrets" : "Pick more options"}</button>
+    <div style="display:grid;gap:10px"><span class="label">Secrets</span><div class="cats" id="modeBox">${modeChips(draft.custom)}</div></div>
+    <div id="catArea" ${draft.custom ? "hidden" : ""} style="display:grid;gap:22px">
+      <div style="display:grid;gap:10px"><span class="label">Category</span><div class="cats" id="catBox">${catChips(draft.cat)}</div></div>
+      <div id="filterBox">${filtersHTML(draft.cat, draft.filters)}</div>
+    </div>
+    <p class="status" id="customNote" ${draft.custom ? "" : "hidden"} style="margin:0">Each player writes a secret for the other. No clues in custom games.</p>
+    <button class="go" type="submit" id="dealBtn"></button>
   </form>`;
 }
 function bindLocalSetup() {
   const f = document.getElementById("setupForm");
   const refresh = () => {
     document.getElementById("filterBox").innerHTML = filtersHTML(draft.cat, draft.filters);
-    const ok = poolOK(draft.cat, draft.filters), b = document.getElementById("dealBtn");
-    b.disabled = !ok; b.textContent = ok ? "Deal secrets" : "Pick more options";
+    document.getElementById("catArea").hidden = draft.custom;
+    document.getElementById("customNote").hidden = !draft.custom;
+    const ok = draft.custom || poolOK(draft.cat, draft.filters), b = document.getElementById("dealBtn");
+    b.disabled = !ok; b.textContent = draft.custom ? "Write secrets" : ok ? "Deal secrets" : "Pick more options";
   };
+  refresh();
+  document.getElementById("modeBox").addEventListener("change", e => { draft.custom = e.target.value === "custom"; refresh(); });
   f.addEventListener("input", () => { draft.p1 = document.getElementById("n1").value; draft.p2 = document.getElementById("n2").value; });
   document.getElementById("catBox").addEventListener("change", e => { draft.cat = e.target.value; draft.filters = {}; refresh(); });
   document.getElementById("filterBox").addEventListener("change", () => { draft.filters = normalizeFilters(draft.cat, readFilters(document.getElementById("filterBox"))); refresh(); });
   f.addEventListener("submit", e => {
     e.preventDefault();
-    if (!poolOK(draft.cat, draft.filters)) return;
-    localNew(draft.p1.trim() || "Player 1", draft.p2.trim() || "Player 2", draft.cat, draft.filters);
+    if (!draft.custom && !poolOK(draft.cat, draft.filters)) return;
+    localNew(draft.p1.trim() || "Player 1", draft.p2.trim() || "Player 2", draft.cat, draft.filters, draft.custom);
   });
 }
 
@@ -713,8 +784,8 @@ function podHTML(vm, p, i) {
   const tag = vm.over ? (vm.winner === i ? `<span class="pill">Winner</span>` : "")
     : p.used >= MAX ? `<span class="pill dim">Out of turns</span>` : active ? `<span class="pill">${yourTurn ? "Your turn" : "Their turn"}</span>` : `<span class="pill dim">Up next</span>`;
   const n = String(p.used).padStart(2, "0");
-  let hints = "";
-  for (let k = 0; k < HC; k++) {
+  let hints = vm.custom ? `<div class="hint locked">No clues in a custom game</div>` : "";
+  for (let k = 0; k < (vm.custom ? 0 : HC); k++) {
     const t = p.hints[k];
     if (t) { hints += `<div class="hint"><span class="hk">Clue ${k + 1}</span>&nbsp; ${esc(t)}</div>`; continue; }
     if (p.used >= HE * (k + 1)) { hints += `<div class="hint locked">Clue ${k + 1} is on its way</div>`; continue; }
@@ -780,7 +851,7 @@ function resultHTML(vm) {
     const owner = vm.mode === "online" ? (i === vm.me ? "Your secret" : `${esc(vm.oppName)}'s secret`) : `${esc(p.name)}'s secret`;
     return `<div class="reveal p${i + 1}"><div class="who">${owner}</div>
       <div class="what">${p.reveal ? esc(p.reveal.name) : "Waiting for reveal…"}</div>
-      ${p.reveal ? `<a href="${wikiUrl(p.reveal)}" target="_blank" rel="noopener">Read about it on Wikipedia ↗</a>` : ""}</div>`;
+      ${hasWiki(p.reveal) ? `<a href="${wikiUrl(p.reveal)}" target="_blank" rel="noopener">Read about it on Wikipedia ↗</a>` : ""}</div>`;
   }).join("");
   let actions;
   if (vm.mode === "local") actions = `<button class="go" id="againBtn">Play again</button><button class="ghost" id="setupBtn">Change players or category</button>`;
@@ -791,10 +862,10 @@ function resultHTML(vm) {
 function bindResult(vm) {
   const again = document.getElementById("againBtn");
   if (vm.mode === "local") {
-    again.onclick = () => localNew(L.players[0].name, L.players[1].name, L.catChoice, L.filters);
+    again.onclick = () => localNew(L.players[0].name, L.players[1].name, L.catChoice, L.filters, L.custom);
     document.getElementById("setupBtn").onclick = () => { screen = "local-setup"; render(); };
   } else if (again) {
-    again.onclick = () => { const s = O.st; newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1, s.filters); render(); };
+    again.onclick = () => { const s = O.st; newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1, s.filters, s.custom); render(); };
   }
 }
 
@@ -878,6 +949,7 @@ function renderOnline(app) {
     document.getElementById("backHome").onclick = onlineLeave;
     return;
   }
+  if (s.g && s.gameCustom && !(s.secret && s.myCat)) { hideConsole(); renderOnlineWrite(app); return; }
   if (!(s.g && s.secret && s.myCat)) { hideConsole(); app.innerHTML = lobbyHTML(); bindLobby(); return; }
   const vm = onlineVM();
   let banners = "";
@@ -888,6 +960,31 @@ function renderOnline(app) {
   const rb = document.getElementById("reconBtn"); if (rb) rb.onclick = () => { if (O.peer && !O.peer.destroyed && O.peer.open) guestConnect(); else { const c = O.code; try { O.peer && O.peer.destroy(); } catch (e) {} O = null; onlineEnter(c, false); } };
   if (vm.over) { hideConsole(); bindResult(vm); } else renderConsole(onlineConsole(vm));
 }
+// Online custom secrets: write the secret your opponent will guess, then wait for theirs.
+function renderOnlineWrite(app) {
+  const s = O.st, opp = s.oppName || "your opponent";
+  if (!O.wDraft) O.wDraft = { secret: "", kind: "" };
+  const focusId = document.activeElement && document.activeElement.id;
+  if (!s.secret) {
+    app.innerHTML = `<div class="panel" style="max-width:620px;margin:0 auto"><div><h2>Write ${esc(opp)}'s secret</h2>
+      <p class="lede">Pick something ${esc(opp)} has to guess: a person, place, thing, anything you can answer yes-or-no questions about. ${esc(opp)} is writing yours at the same time.</p></div>
+      ${writeFormHTML("owForm", opp, O.wDraft.secret, O.wDraft.kind)}</div>`;
+    const f = document.getElementById("owForm");
+    f.oninput = () => { O.wDraft = { secret: document.getElementById("wSecret").value, kind: document.getElementById("wKind").value }; };
+    f.onsubmit = e => {
+      e.preventDefault();
+      const r = readWriteForm(); if (!r) return;
+      s.secret = r.item; s.oc = r.kind;
+      sendSide(); render();
+    };
+    const el = document.getElementById(focusId === "wKind" ? "wKind" : "wSecret");
+    el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {}
+  } else {
+    app.innerHTML = `<div class="panel" style="max-width:620px;margin:0 auto"><h2>Secret locked in</h2>
+      <p class="lede">${esc(opp)} will try to guess <b>${esc(s.secret.name)}</b>.</p>
+      <span class="status dots">${O.conn ? `Waiting for ${esc(opp)} to write yours` : `Waiting for ${esc(opp)} to reconnect`}</span></div>`;
+  }
+}
 function inviteLink() { return location.origin + location.pathname + "?join=" + O.code; }
 function lobbyHTML() {
   const s = O.st, P = O.conn ? O.opp : null;
@@ -897,18 +994,21 @@ function lobbyHTML() {
   if (O.phase === "reclaiming") action = `<span class="status dots">Reopening the match</span>`;
   else if (O.phase !== "ready") action = `<span class="status dots">Connecting</span>`;
   else if (s.host && s.g) action = `<span class="status dots">Starting the match</span>`;
-  else if (s.host) action = `<button class="go" id="startBtn" ${P && !P.host && poolOK(s.cat, s.filters) ? "" : "disabled"}>${poolOK(s.cat, s.filters) ? "Start match" : "Pick more options"}</button><span class="status">${P ? `Playing against ${esc(P.name || "your friend")}.` : "Waiting for your friend to join."}</span>`;
+  else if (s.host) action = `<button class="go" id="startBtn" ${P && !P.host && (s.custom || poolOK(s.cat, s.filters)) ? "" : "disabled"}>${s.custom || poolOK(s.cat, s.filters) ? "Start match" : "Pick more options"}</button><span class="status">${P ? `Playing against ${esc(P.name || "your friend")}.` : "Waiting for your friend to join."}</span>`;
   else action = `<span class="status dots">Waiting for ${esc((P && P.name) || "the host")} to start</span>`;
   const catSel = s.host ? s.cat : (P && P.cat) || "Mix";
   const fltSel = s.host ? s.filters : (P && P.flt) || {};
+  const custSel = s.host ? !!s.custom : !!(P && P.cust);
   const canShare = location.protocol.startsWith("http");
   return `<div class="panel">
     <div class="coderow"><div><span class="label">Match code</span><div class="code">${esc(O.code)}</div></div>
       ${s.host ? `<div class="actions">${canShare ? `<button class="ghost" id="copyLink">Copy invite link</button>` : ""}<button class="ghost" id="copyCode">Copy code</button></div>` : ""}</div>
     <p class="lede" style="margin:0">${s.host ? (canShare ? "Send your friend the invite link, or have them open this page and enter the code." : "Have your friend open this page and enter the code.") : "You're in. The host picks the category and starts the match."}</p>
     <div style="display:grid;gap:8px"><span class="label">Players</span><ul class="roster">${me}${them}</ul></div>
+    <div style="display:grid;gap:10px"><span class="label">Secrets${s.host ? "" : " (host picks)"}</span><div class="cats" id="modeBox">${modeChips(custSel, !s.host)}</div></div>
+    ${custSel ? `<p class="status" style="margin:0">Each player writes a secret for the other once the match starts. No clues in custom games.</p>` : `
     <div style="display:grid;gap:10px"><span class="label">Category${s.host ? "" : " (host picks)"}</span><div class="cats" id="catBox">${catChips(catSel, !s.host)}</div></div>
-    <div id="filterBox">${filtersHTML(catSel, fltSel, !s.host)}</div>
+    <div id="filterBox">${filtersHTML(catSel, fltSel, !s.host)}</div>`}
     <div class="actions">${action}</div>
   </div>`;
 }
@@ -926,8 +1026,10 @@ function bindLobby() {
   copyBtn("copyCode", O.code, "Copy code");
   copyBtn("copyLink", inviteLink(), "Copy invite link");
   if (s.host) {
-    document.getElementById("catBox").addEventListener("change", e => { s.cat = e.target.value; s.filters = {}; sendSide(); render(); });
-    document.getElementById("filterBox").addEventListener("change", () => { s.filters = normalizeFilters(s.cat, readFilters(document.getElementById("filterBox"))); sendSide(); render(); });
+    document.getElementById("modeBox").addEventListener("change", e => { s.custom = e.target.value === "custom"; sendSide(); render(); });
+    const cb = document.getElementById("catBox"), fb = document.getElementById("filterBox");
+    if (cb) cb.addEventListener("change", e => { s.cat = e.target.value; s.filters = {}; sendSide(); render(); });
+    if (fb) fb.addEventListener("change", () => { s.filters = normalizeFilters(s.cat, readFilters(fb)); sendSide(); render(); });
   }
 }
 

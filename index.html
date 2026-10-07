@@ -707,6 +707,7 @@ function catChips(selected, disabled) {
 // Filters cascade: the first group shows first. Each next group appears once the picks
 // above it cover enough items to play, and only offers options that still match something.
 function filterSteps(cat, f) {
+  if (!CATS.includes(cat)) return { steps: [], filters: {} };   // "Mix it up" has no filters
   const sel = cleanFilters(cat, f), filters = {}, steps = [];
   let pool = itemsOf(cat);
   for (const g of groupOptions(cat)) {

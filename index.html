@@ -286,7 +286,7 @@ const PeerOK = typeof window.Peer === "function";
 // ===================================================================
 let L = null;
 function localNew(n1, n2, catChoice, filters) {
-  filters = cleanFilters(catChoice, filters);
+  filters = normalizeFilters(catChoice, filters);
   const a = dealFrom(catChoice, 0, filters), b = dealFrom(catChoice === "Mix" ? "Mix" : a.cat, 1, filters);
   L = { players: [{ name: n1, cat: a.cat, item: a.item, entries: [] }, { name: n2, cat: b.cat, item: b.item, entries: [] }],
         turn: Math.random() < .5 ? 0 : 1, catChoice, filters, stage: "ask", pending: null };
@@ -448,7 +448,7 @@ function sideObj() {
   const s = O.st, st = s.g && s.secret ? onlineState() : null;
   return {
     v: 1, pid: myPid, name: (draft.name || "Player").slice(0, 24), host: !!s.host,
-    cat: s.host ? s.cat : null, flt: s.host ? cleanFilters(s.cat, s.filters) : null, g: s.g, first: s.host ? s.first : null, partner: s.host ? s.partner : null, oc: s.oc,
+    cat: s.host ? s.cat : null, flt: s.host ? normalizeFilters(s.cat, s.filters) : null, g: s.g, first: s.host ? s.first : null, partner: s.host ? s.partner : null, oc: s.oc,
     q: s.myQs.map(x => [x.id, x.kind, x.text]),
     a: Object.keys(s.myAns).map(Number).map(id => [id, s.myAns[id]]),
     h: st ? hintsFor(s.secret, st.R[1 - st.me]) : [],
@@ -620,23 +620,36 @@ function bindHome() {
 function catChips(selected, disabled) {
   return ["Mix", ...CATS].map((c, i) => `<input type="radio" name="cat" id="cat-${i}" value="${esc(c)}" ${selected === c ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="cat-${i}">${c === "Mix" ? "Mix it up" : esc(c)}</label>`).join("");
 }
+// Filters cascade: the first group shows first; each next group appears once something
+// is picked above it, and only offers options that still leave enough items to play.
+function filterSteps(cat, f) {
+  const sel = cleanFilters(cat, f), filters = {}, steps = [];
+  let pool = itemsOf(cat);
+  for (const g of groupOptions(cat)) {
+    const opts = g.opts.filter(o => pool.filter(o.test).length >= MIN_POOL);
+    if (!opts.length) break;
+    const picked = (sel[g.id] || []).filter(k => opts.some(o => o.key === k));
+    steps.push({ g, opts, picked });
+    if (!picked.length) break;
+    filters[g.id] = picked;
+    pool = pool.filter(it => g.opts.some(o => picked.includes(o.key) && o.test(it)));
+  }
+  return { steps, filters };
+}
+const normalizeFilters = (cat, f) => filterSteps(cat, f).filters;
 function filtersHTML(cat, f, disabled) {
   if (!CATS.includes(cat)) return `<span class="status" style="font-size:.88rem">“Mix it up” gives each player a different random category. Pick a single category to use filters.</span>`;
-  const groups = groupOptions(cat);
-  if (!groups.length) return "";
-  const sel = cleanFilters(cat, f), all = itemsOf(cat), n = filteredItems(cat, sel).length;
-  if (disabled && !Object.keys(sel).length) return `<span class="status" style="font-size:.88rem">No filters: everything in this category is in play.</span>`;
-  const rows = groups.map(g => {
-    const chips = g.opts.map(o => {
-      const c = all.filter(o.test).length; if (!c) return "";
+  const { steps, filters } = filterSteps(cat, f);
+  if (!steps.length) return "";
+  if (disabled && !Object.keys(filters).length) return `<span class="status" style="font-size:.88rem">No filters: everything in this category is in play.</span>`;
+  const rows = steps.filter(st => !disabled || st.picked.length).map(({ g, opts, picked }) => {
+    const chips = opts.filter(o => !disabled || picked.includes(o.key)).map(o => {
       const id = `f-${g.id}-${o.key}`;
-      return `<input type="checkbox" id="${esc(id)}" data-g="${esc(g.id)}" data-k="${esc(o.key)}" ${(sel[g.id] || []).includes(o.key) ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="${esc(id)}">${esc(o.label)}</label>`;
+      return `<input type="checkbox" id="${esc(id)}" data-g="${esc(g.id)}" data-k="${esc(o.key)}" ${picked.includes(o.key) ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="${esc(id)}">${esc(o.label)}</label>`;
     }).join("");
     return `<div class="fgroup"><span class="flabel">${esc(g.label)}</span><div class="cats small">${chips}</div></div>`;
   }).join("");
-  const low = n < MIN_POOL;
-  return `<div class="filters"><div class="fhead"><span class="label">Filters${disabled ? " (host picks)" : " (optional)"}</span>
-    ${low ? `<span class="status err">Not enough items match. Try broader filters.</span>` : ""}</div>${rows}</div>`;
+  return `<div class="filters"><div class="fhead"><span class="label">Filters${disabled ? " (host picks)" : " (optional)"}</span></div>${rows}</div>`;
 }
 function readFilters(root) {
   const f = {};
@@ -663,7 +676,7 @@ function bindLocalSetup() {
   };
   f.addEventListener("input", () => { draft.p1 = document.getElementById("n1").value; draft.p2 = document.getElementById("n2").value; });
   document.getElementById("catBox").addEventListener("change", e => { draft.cat = e.target.value; draft.filters = {}; refresh(); });
-  document.getElementById("filterBox").addEventListener("change", () => { draft.filters = readFilters(document.getElementById("filterBox")); refresh(); });
+  document.getElementById("filterBox").addEventListener("change", () => { draft.filters = normalizeFilters(draft.cat, readFilters(document.getElementById("filterBox"))); refresh(); });
   f.addEventListener("submit", e => {
     e.preventDefault();
     if (!poolOK(draft.cat, draft.filters)) return;
@@ -858,7 +871,7 @@ function bindLobby() {
   copyBtn("copyLink", inviteLink(), "Copy invite link");
   if (s.host) {
     document.getElementById("catBox").addEventListener("change", e => { s.cat = e.target.value; s.filters = {}; sendSide(); render(); });
-    document.getElementById("filterBox").addEventListener("change", () => { s.filters = readFilters(document.getElementById("filterBox")); sendSide(); render(); });
+    document.getElementById("filterBox").addEventListener("change", () => { s.filters = normalizeFilters(s.cat, readFilters(document.getElementById("filterBox"))); sendSide(); render(); });
   }
 }
 

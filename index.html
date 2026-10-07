@@ -138,6 +138,10 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .askedq{font-size:1.1rem;font-weight:700;overflow-wrap:anywhere}
 .yoursecret{font-family:var(--f-mono);font-size:.85rem;color:var(--muted)}
 .yoursecret b{color:var(--ink)}
+.wikilink{display:inline-block;font-family:var(--f-body);font-size:.88rem;font-weight:700;color:var(--c,var(--p1))}
+.secret .wikilink{font-size:.8rem;margin-left:4px}
+.ghost.danger{color:var(--no);border-color:var(--no)}
+.ghost.danger.armed{background:var(--no);color:var(--surface)}
 
 /* Pass-the-device cover */
 .cover{position:fixed;inset:0;background:var(--bg);z-index:10;display:grid;place-items:center;padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));overflow:auto}
@@ -163,7 +167,10 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 <div class="wrap">
   <header class="top">
     <h1><span class="n">Twenty</span> Questions <span class="v">Duel</span></h1>
-    <button class="ghost" id="homeBtn" hidden>Leave game</button>
+    <div class="actions">
+      <button class="ghost danger" id="endBtn" hidden>End match</button>
+      <button class="ghost" id="homeBtn" hidden>Leave game</button>
+    </div>
   </header>
   <div id="app"></div>
 </div>
@@ -187,6 +194,8 @@ const LABEL = { y:"YES", n:"NO", s:"SOMETIMES", w:"WRONG", c:"RIGHT", u:"REPHRAS
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const wikiUrl = it => "https://en.wikipedia.org/wiki/Special:Search?go=Go&search=" + encodeURIComponent(it.wiki || it.name);
+// Only ever called with a secret the CURRENT viewer is allowed to see (the one they answer for).
+const wikiLinkHTML = it => it ? `<a class="wikilink" href="${wikiUrl(it)}" target="_blank" rel="noopener">Wikipedia ↗</a>` : "";
 const rid = (n, abc = "abcdefghijkmnpqrstuvwxyz23456789") => Array.from({length: n}, () => abc[Math.floor(Math.random() * abc.length)]).join("");
 const CODE_ABC = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 const mkStore = s => ({
@@ -255,6 +264,7 @@ function localOver() {
   const w = L.players.findIndex(p => hasWon(p.entries));
   if (w >= 0) return { over: true, winner: w };
   if (L.players.every(p => countR(p.entries) >= MAX)) return { over: true, winner: null };
+  if (L.ended) return { over: true, winner: null, endedBy: "Someone" };
   return { over: false, winner: null };
 }
 function localAct(kind) {
@@ -284,7 +294,7 @@ function localRecord(action, code) {
 function localVM() {
   const st = localOver();
   return {
-    mode: "local", over: st.over, winner: st.winner, turn: L.turn,
+    mode: "local", over: st.over, winner: st.winner, turn: L.turn, endedBy: st.endedBy,
     players: L.players.map(p => {
       const used = countR(p.entries);
       return { name: p.name, cat: p.cat, entries: p.entries, used, hints: hintsFor(p.item, used),
@@ -307,7 +317,7 @@ function renderCover() {
     const btns = q.kind === "q"
       ? `<button class="btn y" data-a="y">YES</button><button class="btn n" data-a="n">NO</button><button class="btn s" data-a="s">SOMETIMES</button><button class="btn u" data-a="u">Not a yes/no question</button>`
       : `<button class="btn y" data-a="c">RIGHT</button><button class="btn n" data-a="w">WRONG</button>`;
-    cv.innerHTML = `<div class="card"><div class="bigsecret"><span class="label">${esc(asker.name)}'s secret</span><div class="what">${esc(asker.item.name)}</div></div>
+    cv.innerHTML = `<div class="card"><div class="bigsecret"><span class="label">${esc(asker.name)}'s secret</span><div class="what">${esc(asker.item.name)}</div>${wikiLinkHTML(asker.item)}</div>
       <div><span class="label">${esc(asker.name)} ${q.kind === "q" ? "asks" : "guesses"}</span><div class="askedq">${q.kind === "q" ? esc(q.text) : `“${esc(q.text)}”`}</div></div>
       <div class="answers">${btns}</div></div>`;
     cv.querySelectorAll("[data-a]").forEach(b => b.onclick = () => localRecord(q, b.dataset.a));
@@ -331,7 +341,7 @@ const myPid = SS.get("tq:pid") || (() => { const p = rid(12); SS.set("tq:pid", p
 let O = null;
 function freshOnline(code, host) {
   return { code, host, cat: "Mix", g: null, first: 0, partner: null, oc: null, secret: null, myCat: null,
-    myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, oppName: "" };
+    myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, oppName: "", ended: false, oppEnded: false };
 }
 function onlineEnter(code, host) {
   code = code.toUpperCase();
@@ -409,6 +419,7 @@ function sideObj() {
     q: s.myQs.map(x => [x.id, x.kind, x.text]),
     a: Object.keys(s.myAns).map(Number).map(id => [id, s.myAns[id]]),
     h: st ? hintsFor(s.secret, st.R[1 - st.me]) : [],
+    end: !!s.ended,
     rv: st && st.over ? [s.secret.name, s.secret.wiki || s.secret.name] : null
   };
 }
@@ -423,7 +434,7 @@ function sendSide(force) {
 }
 function newOnlineGame(g, catSetting, first) {
   const s = O.st, d = dealFrom(catSetting, s.host ? 0 : 1);
-  Object.assign(s, { g, first, oc: d.cat, secret: d.item, myCat: null, myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null });
+  Object.assign(s, { g, first, oc: d.cat, secret: d.item, myCat: null, myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, ended: false, oppEnded: false });
   setStatus(""); lastConsoleKey = "";
   sendSide();
 }
@@ -447,6 +458,7 @@ function onOppSide() {
     s.hintsToMe = (Array.isArray(P.h) ? P.h : []).slice(0, HC).map(x => String(x).slice(0, 240));
     s.oppRv = Array.isArray(P.rv) ? { name: String(P.rv[0]).slice(0, 80), wiki: String(P.rv[1]).slice(0, 120) } : null;
     if (typeof P.oc === "string") s.myCat = P.oc.slice(0, 40);
+    s.oppEnded = P.end === true;
     autoJudge();
   }
   sendSide(); render();
@@ -466,13 +478,15 @@ function onlineState() {
   const mine = myEntries(), theirs = oppEntries();
   const R = [0, 0]; R[me] = countR(mine); R[1 - me] = countR(theirs);
   const winner = hasWon(mine) ? me : hasWon(theirs) ? 1 - me : null;
-  const over = winner !== null || (R[0] >= MAX && R[1] >= MAX);
+  const naturalOver = winner !== null || (R[0] >= MAX && R[1] >= MAX);
+  const endedBy = naturalOver ? null : s.ended ? "you" : s.oppEnded ? "opp" : null;
+  const over = naturalOver || !!endedBy;
   const f = s.first, b = 1 - f, out = [R[0] >= MAX, R[1] >= MAX];
   const turn = out[f] ? b : out[b] ? f : (R[f] <= R[b] ? f : b);
   const last = mine[mine.length - 1];
   const pending = !!last && !last.code;
   const toAnswer = theirs.find(e => !e.code) || null;
-  return { me, mine, theirs, R, winner, over, turn, pending, lastCode: last && last.code, toAnswer };
+  return { me, mine, theirs, R, winner, over, endedBy, turn, pending, lastCode: last && last.code, toAnswer };
 }
 function onlineAct(kind) {
   const input = document.getElementById("qInput");
@@ -497,9 +511,10 @@ function onlineVM() {
   const meP = { name: (draft.name || "You") + " (you)", cat: s.myCat || "?", entries: st.mine, used: st.R[st.me], hints: s.hintsToMe,
     secretLine: st.over ? `<b>${esc(s.oppRv ? s.oppRv.name : "…")}</b>` : "<b>hidden</b>", reveal: s.oppRv };
   const themP = { name: oppName, cat: s.oc, entries: st.theirs, used: st.R[1 - st.me], hints: hintsFor(s.secret, st.R[1 - st.me]),
-    secretLine: `<b>${esc(s.secret.name)}</b>${st.over ? "" : " (you answer for this)"}`, reveal: s.secret };
+    secretLine: `<b>${esc(s.secret.name)}</b>${st.over ? "" : " (you answer for this) " + wikiLinkHTML(s.secret)}`, reveal: s.secret };
   const players = []; players[st.me] = meP; players[1 - st.me] = themP;
-  return { mode: "online", over: st.over, winner: st.winner, turn: st.turn, me: st.me, players, st, oppName };
+  const endedBy = st.endedBy === "you" ? "You" : st.endedBy === "opp" ? oppName : null;
+  return { mode: "online", over: st.over, winner: st.winner, turn: st.turn, me: st.me, players, st, oppName, endedBy };
 }
 
 // ===================================================================
@@ -508,6 +523,11 @@ function onlineVM() {
 function render() {
   const app = document.getElementById("app"), con = document.getElementById("console");
   document.getElementById("homeBtn").hidden = screen === "home";
+  const inPlay = (screen === "local" && L && !localOver().over)
+    || (screen === "online" && O && O.st.g && O.st.secret && O.st.myCat && !onlineState().over);
+  const eb = document.getElementById("endBtn");
+  eb.hidden = !inPlay;
+  if (!inPlay) disarmEnd();
   renderCover();
   if (screen === "home") { hideConsole(); app.innerHTML = homeHTML(); bindHome(); return; }
   if (screen === "local-setup") { hideConsole(); app.innerHTML = localSetupHTML(); bindLocalSetup(); return; }
@@ -620,7 +640,8 @@ const stageHTML = vm => `<div class="stage">${vm.players.map((p, i) => podHTML(v
 function resultHTML(vm) {
   const w = vm.winner;
   let head;
-  if (w === null) head = "Nobody cracked it. It's a draw.";
+  if (vm.endedBy) head = vm.mode === "local" ? "Match ended early." : `${esc(vm.endedBy)} ended the match.`;
+  else if (w === null) head = "Nobody cracked it. It's a draw.";
   else if (vm.mode === "online") head = w === vm.me ? `You win in ${vm.players[w].used} turns!` : `${esc(vm.oppName)} wins in ${vm.players[w].used} turns.`;
   else head = `${esc(vm.players[w].name)} wins in ${vm.players[w].used} ${vm.players[w].used === 1 ? "turn" : "turns"}!`;
   const cards = vm.players.map((p, i) => {
@@ -686,7 +707,7 @@ function renderConsole(c) {
         ? `<button class="btn y" data-a="y">YES</button><button class="btn n" data-a="n">NO</button><button class="btn s" data-a="s">SOMETIMES</button><button class="btn u" data-a="u">Not yes/no</button>`
         : `<button class="btn y" data-a="c">RIGHT</button><button class="btn n" data-a="w">WRONG</button>`;
       con.innerHTML = `<div class="in">
-        <div class="turnline"><span>${c.lead}</span><span class="yoursecret">Their secret: <b>${esc(O.st.secret.name)}</b></span></div>
+        <div class="turnline"><span>${c.lead}</span><span class="yoursecret">Their secret: <b>${esc(O.st.secret.name)}</b> ${wikiLinkHTML(O.st.secret)}</span></div>
         <div class="askedq">${q.kind === "q" ? esc(q.text) : `“${esc(q.text)}”`}</div>
         <div class="answers">${btns}</div></div>`;
       con.querySelectorAll("[data-a]").forEach(b => b.onclick = () => onlineAnswer(c.id, b.dataset.a));
@@ -773,6 +794,25 @@ function bindLobby() {
   if (s.host) document.getElementById("catBox").addEventListener("change", e => { s.cat = e.target.value; sendSide(); });
 }
 
+// End match: first tap arms the button, second tap within 4 seconds ends it.
+let endTimer = null;
+function disarmEnd() {
+  clearTimeout(endTimer); endTimer = null;
+  const b = document.getElementById("endBtn");
+  b.classList.remove("armed"); b.textContent = "End match";
+}
+document.getElementById("endBtn").onclick = () => {
+  const b = document.getElementById("endBtn");
+  if (!endTimer) {
+    b.classList.add("armed"); b.textContent = "Tap again to end";
+    endTimer = setTimeout(disarmEnd, 4000);
+    return;
+  }
+  disarmEnd();
+  if (screen === "local" && L) { L.ended = true; L.stage = "ask"; L.pending = null; setStatus(""); }
+  else if (screen === "online" && O) { O.st.ended = true; setStatus(""); sendSide(); }
+  render();
+};
 document.getElementById("homeBtn").onclick = () => {
   if (screen === "online") onlineLeave();
   else { L = null; screen = "home"; setStatus(""); hideConsole(); render(); }

@@ -58,8 +58,9 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0
 .mode{border:2px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px;align-content:start;background:var(--sunk)}
 .mode h3{font-size:1.1rem}
 .mode p{margin:0;color:var(--muted);font-size:.93rem}
-.joinrow{display:flex;gap:8px}
-.joinrow input{flex:1;min-width:0;border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.15em}
+.joinrow{display:flex;gap:8px;flex-wrap:wrap}
+.joinrow .go{padding:12px 18px}
+.joinrow input{flex:1 1 120px;min-width:0;border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.15em}
 .joinrow input:focus{border-color:var(--p2);outline:none}
 .cats{display:flex;flex-wrap:wrap;gap:8px}
 .cats input{position:absolute;opacity:0;pointer-events:none}

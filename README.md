@@ -103,7 +103,7 @@ Then check your work (needs [Node.js](https://nodejs.org)):
 node check-catalog.js
 ```
 
-It lists any item missing a year or tag, hints that give away the name, and how many items each filter option has (counts are only shown here, not in the game). The game hides any filter option that would leave fewer than 4 items, so thin options only appear once the catalog grows.
+It lists any item missing a year or tag, hints that give away the name, and how many items each filter option has (counts are only shown here, not in the game). A game needs at least 4 matching items; until the picks reach that, the next filter stays hidden and the start button reads "Pick more options."
 
 After editing, upload the new `catalog.js` (or commit and push) and the live site updates. To make sure players get the new list right away instead of a cached copy, also bump the number in `catalog.js?v=3` inside `index.html` (to `v=4`, and so on).
 

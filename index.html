@@ -620,19 +620,20 @@ function bindHome() {
 function catChips(selected, disabled) {
   return ["Mix", ...CATS].map((c, i) => `<input type="radio" name="cat" id="cat-${i}" value="${esc(c)}" ${selected === c ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="cat-${i}">${c === "Mix" ? "Mix it up" : esc(c)}</label>`).join("");
 }
-// Filters cascade: the first group shows first; each next group appears once something
-// is picked above it, and only offers options that still leave enough items to play.
+// Filters cascade: the first group shows first. Each next group appears once the picks
+// above it cover enough items to play, and only offers options that still match something.
 function filterSteps(cat, f) {
   const sel = cleanFilters(cat, f), filters = {}, steps = [];
   let pool = itemsOf(cat);
   for (const g of groupOptions(cat)) {
-    const opts = g.opts.filter(o => pool.filter(o.test).length >= MIN_POOL);
+    const opts = g.opts.filter(o => pool.some(o.test));
     if (!opts.length) break;
     const picked = (sel[g.id] || []).filter(k => opts.some(o => o.key === k));
     steps.push({ g, opts, picked });
     if (!picked.length) break;
     filters[g.id] = picked;
     pool = pool.filter(it => g.opts.some(o => picked.includes(o.key) && o.test(it)));
+    if (pool.length < MIN_POOL) break;
   }
   return { steps, filters };
 }
@@ -665,14 +666,15 @@ function localSetupHTML() {
     </div>
     <div style="display:grid;gap:10px"><span class="label">Category</span><div class="cats" id="catBox">${catChips(draft.cat)}</div></div>
     <div id="filterBox">${filtersHTML(draft.cat, draft.filters)}</div>
-    <button class="go" type="submit" id="dealBtn" ${poolOK(draft.cat, draft.filters) ? "" : "disabled"}>Deal secrets</button>
+    <button class="go" type="submit" id="dealBtn" ${poolOK(draft.cat, draft.filters) ? "" : "disabled"}>${poolOK(draft.cat, draft.filters) ? "Deal secrets" : "Pick more options"}</button>
   </form>`;
 }
 function bindLocalSetup() {
   const f = document.getElementById("setupForm");
   const refresh = () => {
     document.getElementById("filterBox").innerHTML = filtersHTML(draft.cat, draft.filters);
-    document.getElementById("dealBtn").disabled = !poolOK(draft.cat, draft.filters);
+    const ok = poolOK(draft.cat, draft.filters), b = document.getElementById("dealBtn");
+    b.disabled = !ok; b.textContent = ok ? "Deal secrets" : "Pick more options";
   };
   f.addEventListener("input", () => { draft.p1 = document.getElementById("n1").value; draft.p2 = document.getElementById("n2").value; });
   document.getElementById("catBox").addEventListener("change", e => { draft.cat = e.target.value; draft.filters = {}; refresh(); });
@@ -841,7 +843,7 @@ function lobbyHTML() {
   if (O.phase === "reclaiming") action = `<span class="status dots">Reopening the match</span>`;
   else if (O.phase !== "ready") action = `<span class="status dots">Connecting</span>`;
   else if (s.host && s.g) action = `<span class="status dots">Starting the match</span>`;
-  else if (s.host) action = `<button class="go" id="startBtn" ${P && !P.host && poolOK(s.cat, s.filters) ? "" : "disabled"}>Start match</button><span class="status">${P ? `Playing against ${esc(P.name || "your friend")}.` : "Waiting for your friend to join."}</span>`;
+  else if (s.host) action = `<button class="go" id="startBtn" ${P && !P.host && poolOK(s.cat, s.filters) ? "" : "disabled"}>${poolOK(s.cat, s.filters) ? "Start match" : "Pick more options"}</button><span class="status">${P ? `Playing against ${esc(P.name || "your friend")}.` : "Waiting for your friend to join."}</span>`;
   else action = `<span class="status dots">Waiting for ${esc((P && P.name) || "the host")} to start</span>`;
   const catSel = s.host ? s.cat : (P && P.cat) || "Mix";
   const fltSel = s.host ? s.filters : (P && P.flt) || {};

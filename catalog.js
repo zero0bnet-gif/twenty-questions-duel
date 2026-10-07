@@ -167,6 +167,146 @@ window.CATALOG = {
       "He is the NBA's all-time leading scorer.",
       "He has won championships with Miami, Cleveland, and Los Angeles.",
       "He was drafted straight out of high school in Akron, Ohio, and now plays for the Lakers."
+    ] },
+    { name: "Ed Sheeran", tags: ["music"], hints: [
+      "This person is a man famous for performing.",
+      "He's a British singer-songwriter.",
+      "He often performs alone on stage with a guitar and a loop pedal.",
+      "He has red hair and made a cameo on 'Game of Thrones'.",
+      "His hits include 'Shape of You' and 'Perfect'."
+    ] },
+    { name: "Billie Eilish", tags: ["music"], hints: [
+      "This person is a woman who became famous as a teenager.",
+      "She's an American singer.",
+      "She writes and records her music with her brother Finneas.",
+      "She won Oscars for songs from 'No Time to Die' and 'Barbie'.",
+      "Her breakout hit was 'bad guy', and she once had green-and-black hair."
+    ] },
+    { name: "Bruno Mars", tags: ["music"], hints: [
+      "This person is a man famous for performing.",
+      "He's an American singer from Hawaii.",
+      "He has performed at the Super Bowl halftime show twice.",
+      "He formed the duo Silk Sonic with Anderson .Paak.",
+      "He sang 'Just the Way You Are' and is featured on 'Uptown Funk'."
+    ] },
+    { name: "Ariana Grande", tags: ["music","acting"], hints: [
+      "This person is a woman famous for performing.",
+      "She's an American singer and actress.",
+      "She first got famous on a Nickelodeon show.",
+      "She played Glinda in the 'Wicked' movie.",
+      "Her hits include 'thank u, next' and '7 rings', and she's known for a high ponytail."
+    ] },
+    { name: "Freddie Mercury", tags: ["music"], hints: [
+      "This person is a man who died in 1991.",
+      "He was a rock singer famous for his huge vocal range.",
+      "He was born in Zanzibar and moved to England as a teen.",
+      "His band's 1985 Live Aid set is called one of the greatest performances ever.",
+      "He was the lead singer of Queen."
+    ] },
+    { name: "Frank Sinatra", tags: ["music","acting"], hints: [
+      "This person is an American man who died in 1998.",
+      "He was a singer and actor.",
+      "He was nicknamed 'Ol' Blue Eyes'.",
+      "He led the Rat Pack in Las Vegas.",
+      "He sang 'My Way' and 'New York, New York'."
+    ] },
+    { name: "Madonna", tags: ["music"], hints: [
+      "This person is an American woman famous for performing.",
+      "She's a singer who rose to fame in the 1980s.",
+      "She's called the Queen of Pop.",
+      "She constantly reinvented her image, including a famous cone bra.",
+      "Her hits include 'Like a Virgin' and 'Vogue'."
+    ] },
+    { name: "Drake", wiki: "Drake (musician)", tags: ["music"], hints: [
+      "This person is a man famous for performing.",
+      "He's a rapper and singer from Canada.",
+      "He first got famous acting on the teen drama 'Degrassi'.",
+      "He's from Toronto and calls it 'the 6'.",
+      "His hits include 'Hotline Bling' and 'God's Plan'."
+    ] },
+    { name: "Will Smith", tags: ["acting","music"], hints: [
+      "This person is an American man who works in entertainment.",
+      "He was a rapper before becoming an actor.",
+      "He starred in a 1990s sitcom set in a Bel-Air mansion.",
+      "He fought aliens in 'Independence Day' and 'Men in Black'.",
+      "He won an Oscar for 'King Richard' the same night he slapped Chris Rock."
+    ] },
+    { name: "Meryl Streep", tags: ["acting"], hints: [
+      "This person is an American woman who works in entertainment.",
+      "She's a movie actress.",
+      "She holds the record for the most Oscar acting nominations.",
+      "She played a cruel fashion editor in 'The Devil Wears Prada'.",
+      "She sang ABBA songs in 'Mamma Mia!' and played Margaret Thatcher."
+    ] },
+    { name: "Zendaya", tags: ["acting"], hints: [
+      "This person is a woman who became famous as a teenager.",
+      "She's an American actress and singer.",
+      "She started on the Disney Channel show 'Shake It Up'.",
+      "She won two Emmys for playing Rue in 'Euphoria'.",
+      "She played MJ in the 'Spider-Man' movies and Chani in 'Dune'."
+    ] },
+    { name: "Robert Downey Jr.", tags: ["acting"], hints: [
+      "This person is an American man who works in entertainment.",
+      "He's a movie actor famous for a big career comeback.",
+      "He won an Oscar for 'Oppenheimer'.",
+      "He played Sherlock Holmes in two films.",
+      "He played Tony Stark in the Marvel movies."
+    ] },
+    { name: "Morgan Freeman", tags: ["acting"], hints: [
+      "This person is an American man who works in entertainment.",
+      "He's an actor famous for his deep, calm voice.",
+      "He narrates documentaries and has played God on screen.",
+      "He won an Oscar for 'Million Dollar Baby'.",
+      "He played Red in 'The Shawshank Redemption'."
+    ] },
+    { name: "Jackie Chan", tags: ["acting"], hints: [
+      "This person is a man who works in entertainment.",
+      "He's an actor from Hong Kong.",
+      "He's famous for doing his own dangerous stunts.",
+      "His movies mix martial arts with slapstick comedy.",
+      "He starred with Chris Tucker in 'Rush Hour'."
+    ] },
+    { name: "Charlie Chaplin", tags: ["acting"], hints: [
+      "This person is a man who died in the 1970s.",
+      "He was a movie star from England.",
+      "He became famous in silent films.",
+      "His film 'The Great Dictator' mocked Adolf Hitler.",
+      "His character, the Little Tramp, wore a bowler hat and a toothbrush mustache."
+    ] },
+    { name: "Tom Brady", tags: ["sports"], hints: [
+      "This person is an American man famous in sports.",
+      "He played a team sport professionally for 23 seasons.",
+      "He won seven Super Bowls, more than any other player.",
+      "He played most of his career for the New England Patriots.",
+      "He was an NFL quarterback who finished with the Tampa Bay Buccaneers."
+    ] },
+    { name: "Tiger Woods", tags: ["sports"], hints: [
+      "This person is an American man famous in sports.",
+      "He plays an individual sport.",
+      "He has won 15 major championships.",
+      "He famously wears a red shirt on the final day of tournaments.",
+      "He's a golfer who won the Masters five times."
+    ] },
+    { name: "Cristiano Ronaldo", tags: ["sports"], hints: [
+      "This person is a man famous in sports.",
+      "He plays the world's most popular team sport and is from Europe.",
+      "He is from Portugal.",
+      "He has played for Manchester United, Real Madrid, and Juventus.",
+      "He wears number 7 and celebrates goals with a leap and a loud 'Siuuu!'"
+    ] },
+    { name: "Wayne Gretzky", tags: ["sports"], hints: [
+      "This person is a man famous in sports.",
+      "He's from Canada.",
+      "He played a team sport on ice.",
+      "He held the NHL career goals record for decades and still holds the points record.",
+      "He's called 'The Great One' and wore number 99."
+    ] },
+    { name: "Babe Ruth", tags: ["sports"], hints: [
+      "This person is an American man who died in the 1940s.",
+      "He was a famous athlete in a team sport.",
+      "He started out as a star pitcher before becoming a slugger.",
+      "His sale from the Red Sox led to the 'Curse of the Bambino'.",
+      "He hit 714 home runs, mostly for the New York Yankees."
     ] }
   ],
 
@@ -310,6 +450,146 @@ window.CATALOG = {
       "It's in Los Angeles.",
       "It started as an ad for a real estate development and originally ended in 'LAND'.",
       "Its giant white letters sit on Mount Lee, overlooking the movie capital."
+    ] },
+    { name: "Christ the Redeemer", tags: ["south_america","landmark"], hints: [
+      "It was made by people, not nature.",
+      "It's in South America.",
+      "It's in Brazil and was finished in 1931.",
+      "It stands on top of Corcovado mountain.",
+      "It's a giant statue with open arms overlooking Rio de Janeiro."
+    ] },
+    { name: "Iguazu Falls", tags: ["south_america","natural"], hints: [
+      "It was formed by nature.",
+      "It's in South America.",
+      "It sits on the border of Argentina and Brazil.",
+      "Its most dramatic section is called the Devil's Throat.",
+      "It's a huge system of waterfalls, much wider than Niagara."
+    ] },
+    { name: "Galápagos Islands", tags: ["south_america","natural"], hints: [
+      "It was formed by nature.",
+      "It's out in the Pacific, belonging to a South American country.",
+      "It belongs to Ecuador.",
+      "Giant tortoises and marine iguanas live there.",
+      "Charles Darwin's visit there helped inspire his theory of evolution."
+    ] },
+    { name: "Easter Island", tags: ["south_america","landmark"], hints: [
+      "It's a place where people live.",
+      "It's in the Pacific, belonging to a South American country.",
+      "It belongs to Chile and is one of the most remote inhabited places on Earth.",
+      "Its native name is Rapa Nui.",
+      "It's famous for nearly 1,000 giant stone head statues called moai."
+    ] },
+    { name: "Victoria Falls", tags: ["africa","natural"], hints: [
+      "It was formed by nature.",
+      "It's in Africa.",
+      "It sits on the border between Zambia and Zimbabwe.",
+      "Locals call it 'The Smoke That Thunders'.",
+      "It's a massive curtain of water on the Zambezi River."
+    ] },
+    { name: "Mount Kilimanjaro", tags: ["africa","natural"], hints: [
+      "It was formed by nature.",
+      "It's in Africa.",
+      "It's in Tanzania.",
+      "It's a dormant volcano that hikers can climb without ropes.",
+      "It's the highest point in Africa, with snow near the equator."
+    ] },
+    { name: "Sahara", tags: ["africa","natural"], hints: [
+      "It was formed by nature.",
+      "It's in Africa.",
+      "It stretches across about a dozen countries.",
+      "Some of its sand dunes are taller than skyscrapers.",
+      "It's the largest hot desert in the world."
+    ] },
+    { name: "Cape Town", tags: ["africa","city"], hints: [
+      "It's a place where people live.",
+      "It's in Africa.",
+      "It's in South Africa.",
+      "Nelson Mandela was imprisoned on Robben Island, just offshore.",
+      "It sits below flat-topped Table Mountain near Africa's southern tip."
+    ] },
+    { name: "Tokyo", tags: ["asia","city"], hints: [
+      "It's a place where people live.",
+      "It's in Asia.",
+      "It's the capital of Japan.",
+      "Its Shibuya Crossing is one of the busiest intersections in the world.",
+      "It's the world's biggest metro area and hosted the 2021 Summer Olympics."
+    ] },
+    { name: "Dubai", tags: ["asia","city"], hints: [
+      "It's a place where people live.",
+      "It's in the Middle East.",
+      "It's in the United Arab Emirates.",
+      "It built man-made islands shaped like palm trees.",
+      "It's home to the Burj Khalifa, the world's tallest building."
+    ] },
+    { name: "Petra", tags: ["asia","landmark"], hints: [
+      "It was made by people, not nature.",
+      "It's in the Middle East.",
+      "It's in Jordan.",
+      "It was carved into rose-colored cliffs more than 2,000 years ago.",
+      "Its Treasury building appears in 'Indiana Jones and the Last Crusade'."
+    ] },
+    { name: "Angkor Wat", tags: ["asia","landmark"], hints: [
+      "It was made by people, not nature.",
+      "It's in Asia.",
+      "It's in Cambodia.",
+      "It was built in the 1100s and is the largest religious monument in the world.",
+      "It's a huge temple complex shown on Cambodia's flag."
+    ] },
+    { name: "Mount Fuji", tags: ["asia","natural"], hints: [
+      "It was formed by nature.",
+      "It's in Asia.",
+      "It's in Japan.",
+      "It's an active volcano that last erupted in 1707.",
+      "It's the snow-capped peak seen in countless Japanese prints."
+    ] },
+    { name: "New York City", tags: ["north_america","city"], hints: [
+      "It's a place where people live.",
+      "It's in the United States.",
+      "It's the most populous place in the US.",
+      "It's made up of five boroughs.",
+      "It's nicknamed the Big Apple and is home to Times Square."
+    ] },
+    { name: "Yellowstone National Park", tags: ["north_america","natural"], hints: [
+      "It was formed by nature.",
+      "It's in the United States.",
+      "It became the first protected area of its kind in the world, in 1872.",
+      "It sits on top of a supervolcano, mostly in Wyoming.",
+      "Its geyser Old Faithful erupts like clockwork."
+    ] },
+    { name: "London", tags: ["europe","city"], hints: [
+      "It's a place where people live.",
+      "It's in Europe.",
+      "It's the capital of the United Kingdom.",
+      "The River Thames runs through it.",
+      "It's home to Buckingham Palace, Big Ben, and red double-decker buses."
+    ] },
+    { name: "Leaning Tower of Pisa", tags: ["europe","landmark"], hints: [
+      "It was made by people, not nature.",
+      "It's in Europe.",
+      "It's in Italy.",
+      "It started tilting during construction in the 1100s because of soft ground.",
+      "Tourists pose pretending to push this tilted bell structure upright."
+    ] },
+    { name: "Parthenon", tags: ["europe","landmark"], hints: [
+      "It was made by people, not nature.",
+      "It's in Europe and is about 2,500 years old.",
+      "It's in Greece.",
+      "It was built as a temple to the goddess Athena.",
+      "It's the columned temple on top of the Acropolis in Athens."
+    ] },
+    { name: "Uluru", tags: ["oceania","natural"], hints: [
+      "It was formed by nature.",
+      "It's in the Southern Hemisphere.",
+      "It's in the middle of Australia's outback.",
+      "It's sacred to local Aboriginal people, and climbing it was banned in 2019.",
+      "It's a giant red sandstone rock, once called Ayers Rock, that glows at sunset."
+    ] },
+    { name: "Hawaii", tags: ["north_america","city"], hints: [
+      "It's a place where people live.",
+      "It's part of the United States.",
+      "It's the only US state made entirely of islands.",
+      "Pearl Harbor is there.",
+      "It's known for surfing, luaus, volcanoes, and the greeting 'Aloha'."
     ] }
   ],
 
@@ -453,6 +733,146 @@ window.CATALOG = {
       "It's a Japanese film from Studio Ghibli.",
       "It won the Oscar for Best Animated Feature and was directed by Hayao Miyazaki.",
       "A girl named Chihiro works at a bathhouse for gods after her parents turn into pigs."
+    ] },
+    { name: "Raiders of the Lost Ark", year: 1981, tags: ["action"], hints: [
+      "It came out in the 1980s.",
+      "It's an action adventure.",
+      "It was directed by Steven Spielberg and produced by George Lucas.",
+      "The hero hates snakes and races Nazis to find a holy relic.",
+      "Harrison Ford plays an archaeologist with a fedora and a bullwhip."
+    ] },
+    { name: "The Breakfast Club", year: 1985, tags: ["comedy","drama"], hints: [
+      "It came out in the 1980s.",
+      "It's a teen comedy-drama.",
+      "It was written and directed by John Hughes.",
+      "Five very different students spend a Saturday in detention.",
+      "A jock, a brain, a princess, a criminal, and a basket case bond in the school library."
+    ] },
+    { name: "Ghostbusters", year: 1984, tags: ["comedy","action"], hints: [
+      "It came out in the 1980s.",
+      "It's a supernatural comedy.",
+      "It stars Bill Murray and Dan Aykroyd.",
+      "A giant Stay Puft Marshmallow Man stomps through New York.",
+      "Scientists with proton packs catch spirits around the city."
+    ] },
+    { name: "The Terminator", year: 1984, tags: ["action"], hints: [
+      "It came out in the 1980s.",
+      "It's a sci-fi action movie.",
+      "It was directed by James Cameron.",
+      "A soldier from the future protects a woman named Sarah Connor.",
+      "Arnold Schwarzenegger plays a cyborg assassin who promises 'I'll be back.'"
+    ] },
+    { name: "Top Gun", year: 1986, tags: ["action","drama"], hints: [
+      "It came out in the 1980s.",
+      "It's an action drama.",
+      "It stars Tom Cruise and got a hit sequel in 2022.",
+      "Its soundtrack includes 'Danger Zone' and 'Take My Breath Away'.",
+      "Navy fighter pilots Maverick and Goose train at an elite flight school."
+    ] },
+    { name: "Avengers: Endgame", year: 2019, tags: ["action"], hints: [
+      "It came out in the 2010s.",
+      "It's a superhero action movie.",
+      "It was briefly the highest-grossing film of all time.",
+      "Heroes use time travel to undo a devastating snap.",
+      "Iron Man, Captain America, and Thor face Thanos in Marvel's big finale."
+    ] },
+    { name: "Inception", year: 2010, tags: ["action"], hints: [
+      "It came out in the 2010s.",
+      "It's a sci-fi thriller.",
+      "It was directed by Christopher Nolan.",
+      "Its final shot of a spinning top leaves viewers arguing.",
+      "Leonardo DiCaprio leads a team that plants ideas inside people's dreams."
+    ] },
+    { name: "Coco", wiki: "Coco (2017 film)", year: 2017, tags: ["animated"], hints: [
+      "It came out in the 2010s.",
+      "It's animated.",
+      "It's a Pixar film set in Mexico.",
+      "Its song 'Remember Me' won an Oscar.",
+      "A boy who loves music visits the Land of the Dead on Día de Muertos."
+    ] },
+    { name: "Black Panther", wiki: "Black Panther (film)", year: 2018, tags: ["action"], hints: [
+      "It came out in the 2010s.",
+      "It's a superhero action movie.",
+      "It was the first superhero film nominated for Best Picture.",
+      "It's set in Wakanda, a hidden, high-tech African nation.",
+      "Chadwick Boseman plays King T'Challa."
+    ] },
+    { name: "Oppenheimer", wiki: "Oppenheimer (film)", year: 2023, tags: ["drama"], hints: [
+      "It came out in the 2020s.",
+      "It's a historical drama.",
+      "It was directed by Christopher Nolan and won Best Picture.",
+      "It opened the same weekend as 'Barbie', creating a double-feature craze.",
+      "Cillian Murphy plays the physicist who led the Manhattan Project."
+    ] },
+    { name: "Get Out", year: 2017, tags: ["drama"], hints: [
+      "It came out in the 2010s.",
+      "It's a horror thriller.",
+      "It was Jordan Peele's directing debut and won him an Oscar for the screenplay.",
+      "Its victims are hypnotized into the 'Sunken Place'.",
+      "A Black man's weekend visit to his white girlfriend's family turns sinister."
+    ] },
+    { name: "Inside Out", wiki: "Inside Out (2015 film)", year: 2015, tags: ["animated"], hints: [
+      "It came out in the 2010s.",
+      "It's animated.",
+      "It's a Pixar film.",
+      "Most of it takes place in the mind of an 11-year-old girl.",
+      "Joy, Sadness, Anger, Fear, and Disgust run Riley's emotions."
+    ] },
+    { name: "Harry Potter and the Sorcerer's Stone", wiki: "Harry Potter and the Philosopher's Stone (film)", year: 2001, tags: ["action"], hints: [
+      "It came out in the 2000s.",
+      "It's a fantasy adventure based on a book.",
+      "It was the first film in an eight-movie series.",
+      "An orphan learns he's famous in a hidden world and plays Quidditch.",
+      "Daniel Radcliffe plays a boy wizard starting at Hogwarts."
+    ] },
+    { name: "Pirates of the Caribbean", wiki: "Pirates of the Caribbean: The Curse of the Black Pearl", year: 2003, tags: ["action","comedy"], hints: [
+      "It came out in the 2000s.",
+      "It's an action adventure.",
+      "It was based on a Disney theme park ride.",
+      "Its villains turn into skeletons in the moonlight.",
+      "Johnny Depp plays Captain Jack Sparrow."
+    ] },
+    { name: "Up", wiki: "Up (2009 film)", year: 2009, tags: ["animated"], hints: [
+      "It came out in the 2000s.",
+      "It's animated.",
+      "It's a Pixar film that opens with a famously sad montage.",
+      "A talking dog named Dug gets distracted by squirrels.",
+      "An old man ties thousands of balloons to his house and flies to South America."
+    ] },
+    { name: "Mean Girls", year: 2004, tags: ["comedy"], hints: [
+      "It came out in the 2000s.",
+      "It's a teen comedy.",
+      "It was written by Tina Fey.",
+      "Its popular clique wears pink on Wednesdays.",
+      "Lindsay Lohan's character joins the Plastics, led by Regina George."
+    ] },
+    { name: "The Lord of the Rings: The Fellowship of the Ring", year: 2001, tags: ["action"], hints: [
+      "It came out in the 2000s.",
+      "It's a fantasy adventure based on a book.",
+      "It was filmed in New Zealand by director Peter Jackson.",
+      "Its group of nine includes a wizard, an elf, and a dwarf.",
+      "Frodo the hobbit sets out to destroy a powerful piece of jewelry in Mordor."
+    ] },
+    { name: "Psycho", wiki: "Psycho (1960 film)", year: 1960, tags: ["drama"], hints: [
+      "It came out before 1970.",
+      "It's a horror thriller in black and white.",
+      "It was directed by Alfred Hitchcock.",
+      "Its main character is killed surprisingly early in the movie.",
+      "Its shower scene at the Bates Motel is one of the most famous in film."
+    ] },
+    { name: "Grease", wiki: "Grease (film)", year: 1978, tags: ["comedy"], hints: [
+      "It came out in the 1970s.",
+      "It's a musical.",
+      "It's set at a 1950s high school.",
+      "Its songs include 'Summer Nights' and 'You're the One That I Want'.",
+      "John Travolta and Olivia Newton-John play Danny and Sandy."
+    ] },
+    { name: "Rocky", year: 1976, tags: ["drama"], hints: [
+      "It came out in the 1970s.",
+      "It's a sports drama.",
+      "It won Best Picture and was written by its star.",
+      "Its hero trains by punching frozen meat and drinking raw eggs.",
+      "Sylvester Stallone plays a Philadelphia boxer who runs up museum steps."
     ] }
   ],
 
@@ -596,6 +1016,146 @@ window.CATALOG = {
       "It was the lead single from the album '1989'.",
       "It's about ignoring haters and critics.",
       "It was Taylor Swift's first single after she went fully pop."
+    ] },
+    { name: "...Baby One More Time", year: 1998, tags: ["pop"], hints: [
+      "It was released in the 1990s.",
+      "It's a pop song by an American female singer.",
+      "It was the singer's debut single, released when she was 16.",
+      "Its music video shows her dancing in a school outfit in a hallway.",
+      "It launched Britney Spears' career."
+    ] },
+    { name: "Wannabe", wiki: "Wannabe (song)", year: 1996, tags: ["pop"], hints: [
+      "It was released in the 1990s.",
+      "It's a pop song by a British girl group.",
+      "It was the group's debut single and hit No. 1 in more than 30 countries.",
+      "The group's members had nicknames like Scary, Sporty, Baby, Ginger, and Posh.",
+      "It's the Spice Girls' debut hit about putting friendship first."
+    ] },
+    { name: "I Will Always Love You", year: 1992, tags: ["rnb","pop"], hints: [
+      "Its most famous version was released in the 1990s.",
+      "It's a power ballad by a female singer.",
+      "It was written and first recorded by Dolly Parton.",
+      "The famous version is from the movie 'The Bodyguard'.",
+      "Whitney Houston's version is known for its huge key change and long-held notes."
+    ] },
+    { name: "Gangsta's Paradise", year: 1995, tags: ["hiphop"], hints: [
+      "It was released in the 1990s.",
+      "It's a rap song.",
+      "It was recorded for the movie 'Dangerous Minds'.",
+      "It's built on a sample of a 1976 Stevie Wonder song.",
+      "It's Coolio's biggest hit."
+    ] },
+    { name: "Macarena", wiki: "Macarena (song)", year: 1995, tags: ["hiphop","pop"], hints: [
+      "It was released in the 1990s.",
+      "It's a dance song sung partly in Spanish.",
+      "It's by Los del Río, a duo from Spain.",
+      "A remix topped the US charts for 14 weeks in 1996.",
+      "It comes with a famous dance of arm moves, hands on head, and a hip shake."
+    ] },
+    { name: "Livin' la Vida Loca", year: 1999, tags: ["pop","hiphop"], hints: [
+      "It was released in the 1990s.",
+      "It's a Latin pop song by a male singer.",
+      "The singer is from Puerto Rico and was once in the boy band Menudo.",
+      "It kicked off a Latin pop boom in the US.",
+      "It's Ricky Martin's biggest hit, about a wild party girl."
+    ] },
+    { name: "Waterfalls", wiki: "Waterfalls (TLC song)", year: 1995, tags: ["rnb"], hints: [
+      "It was released in the 1990s.",
+      "It's an R&B song by a female group.",
+      "It was a No. 1 hit for a trio from Atlanta.",
+      "Its message warns against drug dealing and risky choices.",
+      "It's TLC's biggest hit, from the album 'CrazySexyCool'."
+    ] },
+    { name: "Crazy in Love", year: 2003, tags: ["rnb","pop"], hints: [
+      "It was released in the 2000s.",
+      "It's an R&B song by a female singer.",
+      "It features Jay-Z.",
+      "It opens with a famous blaring horn sample.",
+      "It was Beyoncé's first big solo hit after Destiny's Child."
+    ] },
+    { name: "Hey Ya!", year: 2003, tags: ["hiphop"], hints: [
+      "It was released in the 2000s.",
+      "It's an upbeat song by a hip-hop duo.",
+      "The duo is from Atlanta.",
+      "It made shaking a Polaroid picture famous, even though that's bad for the photo.",
+      "It's OutKast's biggest hit, sung by André 3000."
+    ] },
+    { name: "Umbrella", wiki: "Umbrella (song)", year: 2007, tags: ["rnb","pop"], hints: [
+      "It was released in the 2000s.",
+      "It's a pop-R&B song by a female singer.",
+      "It features Jay-Z.",
+      "It spent 10 weeks at No. 1 in the UK during a famously rainy summer.",
+      "It was Rihanna's breakout hit."
+    ] },
+    { name: "In da Club", year: 2003, tags: ["hiphop"], hints: [
+      "It was released in the 2000s.",
+      "It's a rap song.",
+      "It was produced by Dr. Dre.",
+      "It's a party anthem built around someone's birthday.",
+      "It was 50 Cent's breakout hit."
+    ] },
+    { name: "Lose Yourself", year: 2002, tags: ["hiphop"], hints: [
+      "It was released in the 2000s.",
+      "It's a rap song.",
+      "It was the first rap song to win the Oscar for Best Original Song.",
+      "It's from the movie '8 Mile'.",
+      "It's Eminem's song about seizing your one big chance."
+    ] },
+    { name: "Mr. Brightside", year: 2003, tags: ["rock"], hints: [
+      "It was released in the 2000s.",
+      "It's a rock song by an American band.",
+      "The band is from Las Vegas.",
+      "It's about jealousy and has stayed on the UK charts for years.",
+      "It's The Killers' signature song."
+    ] },
+    { name: "Hips Don't Lie", year: 2006, tags: ["pop","hiphop"], hints: [
+      "It was released in the 2000s.",
+      "It's a Latin pop song by a female singer.",
+      "The singer is from Colombia.",
+      "It features Wyclef Jean.",
+      "It's Shakira's biggest hit, known for her belly dancing."
+    ] },
+    { name: "Single Ladies", wiki: "Single Ladies (Put a Ring on It)", year: 2008, tags: ["rnb","pop"], hints: [
+      "It was released in the 2000s.",
+      "It's an R&B song by a female singer.",
+      "Its black-and-white music video features three dancers.",
+      "Its hand-twisting dance became a worldwide craze.",
+      "It's Beyoncé's anthem telling an ex he should have committed."
+    ] },
+    { name: "Seven Nation Army", year: 2003, tags: ["rock"], hints: [
+      "It was released in the 2000s.",
+      "It's a rock song by an American duo.",
+      "The band is from Detroit.",
+      "Its riff is chanted by crowds at sports stadiums worldwide.",
+      "It's The White Stripes' most famous song."
+    ] },
+    { name: "Bad Romance", year: 2009, tags: ["pop"], hints: [
+      "It was released in the 2000s.",
+      "It's a pop song by an American female singer.",
+      "Its bathhouse-themed music video was once YouTube's most-viewed.",
+      "It opens with a chant of nonsense syllables.",
+      "It's one of Lady Gaga's biggest hits."
+    ] },
+    { name: "Gangnam Style", year: 2012, tags: ["pop","hiphop"], hints: [
+      "It was released in the 2010s.",
+      "It's a K-pop song.",
+      "The singer is from South Korea.",
+      "It was the first YouTube video to reach 1 billion views.",
+      "PSY dances like he's riding an invisible horse."
+    ] },
+    { name: "Happy", wiki: "Happy (Pharrell Williams song)", year: 2013, tags: ["pop","rnb"], hints: [
+      "It was released in the 2010s.",
+      "It's an upbeat pop-soul song by a male singer.",
+      "It was written for the movie 'Despicable Me 2'.",
+      "Its music video is 24 hours long.",
+      "It's Pharrell Williams' feel-good hit."
+    ] },
+    { name: "Sweet Caroline", year: 1969, tags: ["pop"], hints: [
+      "It was released before 1980.",
+      "It's a pop song by an American male singer.",
+      "It was written and sung by Neil Diamond.",
+      "Fans sing it at Boston Red Sox games in the eighth inning.",
+      "Crowds famously shout along with its horn hits after the chorus."
     ] }
   ],
 
@@ -739,6 +1299,146 @@ window.CATALOG = {
       "It's active at night and sleeps upside down.",
       "Many species find food using echolocation.",
       "It's the only mammal that can truly fly."
+    ] },
+    { name: "Lion", tags: ["mammal"], hints: [
+      "It's a mammal.",
+      "It lives mostly in Africa.",
+      "It's a big cat that lives in groups called prides.",
+      "Males are recognized by their big manes.",
+      "It's called the king of the jungle and is famous for its roar."
+    ] },
+    { name: "Tiger", tags: ["mammal"], hints: [
+      "It's a mammal.",
+      "It lives in Asia.",
+      "It's the largest wild cat.",
+      "Unlike most cats, it loves swimming.",
+      "It has orange fur with black stripes."
+    ] },
+    { name: "Gorilla", tags: ["mammal"], hints: [
+      "It's a mammal.",
+      "It lives in Africa.",
+      "It's the largest primate.",
+      "Adult males are called silverbacks.",
+      "This great ape is known for beating its chest."
+    ] },
+    { name: "Wolf", tags: ["mammal"], hints: [
+      "It's a mammal.",
+      "It lives in North America, Europe, and Asia.",
+      "It hunts in packs.",
+      "It's the wild ancestor of the pet dog.",
+      "It howls at night."
+    ] },
+    { name: "Camel", tags: ["mammal"], hints: [
+      "It's a mammal.",
+      "It lives in deserts of Africa and Asia.",
+      "It can go weeks without drinking.",
+      "Its humps store fat, not water.",
+      "It's called the ship of the desert."
+    ] },
+    { name: "Raccoon", tags: ["mammal"], hints: [
+      "It's a mammal.",
+      "It lives in North America.",
+      "It's mostly active at night and often raids trash cans.",
+      "It has nimble front paws and seems to wash its food.",
+      "It has a black 'bandit mask' and a ringed tail."
+    ] },
+    { name: "Hippopotamus", tags: ["mammal"], hints: [
+      "It's a mammal.",
+      "It lives in Africa.",
+      "It spends most of the day in rivers and lakes.",
+      "It's one of the most dangerous animals to humans in Africa.",
+      "Its name means 'river horse', and it has an enormous mouth."
+    ] },
+    { name: "Ostrich", tags: ["bird"], hints: [
+      "It's a bird.",
+      "It lives in Africa.",
+      "It can't fly but can run about 45 miles per hour.",
+      "It lays the largest eggs of any living bird.",
+      "It's the largest bird in the world."
+    ] },
+    { name: "Peacock", wiki: "Indian peafowl", tags: ["bird"], hints: [
+      "It's a bird.",
+      "It comes from South Asia.",
+      "It's the national bird of India.",
+      "Only the males have the dazzling display; the females are called peahens.",
+      "It fans out a huge tail covered in eye-like spots."
+    ] },
+    { name: "Parrot", tags: ["bird"], hints: [
+      "It's a bird.",
+      "Most species live in warm, tropical places.",
+      "It has a curved beak and grips with two toes forward and two back.",
+      "Some species can live more than 60 years.",
+      "It's famous for copying human speech."
+    ] },
+    { name: "Hummingbird", tags: ["bird"], hints: [
+      "It's a bird.",
+      "It lives only in the Americas.",
+      "It's the smallest kind of bird.",
+      "Its heart can beat more than 1,000 times a minute.",
+      "It hovers at flowers and can even fly backward."
+    ] },
+    { name: "Dolphin", tags: ["sea","mammal"], hints: [
+      "It lives in the ocean.",
+      "It's a mammal.",
+      "It's very intelligent and lives in groups called pods.",
+      "It finds food using echolocation clicks.",
+      "It's a playful, smiley-looking swimmer, like Flipper."
+    ] },
+    { name: "Jellyfish", tags: ["sea"], hints: [
+      "It lives in the ocean.",
+      "It has no brain, heart, or bones.",
+      "It's made mostly of water.",
+      "One species can turn back into its young form and is called 'immortal'.",
+      "It drifts through the water trailing stinging tentacles."
+    ] },
+    { name: "Sea turtle", tags: ["sea","reptile"], hints: [
+      "It lives in the ocean.",
+      "It's a reptile.",
+      "Females return to the beach where they hatched to lay eggs.",
+      "Its babies race across the sand to the ocean after hatching.",
+      "It swims with flippers and carries a shell on its back."
+    ] },
+    { name: "Seahorse", tags: ["sea"], hints: [
+      "It lives in the ocean.",
+      "It's a fish.",
+      "It swims upright and grips seagrass with its tail.",
+      "The fathers carry and give birth to the babies.",
+      "Its head looks like a tiny horse's."
+    ] },
+    { name: "Orca", tags: ["sea","mammal"], hints: [
+      "It lives in the ocean.",
+      "It's a mammal.",
+      "It's the largest member of the dolphin family.",
+      "It's a top predator that even hunts sharks.",
+      "It's the black-and-white 'killer whale' from 'Free Willy'."
+    ] },
+    { name: "Komodo dragon", tags: ["reptile"], hints: [
+      "It's a reptile.",
+      "It lives in Asia.",
+      "It lives only on a few islands in Indonesia.",
+      "Its bite contains venom.",
+      "It's the largest lizard in the world."
+    ] },
+    { name: "Crocodile", tags: ["reptile"], hints: [
+      "It's a reptile.",
+      "It lives in tropical rivers and coasts around the world.",
+      "Its family has been around since the age of the dinosaurs.",
+      "Its saltwater species is the largest living reptile.",
+      "It has a long snout and lurks with just its eyes above the water."
+    ] },
+    { name: "Frog", tags: ["reptile"], hints: [
+      "It's an amphibian.",
+      "It lives on every continent except Antarctica.",
+      "It starts life as a tadpole.",
+      "It absorbs water through its skin and has no tail as an adult.",
+      "It croaks and hops on long back legs."
+    ] },
+    { name: "King cobra", tags: ["reptile"], hints: [
+      "It's a reptile.",
+      "It lives in Asia.",
+      "It's the longest venomous snake in the world.",
+      "It mainly eats other snakes.",
+      "It rears up and spreads a hood when threatened."
     ] }
   ],
 
@@ -882,6 +1582,146 @@ window.CATALOG = {
       "It's a classic comfort food for kids.",
       "A famous boxed version comes with a powdered orange sauce mix.",
       "It's elbow pasta in a creamy cheddar sauce."
+    ] },
+    { name: "Nachos", tags: ["snacks","mexican"], hints: [
+      "It's usually eaten warm.",
+      "It's a snack made for sharing.",
+      "It was invented in Mexico, near the Texas border, in the 1940s.",
+      "It's a stadium and movie theater favorite.",
+      "It's tortilla chips covered in melted cheese and jalapeños."
+    ] },
+    { name: "French fries", tags: ["snacks","european"], hints: [
+      "It's a savory food.",
+      "It's often a side dish.",
+      "Belgium and France both claim to have invented it.",
+      "It's often dipped in ketchup, or mayo in much of Europe.",
+      "It's thin strips of potato deep-fried until crispy."
+    ] },
+    { name: "Pretzel", tags: ["snacks","european"], hints: [
+      "It's a savory snack.",
+      "It's a baked good.",
+      "It's popular in Germany, especially at Oktoberfest.",
+      "It's dipped in a lye bath before baking, giving it a dark, shiny crust.",
+      "It's twisted into a knot and sprinkled with coarse salt."
+    ] },
+    { name: "Spring rolls", wiki: "Spring roll", tags: ["snacks","asian"], hints: [
+      "It's a savory snack.",
+      "It's from Asia.",
+      "It's a common appetizer at Chinese and Vietnamese restaurants.",
+      "It can be fried until crispy or served fresh in rice paper.",
+      "It's a thin wrapper wound tightly around vegetables or meat."
+    ] },
+    { name: "Chocolate chip cookie", tags: ["desserts","american"], hints: [
+      "It's a sweet treat.",
+      "It's baked.",
+      "It was invented in the 1930s at the Toll House Inn in Massachusetts.",
+      "It's often dunked in milk.",
+      "It's a round treat studded with melty cocoa morsels."
+    ] },
+    { name: "Tiramisu", tags: ["desserts","italian"], hints: [
+      "It's a dessert.",
+      "It comes from Italy.",
+      "It's served chilled and doesn't need baking.",
+      "It's made with mascarpone and dusted with cocoa.",
+      "It's layers of coffee-soaked ladyfingers and cream."
+    ] },
+    { name: "Churros", wiki: "Churro", tags: ["desserts","mexican"], hints: [
+      "It's a sweet treat.",
+      "It's popular in Spain and Mexico.",
+      "It's often sold at theme parks and street stalls.",
+      "It's often dipped in thick hot chocolate.",
+      "It's ridged sticks of fried dough rolled in cinnamon sugar."
+    ] },
+    { name: "Donut", wiki: "Doughnut", tags: ["desserts","breakfast","american"], hints: [
+      "It's a sweet treat.",
+      "It's often eaten for breakfast.",
+      "Homer Simpson loves them.",
+      "It's often sold by the dozen, glazed or covered in sprinkles.",
+      "It's a ring of fried dough with a hole in the middle."
+    ] },
+    { name: "Macaron", tags: ["desserts","european"], hints: [
+      "It's a sweet treat.",
+      "It's strongly associated with France.",
+      "It's made with almond flour and egg whites.",
+      "It comes in pastel colors and is sold in fancy boxes.",
+      "It's a small sandwich of two crisp shells with filling in between."
+    ] },
+    { name: "Spaghetti", tags: ["mains","italian"], hints: [
+      "It's a savory dish.",
+      "It comes from Italy.",
+      "It's often eaten by twirling it on a fork.",
+      "'Lady and the Tramp' has a famous scene sharing a plate of it.",
+      "It's long, thin pasta, often served with meatballs."
+    ] },
+    { name: "Quesadilla", tags: ["mains","mexican"], hints: [
+      "It's a savory dish.",
+      "It comes from Mexico.",
+      "It's quick to make in a pan.",
+      "It's usually cut into triangles.",
+      "It's a tortilla folded around melted cheese and grilled."
+    ] },
+    { name: "Fried chicken", tags: ["mains","american"], hints: [
+      "It's a savory dish.",
+      "It's hugely popular in the United States.",
+      "It's strongly associated with the American South.",
+      "KFC built an empire on a secret recipe of 11 herbs and spices.",
+      "It's breaded poultry pieces cooked in hot oil until crispy."
+    ] },
+    { name: "Fish and chips", tags: ["mains","european"], hints: [
+      "It's a savory dish.",
+      "It's from Europe.",
+      "It's a classic British takeout meal.",
+      "It's traditionally sprinkled with malt vinegar and wrapped in paper.",
+      "It's battered, deep-fried cod or haddock with thick-cut fried potatoes."
+    ] },
+    { name: "Paella", tags: ["mains","european"], hints: [
+      "It's a savory dish.",
+      "It's from Europe.",
+      "It comes from Valencia, Spain.",
+      "It's cooked in a wide, shallow pan, and the crispy bottom is prized.",
+      "It's a saffron rice dish often loaded with seafood."
+    ] },
+    { name: "Pho", tags: ["mains","asian"], hints: [
+      "It's a savory dish.",
+      "It's from Asia.",
+      "It's the national dish of Vietnam.",
+      "It's served with fresh herbs, lime, and bean sprouts on the side.",
+      "It's a beef broth soup with rice noodles."
+    ] },
+    { name: "Omelette", tags: ["breakfast","european"], hints: [
+      "It's usually eaten for breakfast.",
+      "It's cooked in a pan.",
+      "Making a perfect French version is a classic test for chefs.",
+      "It's often filled with cheese, ham, or vegetables.",
+      "It's beaten eggs cooked flat and folded over."
+    ] },
+    { name: "French toast", tags: ["breakfast","american"], hints: [
+      "It's usually eaten for breakfast.",
+      "It's cooked on a griddle or in a pan.",
+      "It's a good way to use up stale bread.",
+      "It's often topped with powdered sugar and syrup.",
+      "It's slices of bread soaked in egg and milk, then fried."
+    ] },
+    { name: "Avocado toast", tags: ["breakfast","american"], hints: [
+      "It's often eaten for breakfast or brunch.",
+      "It's a trendy café item.",
+      "It became a joke symbol of millennial spending.",
+      "It's often topped with a poached egg and chili flakes.",
+      "It's a slice of bread topped with smashed green fruit."
+    ] },
+    { name: "Brownie", wiki: "Chocolate brownie", tags: ["desserts","american"], hints: [
+      "It's a dessert.",
+      "It's baked.",
+      "It was invented in the United States in the 1890s.",
+      "It's cut into squares from a pan, and people fight over the corner pieces.",
+      "It's a dense, fudgy chocolate square."
+    ] },
+    { name: "Grilled cheese", wiki: "Cheese sandwich", tags: ["mains","american"], hints: [
+      "It's a savory dish.",
+      "It's a classic American comfort food.",
+      "It's often paired with tomato soup.",
+      "It's cooked in a buttered pan until golden.",
+      "It's a toasted sandwich with melted cheddar inside."
     ] }
   ],
 
@@ -1025,6 +1865,146 @@ window.CATALOG = {
       "It's an Apple TV+ series set in England.",
       "An American college football coach is hired to manage a London soccer team.",
       "Jason Sudeikis stars, and AFC Richmond's locker room has a 'Believe' sign."
+    ] },
+    { name: "I Love Lucy", year: 1951, tags: ["comedy"], hints: [
+      "It first aired in the 1950s.",
+      "It's a sitcom filmed in black and white.",
+      "Its star was married to her co-star in real life.",
+      "In a famous episode, the star stuffs chocolates in her mouth at a speeding conveyor belt.",
+      "Lucille Ball plays a redhead always scheming behind her husband Ricky's back."
+    ] },
+    { name: "The Twilight Zone", wiki: "The Twilight Zone (1959 TV series)", year: 1959, tags: ["scifi"], hints: [
+      "It first aired in the 1950s.",
+      "It's a sci-fi anthology with a different story each episode.",
+      "It was created and introduced by Rod Serling.",
+      "Its stories often end with a shocking twist.",
+      "A famous episode has a gremlin on an airplane wing."
+    ] },
+    { name: "Scooby-Doo, Where Are You!", year: 1969, tags: ["animated","comedy"], hints: [
+      "It first aired in the 1960s.",
+      "It's animated.",
+      "It was made by Hanna-Barbera.",
+      "Its villains are usually people in masks who blame 'meddling kids'.",
+      "Mystery Inc. rides in the Mystery Machine with a cowardly Great Dane."
+    ] },
+    { name: "M*A*S*H", wiki: "M*A*S*H (TV series)", year: 1972, tags: ["comedy","drama"], hints: [
+      "It first aired in the 1970s.",
+      "It's a comedy-drama.",
+      "It's set at an Army hospital during the Korean War.",
+      "Its 1983 finale was the most-watched TV episode in US history for decades.",
+      "Alan Alda plays Hawkeye Pierce, a wisecracking surgeon."
+    ] },
+    { name: "Cheers", year: 1982, tags: ["comedy"], hints: [
+      "It first aired in the 1980s.",
+      "It's a sitcom.",
+      "It's set in a bar in Boston.",
+      "A regular named Norm gets greeted by everyone when he walks in.",
+      "Ted Danson plays Sam Malone, a former Red Sox pitcher who runs the bar."
+    ] },
+    { name: "The Golden Girls", year: 1985, tags: ["comedy"], hints: [
+      "It first aired in the 1980s.",
+      "It's a sitcom.",
+      "It's set in Miami.",
+      "Its characters often bond over cheesecake at the kitchen table.",
+      "Four older women, Dorothy, Rose, Blanche, and Sophia, share a house."
+    ] },
+    { name: "Full House", year: 1987, tags: ["comedy"], hints: [
+      "It first aired in the 1980s.",
+      "It's a family sitcom.",
+      "It's set in San Francisco.",
+      "The Olsen twins shared the role of the youngest daughter.",
+      "Widowed dad Danny Tanner raises three girls with Uncle Jesse and Joey."
+    ] },
+    { name: "The Fresh Prince of Bel-Air", year: 1990, tags: ["comedy"], hints: [
+      "It first aired in the 1990s.",
+      "It's a sitcom.",
+      "Its theme song tells the whole backstory.",
+      "Carlton's dance became one of TV's most famous.",
+      "Will Smith plays a teen from West Philadelphia sent to live with rich relatives."
+    ] },
+    { name: "The X-Files", year: 1993, tags: ["scifi","drama"], hints: [
+      "It first aired in the 1990s.",
+      "It's a sci-fi drama.",
+      "Its tagline says the truth is out there.",
+      "It follows two FBI agents who investigate unexplained cases.",
+      "Mulder believes in aliens, and Scully is the skeptic."
+    ] },
+    { name: "The Sopranos", year: 1999, tags: ["drama"], hints: [
+      "It first aired in the 1990s.",
+      "It's a crime drama.",
+      "It aired on HBO and is set in New Jersey.",
+      "Its main character sees a therapist for panic attacks.",
+      "James Gandolfini plays mob boss Tony."
+    ] },
+    { name: "Family Guy", year: 1999, tags: ["animated","comedy"], hints: [
+      "It first aired in the 1990s.",
+      "It's animated.",
+      "It was created by Seth MacFarlane.",
+      "It's famous for random cutaway gags.",
+      "Peter Griffin's household includes a talking dog and an evil baby named Stewie."
+    ] },
+    { name: "American Idol", year: 2002, tags: ["reality"], hints: [
+      "It first aired in the 2000s.",
+      "It's a reality competition.",
+      "Viewers vote to pick the winner.",
+      "Simon Cowell was its famously harsh original judge.",
+      "Kelly Clarkson and Carrie Underwood became stars by winning this singing contest."
+    ] },
+    { name: "The Amazing Race", year: 2001, tags: ["reality"], hints: [
+      "It first aired in the 2000s.",
+      "It's a reality competition.",
+      "Teams of two travel around the world.",
+      "Teams follow clues to reach each Pit Stop.",
+      "Host Phil Keoghan greets teams on a mat at the end of each leg."
+    ] },
+    { name: "Shark Tank", year: 2009, tags: ["reality"], hints: [
+      "It first aired in the 2000s.",
+      "It's a reality program about business.",
+      "It's based on a Japanese format, known in the UK as 'Dragons' Den'.",
+      "Mark Cuban was one of its investors.",
+      "Entrepreneurs pitch their products to wealthy investors, hoping for a deal."
+    ] },
+    { name: "The Great British Bake Off", year: 2010, tags: ["reality"], hints: [
+      "It first aired in the 2010s.",
+      "It's a reality competition.",
+      "It's filmed in a tent in the English countryside.",
+      "Judge Paul Hollywood is known for his rare handshakes.",
+      "Amateur home cooks compete at cakes, breads, and pastries."
+    ] },
+    { name: "Avatar: The Last Airbender", year: 2005, tags: ["animated","scifi"], hints: [
+      "It first aired in the 2000s.",
+      "It's animated.",
+      "It aired on Nickelodeon.",
+      "Its world has four nations: Water, Earth, Fire, and Air.",
+      "Aang, a young monk with an arrow tattoo, must master all four elements."
+    ] },
+    { name: "Lost", wiki: "Lost (2004 TV series)", year: 2004, tags: ["drama","scifi"], hints: [
+      "It first aired in the 2000s.",
+      "It's a mystery drama.",
+      "It was filmed in Hawaii.",
+      "Its mysteries include a smoke monster, a hatch, and the numbers 4 8 15 16 23 42.",
+      "Survivors of Oceanic Flight 815 are stranded on a strange island."
+    ] },
+    { name: "Modern Family", year: 2009, tags: ["comedy"], hints: [
+      "It first aired in the 2000s.",
+      "It's a sitcom filmed like a documentary.",
+      "It won the Emmy for Outstanding Comedy five years in a row.",
+      "It's set in Los Angeles.",
+      "Phil, Claire, Jay, Gloria, Mitchell, and Cam are part of one big extended household."
+    ] },
+    { name: "Rick and Morty", year: 2013, tags: ["animated","comedy","scifi"], hints: [
+      "It first aired in the 2010s.",
+      "It's animated.",
+      "It airs on Adult Swim.",
+      "In a famous episode, a character turns himself into a pickle.",
+      "A drunk mad scientist drags his grandson on wild adventures across dimensions."
+    ] },
+    { name: "The Crown", wiki: "The Crown (TV series)", year: 2016, tags: ["drama"], hints: [
+      "It first aired in the 2010s.",
+      "It's a historical drama.",
+      "It's a Netflix series that recast its lead actors every two seasons.",
+      "It covers Winston Churchill, Princess Diana, and decades of British history.",
+      "It follows the reign of Queen Elizabeth II."
     ] }
   ],
 
@@ -1168,6 +2148,146 @@ window.CATALOG = {
       "It's a match-three puzzle made by King.",
       "It's known for thousands of levels and asking friends for extra lives.",
       "Players swap colorful sweets to line up three or more."
+    ] },
+    { name: "Space Invaders", year: 1978, tags: ["shooter"], hints: [
+      "It came out in the 1970s.",
+      "It started in arcades.",
+      "It's from Japan, made by Taito.",
+      "Its enemies march faster as you defeat them.",
+      "Players shoot rows of descending pixel aliens."
+    ] },
+    { name: "Asteroids", wiki: "Asteroids (video game)", year: 1979, tags: ["shooter"], hints: [
+      "It came out in the 1970s.",
+      "It started in arcades.",
+      "It was made by Atari.",
+      "A flying saucer sometimes appears and shoots at you.",
+      "A triangle-shaped ship blasts floating space rocks into smaller pieces."
+    ] },
+    { name: "Donkey Kong", wiki: "Donkey Kong (1981 video game)", year: 1981, tags: ["adventure"], hints: [
+      "It came out in the 1980s.",
+      "It started in arcades.",
+      "It was Mario's first appearance, made by Nintendo.",
+      "Players climb ladders and jump over rolling barrels.",
+      "A giant ape carries a woman to the top of a construction site."
+    ] },
+    { name: "Frogger", year: 1981, tags: ["puzzle"], hints: [
+      "It came out in the 1980s.",
+      "It started in arcades.",
+      "It was made by Konami.",
+      "Players hop across logs and turtles on a river.",
+      "A small green amphibian tries to cross a busy road."
+    ] },
+    { name: "Galaga", year: 1981, tags: ["shooter"], hints: [
+      "It came out in the 1980s.",
+      "It started in arcades.",
+      "It's from Namco, the makers of Pac-Man.",
+      "Enemies can capture your ship with a tractor beam.",
+      "Swooping insect-like aliens attack your fighter ship."
+    ] },
+    { name: "Doom", wiki: "Doom (1993 video game)", year: 1993, tags: ["shooter"], hints: [
+      "It came out in the 1990s.",
+      "It's a first-person shooter.",
+      "It was made by id Software and helped create its whole genre.",
+      "It's famous for being ported to almost anything, even calculators.",
+      "A space marine fights demons from Hell on the moons of Mars."
+    ] },
+    { name: "Mortal Kombat", wiki: "Mortal Kombat (1992 video game)", year: 1992, tags: ["racing"], hints: [
+      "It came out in the 1990s.",
+      "It started in arcades.",
+      "Its violence helped lead to video age ratings in the US.",
+      "Its gruesome finishing moves are called Fatalities.",
+      "Scorpion pulls opponents in with a spear and yells 'Get over here!'"
+    ] },
+    { name: "Need for Speed", year: 1994, tags: ["racing"], hints: [
+      "It first came out in the 1990s.",
+      "It's a racing series.",
+      "It's published by Electronic Arts.",
+      "Many entries involve escaping police chases.",
+      "Players race and tune real sports cars in street races."
+    ] },
+    { name: "Gran Turismo", year: 1997, tags: ["racing"], hints: [
+      "It first came out in the 1990s.",
+      "It's a realistic racing series.",
+      "It's a PlayStation exclusive from Japan.",
+      "Some of its top players became real professional race drivers.",
+      "Its tagline calls it 'The Real Driving Simulator'."
+    ] },
+    { name: "Super Smash Bros.", year: 1999, tags: ["racing","party"], hints: [
+      "It first came out in the 1990s.",
+      "It's a fighting series.",
+      "It's made by Nintendo.",
+      "Instead of health bars, damage percentages rise until you're launched off the stage.",
+      "Mario, Pikachu, Link, and Kirby battle each other."
+    ] },
+    { name: "Super Mario 64", year: 1996, tags: ["adventure"], hints: [
+      "It came out in the 1990s.",
+      "It's a 3D platformer.",
+      "It launched alongside Nintendo's N64 console.",
+      "Players collect Power Stars by jumping into paintings.",
+      "The famous plumber explores Princess Peach's castle in full 3D."
+    ] },
+    { name: "Wii Sports", year: 2006, tags: ["party"], hints: [
+      "It came out in the 2000s.",
+      "It's a party-friendly collection of athletic events.",
+      "It came bundled with a Nintendo console.",
+      "Its bowling became a hit in retirement homes.",
+      "Players swing a motion controller to play tennis, baseball, golf, and boxing."
+    ] },
+    { name: "Guitar Hero", year: 2005, tags: ["party"], hints: [
+      "It came out in the 2000s.",
+      "It's a music rhythm title.",
+      "It was developed by Harmonix, who later made Rock Band.",
+      "Players hit colored buttons in time with rock songs.",
+      "Players strum a plastic six-string-shaped controller."
+    ] },
+    { name: "Portal", wiki: "Portal (video game)", year: 2007, tags: ["puzzle"], hints: [
+      "It came out in the 2000s.",
+      "It's a first-person puzzle.",
+      "It was made by Valve.",
+      "A passive-aggressive AI named GLaDOS promises you cake.",
+      "Players solve test rooms with a device that creates linked blue and orange doorways."
+    ] },
+    { name: "The Last of Us", year: 2013, tags: ["adventure"], hints: [
+      "It came out in the 2010s.",
+      "It's a post-apocalyptic action adventure.",
+      "It was made by Naughty Dog and became an HBO series.",
+      "A fungal infection turns people into creatures called Clickers.",
+      "Joel escorts a teenager named Ellie across a ruined America."
+    ] },
+    { name: "Rocket League", year: 2015, tags: ["racing","party"], hints: [
+      "It came out in the 2010s.",
+      "It's an online multiplayer sports title.",
+      "It's free to play and owned by Epic.",
+      "Players can boost, jump, and fly through the air.",
+      "Jet-powered cars play soccer with a giant ball."
+    ] },
+    { name: "Overwatch", wiki: "Overwatch (video game)", year: 2016, tags: ["shooter"], hints: [
+      "It came out in the 2010s.",
+      "It's a team-based first-person shooter.",
+      "It was made by Blizzard.",
+      "Its heroes include Tracer, Mercy, and Reinhardt.",
+      "Two teams of heroes with unique powers battle over objectives."
+    ] },
+    { name: "Pokémon GO", year: 2016, tags: ["adventure","party"], hints: [
+      "It came out in 2016.",
+      "It's played on smartphones while walking around outside.",
+      "It uses augmented reality and real-world maps.",
+      "Players gather at real landmarks that act as gyms and stops.",
+      "Players catch creatures like Pikachu out in the real world."
+    ] },
+    { name: "Stardew Valley", year: 2016, tags: ["sandbox"], hints: [
+      "It came out in 2016.",
+      "It's a relaxing life simulation.",
+      "It was made almost entirely by one developer.",
+      "The hero inherits a run-down farm from their grandfather.",
+      "Players grow crops, fish, mine, and befriend the residents of Pelican Town."
+    ] },
+    { name: "Elden Ring", year: 2022, tags: ["adventure"], hints: [
+      "It came out in the 2020s.",
+      "It's a dark fantasy action adventure.",
+      "It's from FromSoftware, the makers of Dark Souls.",
+      "George R.R. Martin helped write its world's backstory.",
+      "Players explore the Lands Between, known for brutally hard bosses."
     ] }
   ],
 
@@ -1311,6 +2431,146 @@ window.CATALOG = {
       "It's based in Issaquah, Washington, near Seattle.",
       "Its $1.50 hot dog and soda combo hasn't changed price since the 1980s.",
       "It's a members-only warehouse club that sells Kirkland Signature products."
+    ] },
+    { name: "Puma", wiki: "Puma (brand)", year: 1948, tags: ["sportswear"], hints: [
+      "It was founded in the 1940s.",
+      "It makes sportswear.",
+      "It's from Germany.",
+      "Its founder's brother started rival Adidas.",
+      "Its logo is a leaping big cat."
+    ] },
+    { name: "Under Armour", year: 1996, tags: ["sportswear"], hints: [
+      "It was founded in the 1990s.",
+      "It makes athletic clothing.",
+      "It's based in Baltimore, Maryland.",
+      "It started with sweat-wicking shirts worn beneath football pads.",
+      "Its logo is an interlocking U and A."
+    ] },
+    { name: "Lululemon", year: 1998, tags: ["sportswear"], hints: [
+      "It was founded in the 1990s.",
+      "It makes athletic clothing.",
+      "It's from Vancouver, Canada.",
+      "It became famous for women's yoga pants.",
+      "Its red logo is a stylized letter A that looks like a curl of hair."
+    ] },
+    { name: "Ford", wiki: "Ford Motor Company", year: 1903, tags: ["cars"], hints: [
+      "It was founded in the 1900s.",
+      "It makes vehicles.",
+      "It's based in Dearborn, Michigan.",
+      "Its founder popularized the moving assembly line with the Model T.",
+      "It makes the Mustang and the F-150, America's best-selling pickup."
+    ] },
+    { name: "Ferrari", year: 1947, tags: ["cars"], hints: [
+      "It was founded in the 1940s.",
+      "It makes vehicles.",
+      "It's from Maranello, Italy.",
+      "It's the most successful team in Formula 1 history.",
+      "Its red sports cars carry a prancing horse logo."
+    ] },
+    { name: "BMW", year: 1916, tags: ["cars"], hints: [
+      "It was founded in the 1910s.",
+      "It makes vehicles.",
+      "It's from Munich, Germany.",
+      "It started out making aircraft engines.",
+      "Its blue-and-white round logo appears on cars and motorcycles, and it owns Mini."
+    ] },
+    { name: "Honda", year: 1948, tags: ["cars"], hints: [
+      "It was founded in the 1940s.",
+      "It makes vehicles and engines.",
+      "It's from Japan.",
+      "It's the world's largest motorcycle maker.",
+      "It makes the Civic and the Accord."
+    ] },
+    { name: "Meta", wiki: "Meta Platforms", year: 2004, tags: ["tech"], hints: [
+      "It was founded in the 2000s.",
+      "It's an American tech business.",
+      "It was started by Mark Zuckerberg in a Harvard dorm room.",
+      "It owns Instagram and WhatsApp.",
+      "It renamed itself in 2021, but most people still call it Facebook."
+    ] },
+    { name: "YouTube", year: 2005, tags: ["entertainment","tech"], hints: [
+      "It was founded in the 2000s.",
+      "It's an online platform.",
+      "Google bought it in 2006.",
+      "Its first upload was a 19-second clip filmed at the San Diego Zoo.",
+      "It's the world's biggest video-sharing site."
+    ] },
+    { name: "Spotify", year: 2006, tags: ["entertainment","tech"], hints: [
+      "It was founded in the 2000s.",
+      "It's an online platform.",
+      "It's from Sweden.",
+      "It sends every user a personalized year-end recap called Wrapped.",
+      "It's the world's most popular music streaming service, with a green logo."
+    ] },
+    { name: "TikTok", year: 2016, tags: ["entertainment","tech"], hints: [
+      "It launched in the 2010s.",
+      "It's a smartphone app.",
+      "It's owned by ByteDance, from China.",
+      "Its 'For You' page is famous for its powerful algorithm.",
+      "It's the short-video app known for viral dances and trends."
+    ] },
+    { name: "Uber", year: 2009, tags: ["tech"], hints: [
+      "It was founded in the 2000s.",
+      "It's a tech business based in San Francisco.",
+      "Its name became a verb for getting a ride.",
+      "It also delivers food through its Eats service.",
+      "It's the app that lets you hail a ride in a stranger's car."
+    ] },
+    { name: "Airbnb", year: 2008, tags: ["tech"], hints: [
+      "It was founded in the 2000s.",
+      "It's a tech business based in San Francisco.",
+      "Its founders started by renting out air mattresses in their apartment.",
+      "Its looping logo is called the Bélo.",
+      "It's the app for booking stays in people's homes."
+    ] },
+    { name: "Pepsi", year: 1898, tags: ["food"], hints: [
+      "It was created in the 1890s.",
+      "It sells drinks.",
+      "It was invented by a pharmacist in North Carolina.",
+      "Its 'Challenge' blind taste tests targeted its biggest rival.",
+      "It's Coca-Cola's main rival, with a red, white, and blue logo."
+    ] },
+    { name: "Subway", wiki: "Subway (restaurant)", year: 1965, tags: ["food"], hints: [
+      "It was founded in the 1960s.",
+      "It's a restaurant chain.",
+      "It has more locations than almost any other restaurant chain.",
+      "Its slogan was 'Eat Fresh'.",
+      "It sells footlong sandwiches made to order."
+    ] },
+    { name: "Chick-fil-A", year: 1946, tags: ["food"], hints: [
+      "It traces its roots to the 1940s.",
+      "It's a restaurant chain.",
+      "It's based in Atlanta, Georgia.",
+      "Its restaurants are closed on Sundays.",
+      "Its cow mascots tell people to eat more chicken."
+    ] },
+    { name: "Target", wiki: "Target Corporation", year: 1902, tags: ["retail"], hints: [
+      "It was founded in the 1900s.",
+      "It's a retail chain.",
+      "It's based in Minneapolis, Minnesota.",
+      "Its mascot is a white bull terrier named Bullseye.",
+      "Its logo is a red bullseye."
+    ] },
+    { name: "Mattel", year: 1945, tags: ["entertainment"], hints: [
+      "It was founded in the 1940s.",
+      "It makes toys.",
+      "It's based in California.",
+      "It makes Hot Wheels and UNO.",
+      "It created the Barbie doll."
+    ] },
+    { name: "Sony", year: 1946, tags: ["tech","entertainment"], hints: [
+      "It was founded in the 1940s.",
+      "It's a giant electronics and entertainment business.",
+      "It's from Japan.",
+      "It invented the Walkman portable music player.",
+      "It makes the PlayStation."
+    ] },
+    { name: "Domino's", year: 1960, tags: ["food"], hints: [
+      "It was founded in the 1960s.",
+      "It's a restaurant chain.",
+      "It was founded in Michigan.",
+      "It once promised delivery in 30 minutes or less.",
+      "It's a pizza chain whose logo is a game tile with three dots."
     ] }
   ],
 
@@ -1454,6 +2714,146 @@ window.CATALOG = {
       "It launched a hugely successful trading card franchise.",
       "The hero solves an ancient Egyptian puzzle and gains a spirit partner.",
       "Yugi summons the Dark Magician and duels Kaiba's Blue-Eyes White Dragon."
+    ] },
+    { name: "Astro Boy", wiki: "Astro Boy (1963 TV series)", year: 1963, tags: ["scifi","action"], hints: [
+      "It first aired in the 1960s.",
+      "It's a black-and-white sci-fi series based on a manga.",
+      "It was created by Osamu Tezuka, called the 'God of Manga'.",
+      "Its hero has rocket boots and machine guns in his hips.",
+      "A robot child built to replace a scientist's lost son fights for justice."
+    ] },
+    { name: "Speed Racer", year: 1967, tags: ["action"], hints: [
+      "It first aired in the 1960s.",
+      "It's an action series based on a manga.",
+      "Its original Japanese title is 'Mach GoGoGo'.",
+      "A mysterious masked rival turns out to be the hero's long-lost brother.",
+      "A young driver competes in the gadget-filled Mach 5 car."
+    ] },
+    { name: "Mobile Suit Gundam", year: 1979, tags: ["scifi","action"], hints: [
+      "It first aired in the 1970s.",
+      "It's a sci-fi war series.",
+      "It started a huge franchise famous for plastic model kits.",
+      "Its masked rival pilot Char Aznable flies a red machine.",
+      "Amuro Ray pilots the giant white RX-78-2 robot."
+    ] },
+    { name: "Doraemon", year: 1979, tags: ["comedy"], hints: [
+      "It first aired in the 1970s.",
+      "It's a comedy series for kids, based on a manga.",
+      "Japan named its main character an official cultural ambassador.",
+      "Its hero pulls futuristic gadgets from a four-dimensional pocket.",
+      "A blue robot cat from the 22nd century helps a lazy boy named Nobita."
+    ] },
+    { name: "Captain Tsubasa", year: 1983, tags: ["sports"], hints: [
+      "It first aired in the 1980s.",
+      "It's a sports series based on a manga.",
+      "It inspired many real professional players in Japan and Europe.",
+      "Its matches are famous for impossibly long fields and dramatic shots.",
+      "A boy who loves soccer dreams of winning the World Cup for Japan."
+    ] },
+    { name: "Akira", wiki: "Akira (1988 film)", year: 1988, tags: ["scifi","dark"], hints: [
+      "It came out in the 1980s.",
+      "It's a dark sci-fi movie based on a manga.",
+      "It's set in Neo-Tokyo after a world war.",
+      "Its red motorcycle slide has been copied countless times.",
+      "Biker gang leader Kaneda tries to stop his friend Tetsuo, who gains psychic powers."
+    ] },
+    { name: "Ranma ½", year: 1989, tags: ["comedy","action"], hints: [
+      "It first aired in the 1980s.",
+      "It's a martial arts comedy based on a manga.",
+      "It was created by Rumiko Takahashi.",
+      "Its characters fell into cursed springs in China.",
+      "A teen martial artist turns into a girl when splashed with cold water."
+    ] },
+    { name: "Slam Dunk", wiki: "Slam Dunk (manga)", year: 1993, tags: ["sports"], hints: [
+      "It first aired in the 1990s.",
+      "It's a sports series based on a manga.",
+      "It made basketball hugely popular in Japan.",
+      "Its 2022 movie was a huge box office hit.",
+      "Delinquent Hanamichi Sakuragi joins Shohoku High's team to impress a girl."
+    ] },
+    { name: "Detective Conan", wiki: "Case Closed", year: 1996, tags: ["dark"], hints: [
+      "It first aired in the 1990s.",
+      "It's a mystery series based on a manga.",
+      "It has more than 1,000 episodes.",
+      "In the US, it's known as 'Case Closed'.",
+      "A teen sleuth shrunk into a child's body solves murders with gadgets."
+    ] },
+    { name: "Gintama", year: 2006, tags: ["comedy","action"], hints: [
+      "It first aired in the 2000s.",
+      "It's a comedy series based on a manga.",
+      "It's set in an alternate Edo-period Japan taken over by aliens.",
+      "It constantly breaks the fourth wall and parodies other series.",
+      "Silver-haired samurai Gintoki takes odd jobs and loves strawberry milk."
+    ] },
+    { name: "Ouran High School Host Club", year: 2006, tags: ["comedy"], hints: [
+      "It first aired in the 2000s.",
+      "It's a romantic comedy based on a manga.",
+      "It's set at an elite private academy.",
+      "A scholarship student breaks a vase worth 8 million yen.",
+      "Haruhi pays off a debt by dressing as a boy and entertaining girls."
+    ] },
+    { name: "Code Geass", year: 2006, tags: ["scifi","dark"], hints: [
+      "It first aired in the 2000s.",
+      "It's a sci-fi drama with giant robots.",
+      "In it, Japan has been conquered by the Holy Britannian Empire.",
+      "Its hero can command anyone with a single glance.",
+      "Exiled prince Lelouch leads a rebellion as the masked Zero."
+    ] },
+    { name: "Steins;Gate", year: 2011, tags: ["scifi"], hints: [
+      "It first aired in the 2010s.",
+      "It's a sci-fi thriller based on a visual novel.",
+      "It's set in Tokyo's Akihabara district.",
+      "Its characters send texts to the past using a microwave.",
+      "Self-proclaimed mad scientist Okabe battles to undo time-travel disasters."
+    ] },
+    { name: "Kuroko's Basketball", year: 2012, tags: ["sports"], hints: [
+      "It first aired in the 2010s.",
+      "It's a sports series based on a manga.",
+      "Its main team is from Seirin High.",
+      "Its rivals were all part of the legendary 'Generation of Miracles'.",
+      "A nearly invisible player specializes in sneaky passes on the court."
+    ] },
+    { name: "Tokyo Ghoul", year: 2014, tags: ["dark","action"], hints: [
+      "It first aired in the 2010s.",
+      "It's a dark fantasy based on a manga.",
+      "Its creatures can only survive by eating human flesh.",
+      "Its opening song 'Unravel' is hugely famous.",
+      "College student Kaneki becomes half-monster after an organ transplant."
+    ] },
+    { name: "Mob Psycho 100", year: 2016, tags: ["comedy","action"], hints: [
+      "It first aired in the 2010s.",
+      "It's an action comedy based on a manga.",
+      "It was created by ONE, who also made One-Punch Man.",
+      "Its hero's emotions build toward an explosion meter.",
+      "A shy middle schooler with huge psychic powers works for a con-artist medium."
+    ] },
+    { name: "Kaguya-sama: Love Is War", year: 2019, tags: ["comedy"], hints: [
+      "It first aired in 2019.",
+      "It's a romantic comedy based on a manga.",
+      "It's set in an elite academy's student council.",
+      "A narrator dramatically announces who 'won' each episode.",
+      "Two proud geniuses each refuse to confess their feelings first."
+    ] },
+    { name: "Blue Lock", year: 2022, tags: ["sports"], hints: [
+      "It first aired in 2022.",
+      "It's a sports series based on a manga.",
+      "It's about soccer.",
+      "Japan's football union locks 300 strikers in a prison-like training facility.",
+      "Isagi competes to become the world's most selfish striker."
+    ] },
+    { name: "Frieren: Beyond Journey's End", year: 2023, tags: ["action"], hints: [
+      "It first aired in 2023.",
+      "It's a fantasy adventure based on a manga.",
+      "It begins after the heroes have already defeated the Demon King.",
+      "Its main character lives for more than 1,000 years.",
+      "An elf mage reflects on her late human companion Himmel."
+    ] },
+    { name: "Dandadan", year: 2024, tags: ["comedy","action"], hints: [
+      "It first aired in 2024.",
+      "It's a supernatural action comedy based on a manga.",
+      "It mixes aliens with Japanese ghosts and spirits.",
+      "Its first opening song, 'Otonoke', went viral.",
+      "Momo believes in ghosts, and Okarun believes in aliens."
     ] }
   ]
 };

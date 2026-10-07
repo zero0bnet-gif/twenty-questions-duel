@@ -262,6 +262,14 @@ function writeFormHTML(id, forName, secretVal, kindVal) {
     <span class="status err" id="wErr"></span>
     <button class="go" type="submit">Lock it in</button></form>`;
 }
+// Custom games: the secret's writer adds a clue for the guesser every 3 turns.
+const clueDue = (item, used) => { for (let k = 0; k < HC && used >= HE * (k + 1); k++) if (item.hints[k] === undefined || item.hints[k] === null) return k; return -1; };
+function clueFormHTML(id, forName, k, secretName) {
+  return `<form id="${id}" style="display:grid;gap:12px">
+    <div class="field"><label class="label" for="clueIn">Clue ${k + 1} of ${HC} for ${esc(forName)} (their secret: ${esc(secretName)})</label>
+      <input id="clueIn" maxlength="120" placeholder="${k < 2 ? "Start vague, like: It's something you eat." : "Get more specific with each clue."}" autocomplete="off"></div>
+    <div class="actions"><button class="go" type="submit">Give clue</button><button class="ghost" type="button" id="clueSkip">Skip this clue</button></div></form>`;
+}
 function readWriteForm() {
   const secret = (document.getElementById("wSecret").value || "").trim(), kind = document.getElementById("wKind").value;
   if (secret.length < 2) { document.getElementById("wErr").textContent = "Type a secret first."; document.getElementById("wSecret").focus(); return null; }
@@ -367,9 +375,11 @@ function localRecord(action, code) {
   if (code === "c") { L.stage = "ask"; render(); return; }
   if (code === "u") { L.stage = "back"; render(); return; }
   setStatus(action.kind === "q" ? `${p.name} asked. ${LABEL[code]}.` : `${p.name} guessed “${action.text}”. Wrong.`, code === "w");
-  const o = 1 - L.turn;
+  const asker = L.turn, o = 1 - L.turn;
   if (countR(L.players[o].entries) < MAX) { L.turn = o; L.stage = "ask"; }
   else L.stage = localOver().over ? "ask" : "back";
+  // The answerer still holds the device: in a custom game, ask them for a clue when one is due.
+  if (L.custom && !localOver().over && clueDue(p.item, countR(p.entries)) >= 0) { L.clueFor = asker; L.nextStage = L.stage; L.stage = "clue"; }
   render(); focusInput();
 }
 function localVM() {
@@ -387,6 +397,18 @@ function renderCover() {
   const cv = document.getElementById("cover");
   if (screen !== "local" || !L || L.stage === "ask") { cv.hidden = true; return; }
   if (L.stage === "wpass" || L.stage === "write" || L.stage === "start") { renderWriteCover(cv); return; }
+  if (L.stage === "clue") {
+    const g = L.players[L.clueFor], k = clueDue(g.item, countR(g.entries));
+    const done = () => { L.stage = L.nextStage || "ask"; render(); focusInput(); };
+    if (k < 0) { done(); return; }
+    cv.className = "cover p" + (2 - L.clueFor);
+    cv.innerHTML = `<div class="card"><h2>Clue time</h2><p class="lede" style="margin:0">${esc(g.name)} has used ${countR(g.entries)} turns. Write a clue to help them, then hand the device back.</p>
+      ${clueFormHTML("lcForm", g.name, k, g.item.name)}</div>`;
+    document.getElementById("lcForm").onsubmit = e => { e.preventDefault(); const t = document.getElementById("clueIn").value.trim(); if (!t) { document.getElementById("clueIn").focus(); return; } g.item.hints[k] = t.slice(0, 120); done(); };
+    document.getElementById("clueSkip").onclick = () => { g.item.hints[k] = ""; done(); };
+    cv.hidden = false; document.getElementById("clueIn").focus();
+    return;
+  }
   const asker = L.players[L.turn], ans = L.players[1 - L.turn];
   cv.className = "cover p" + (L.stage === "back" ? L.turn + 1 : 2 - L.turn);
   if (L.stage === "pass") {
@@ -571,7 +593,7 @@ function onOppSide() {
       if (Array.isArray(it) && okId(it[0]) && !s.oppQs[it[0]]) s.oppQs[it[0]] = { kind: it[1] === "g" ? "g" : "q", text: String(it[2] || "").slice(0, 120) };
     }
     for (const it of Array.isArray(P.a) ? P.a : []) if (Array.isArray(it) && okId(it[0]) && LABEL[it[1]]) s.ansToMe[it[0]] = it[1];
-    s.hintsToMe = (Array.isArray(P.h) ? P.h : []).slice(0, HC).map(x => String(x).slice(0, 240));
+    s.hintsToMe = (Array.isArray(P.h) ? P.h : []).slice(0, HC).map(x => x == null ? undefined : String(x).slice(0, 240));
     s.oppRv = Array.isArray(P.rv) ? { name: String(P.rv[0]).slice(0, 80), wiki: String(P.rv[1]).slice(0, 120) } : null;
     if (typeof P.oc === "string") s.myCat = P.oc.slice(0, 40);
     s.oppEnded = P.end === true;
@@ -754,7 +776,7 @@ function localSetupHTML() {
       <div style="display:grid;gap:10px"><span class="label">Category</span><div class="cats" id="catBox">${catChips(draft.cat)}</div></div>
       <div id="filterBox">${filtersHTML(draft.cat, draft.filters)}</div>
     </div>
-    <p class="status" id="customNote" ${draft.custom ? "" : "hidden"} style="margin:0">Each player writes a secret for the other. No clues in custom games.</p>
+    <p class="status" id="customNote" ${draft.custom ? "" : "hidden"} style="margin:0">Each player writes a secret for the other, then writes them a clue every 3 turns.</p>
     <button class="go" type="submit" id="dealBtn"></button>
   </form>`;
 }
@@ -785,11 +807,14 @@ function podHTML(vm, p, i) {
   const tag = vm.over ? (vm.winner === i ? `<span class="pill">Winner</span>` : "")
     : p.used >= MAX ? `<span class="pill dim">Out of turns</span>` : active ? `<span class="pill">${yourTurn ? "Your turn" : "Their turn"}</span>` : `<span class="pill dim">Up next</span>`;
   const n = String(p.used).padStart(2, "0");
-  let hints = vm.custom ? `<div class="hint locked">No clues in a custom game</div>` : "";
-  for (let k = 0; k < (vm.custom ? 0 : HC); k++) {
+  let hints = "";
+  for (let k = 0; k < HC; k++) {
     const t = p.hints[k];
     if (t) { hints += `<div class="hint"><span class="hk">Clue ${k + 1}</span>&nbsp; ${esc(t)}</div>`; continue; }
-    if (p.used >= HE * (k + 1)) { hints += `<div class="hint locked">Clue ${k + 1} is on its way</div>`; continue; }
+    if (p.used >= HE * (k + 1)) {
+      hints += `<div class="hint locked">${t === "" ? `Clue ${k + 1} was skipped` : vm.custom ? `Clue ${k + 1} is being written` : `Clue ${k + 1} is on its way`}</div>`;
+      continue;
+    }
     hints += `<div class="hint locked">${k === 0 ? "First clue" : `Clue ${k + 1}`} after turn ${(k + 1) * HE}</div>`;
     break;
   }
@@ -885,6 +910,10 @@ function onlineConsole(vm) {
     return { seat: st.me, kind: "answer", id: q.id, q,
       lead: `<b>${esc(vm.oppName)}</b> ${q.kind === "q" ? "asks" : "guesses"}:`, status: "", statusErr: false };
   }
+  if (s.gameCustom && s.secret) {
+    const k = clueDue(s.secret, st.R[1 - st.me]);
+    if (k >= 0) return { seat: st.me, kind: "clue", k, lead: `<b>Clue time.</b> ${esc(vm.oppName)} has used ${st.R[1 - st.me]} turns. Write them a clue.` };
+  }
   let lead, status = statusMsg, thinking = false;
   if (used >= MAX) { lead = `You're out of turns. ${esc(vm.oppName)} is still playing.`; }
   else if (st.pending) { lead = `Waiting for <b>${esc(vm.oppName)}</b> to answer.`; thinking = true; status = "Waiting"; }
@@ -902,9 +931,18 @@ function renderConsole(c) {
   con.hidden = false;
   con.className = "console p" + (c.seat + 1);
   consoleHandlers = c;
-  const key = c.kind === "answer" ? `a|${c.id}|${c.seat}` : [c.kind, c.seat, c.canAct, c.last, c.lead].join("|");
+  const key = c.kind === "answer" ? `a|${c.id}|${c.seat}` : c.kind === "clue" ? `k|${c.k}` : [c.kind, c.seat, c.canAct, c.last, c.lead].join("|");
   if (key !== lastConsoleKey) {
     lastConsoleKey = key;
+    if (c.kind === "clue") {
+      const s = O.st;
+      con.innerHTML = `<div class="in"><div class="turnline"><span>${c.lead}</span></div>${clueFormHTML("ocForm", s.oppName || "your opponent", c.k, s.secret.name)}</div>`;
+      const save = t => { s.secret.hints[c.k] = t; sendSide(); render(); focusInput(); };
+      document.getElementById("ocForm").onsubmit = e => { e.preventDefault(); const t = document.getElementById("clueIn").value.trim(); if (!t) { document.getElementById("clueIn").focus(); return; } save(t.slice(0, 120)); };
+      document.getElementById("clueSkip").onclick = () => save("");
+      document.getElementById("clueIn").focus();
+      return;
+    }
     if (c.kind === "answer") {
       const q = c.q;
       const btns = q.kind === "q"
@@ -1007,7 +1045,7 @@ function lobbyHTML() {
     <p class="lede" style="margin:0">${s.host ? (canShare ? "Send your friend the invite link, or have them open this page and enter the code." : "Have your friend open this page and enter the code.") : "You're in. The host picks the category and starts the match."}</p>
     <div style="display:grid;gap:8px"><span class="label">Players</span><ul class="roster">${me}${them}</ul></div>
     <div style="display:grid;gap:10px"><span class="label">Secrets${s.host ? "" : " (host picks)"}</span><div class="cats" id="modeBox">${modeChips(custSel, !s.host)}</div></div>
-    ${custSel ? `<p class="status" style="margin:0">Each player writes a secret for the other once the match starts. No clues in custom games.</p>` : `
+    ${custSel ? `<p class="status" style="margin:0">Each player writes a secret for the other once the match starts, then writes them a clue every 3 turns.</p>` : `
     <div style="display:grid;gap:10px"><span class="label">Category${s.host ? "" : " (host picks)"}</span><div class="cats" id="catBox">${catChips(catSel, !s.host)}</div></div>
     <div id="filterBox">${filtersHTML(catSel, fltSel, !s.host)}</div>`}
     <div class="actions">${action}</div>

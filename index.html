@@ -127,6 +127,7 @@ h1,h2,h3{font-weight:700;text-wrap:balance;margin:0}
 .ans.n,.ans.w{color:var(--no);text-shadow:0 0 8px var(--no);box-shadow:0 0 8px rgba(255,92,122,.4)}
 .ans.s{color:var(--amber);text-shadow:0 0 8px var(--amber)}
 .ans.u,.ans.p{color:var(--muted)}
+.ans.t{color:var(--amber);text-shadow:0 0 8px var(--amber)}
 .empty{color:var(--muted);font-size:.92rem;margin:0}
 
 /* Center screen */
@@ -143,7 +144,7 @@ h1,h2,h3{font-weight:700;text-wrap:balance;margin:0}
 
 /* Console */
 .console{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:2px solid var(--c,var(--blue));box-shadow:0 -6px 22px color-mix(in srgb,var(--c,var(--blue)) 20%,transparent);padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));z-index:5}
-.console .in{max-width:680px;margin:0 auto;display:grid;gap:8px}
+.console .in{max-width:680px;margin:0 auto;display:grid;gap:8px;position:relative}
 .console.p1{--c:var(--p1)} .console.p2{--c:var(--p2)}
 .turnline{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.9rem;color:var(--soft)}
 .turnline b{color:var(--c)}
@@ -198,6 +199,17 @@ h1,h2,h3{font-weight:700;text-wrap:balance;margin:0}
 .result.win{animation:marquee .5s steps(2) 10}
 @keyframes marquee{0%{border-color:var(--amber);box-shadow:0 0 30px rgba(255,179,71,.6)}100%{border-color:var(--pink);box-shadow:0 0 30px rgba(255,79,216,.6)}}
 #confetti{position:fixed;inset:0;z-index:25;pointer-events:none}
+.reacts .more{width:auto;padding:0 14px;border-radius:999px;font-size:.88rem;font-weight:700;color:var(--soft)}
+.emojipick{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:min(94vw,520px);max-height:min(46vh,300px);overflow:auto;background:var(--panel);border:2px solid var(--amber);border-radius:22px;padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px;box-shadow:0 0 22px rgba(255,179,71,.35);z-index:6}
+.emojipick button{height:44px;border-radius:12px;border:0;background:var(--raise);font-size:1.45rem;line-height:1;padding:0}
+.emojipick button:hover,.emojipick button:focus-visible{background:var(--line2)}
+.clock{display:inline-flex;align-items:baseline;gap:8px;padding:4px 14px;border-radius:999px;border:1.5px solid var(--amber);color:var(--amber);font-weight:700;font-variant-numeric:tabular-nums;box-shadow:0 0 12px rgba(255,179,71,.3)}
+.clock b{font-size:1.6rem;line-height:1.1;text-shadow:0 0 10px rgba(255,179,71,.8)}
+.clock .ck{font-size:.8rem;color:var(--soft);font-weight:600}
+.clock.low{border-color:var(--no);color:var(--no);box-shadow:0 0 16px rgba(255,92,122,.5);animation:pulse .5s ease-in-out infinite alternate}
+.clock.low b{text-shadow:0 0 12px var(--no)}
+.clock.idle{opacity:.5;box-shadow:none}
+@keyframes pulse{to{transform:scale(1.06)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -251,8 +263,8 @@ function filterSummary(cat, f) {
   return groupOptions(cat).filter(g => sel[g.id]).map(g => g.opts.filter(o => sel[g.id].includes(o.key)).map(o => o.label).join(" or ")).join(" · ");
 }
 const MAX = 20, HE = 3, HC = 5, PREFIX = "tq-duel-v1-";
-const COUNTS = new Set(["y","n","s","w","c"]);
-const LABEL = { y:"YES", n:"NO", s:"SOMETIMES", w:"WRONG", c:"RIGHT", u:"REPHRASE", p:"…" };
+const COUNTS = new Set(["y","n","s","w","c","t"]);
+const LABEL = { y:"YES", n:"NO", s:"SOMETIMES", w:"WRONG", c:"RIGHT", u:"REPHRASE", t:"TIME", p:"…" };
 
 // ---------- Utilities ----------
 const pick = a => a[Math.floor(Math.random() * a.length)];
@@ -267,6 +279,10 @@ const customKind = k => String(k || "").trim().slice(0, 30) || "Custom";
 function modeChips(custom, disabled) {
   return [["catalog", "From the catalog"], ["custom", "Write your own"]].map(([v, l], i) =>
     `<input type="radio" name="smode" id="smode-${i}" value="${v}" ${(v === "custom") === !!custom ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="smode-${i}">${l}</label>`).join("");
+}
+const TIMERS = [[0, "Off"], [30, "30 sec"], [60, "60 sec"], [90, "90 sec"]];
+function timerChips(sel, disabled) {
+  return TIMERS.map(([v, l], i) => `<input type="radio" name="tmr" id="tmr-${i}" value="${v}" ${(+sel || 0) === v ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="tmr-${i}">${l}</label>`).join("");
 }
 function writeFormHTML(id, forName, secretVal, kindVal) {
   return `<form class="writeform" id="${id}" style="display:grid;gap:14px">
@@ -340,7 +356,7 @@ function dealFrom(catSetting, parity, filters) {
 // ---------- App state ----------
 let screen = "home";   // home | local-setup | local | online
 const params = new URLSearchParams(location.search);
-const draft = { name: LS.get("tq:name") || "", code: (params.get("join") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6), p1: "Player 1", p2: "Player 2", cat: "Mix", filters: {}, custom: false };
+const draft = { name: LS.get("tq:name") || "", code: (params.get("join") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6), p1: "Player 1", p2: "Player 2", cat: "Mix", filters: {}, custom: false, timer: +(LS.get("tq:timer") || 0) };
 let statusMsg = "", statusErr = false, lastConsoleKey = "";
 const setStatus = (m, err) => { statusMsg = m || ""; statusErr = !!err; };
 const PeerOK = typeof window.Peer === "function";
@@ -352,14 +368,14 @@ let L = null;
 function localNew(n1, n2, catChoice, filters, custom) {
   if (custom) {
     L = { players: [{ name: n1, cat: "?", item: null, entries: [] }, { name: n2, cat: "?", item: null, entries: [] }],
-          turn: Math.random() < .5 ? 0 : 1, catChoice, filters, custom: true, writer: 0, stage: "wpass", pending: null };
+          turn: Math.random() < .5 ? 0 : 1, catChoice, filters, custom: true, writer: 0, stage: "wpass", pending: null, timer: draft.timer || 0 };
     screen = "local"; setStatus(""); lastConsoleKey = "";
     render(); return;
   }
   filters = normalizeFilters(catChoice, filters);
   const a = dealFrom(catChoice, 0, filters), b = dealFrom(catChoice === "Mix" ? "Mix" : a.cat, 1, filters);
   L = { players: [{ name: n1, cat: a.cat, item: a.item, entries: [] }, { name: n2, cat: b.cat, item: b.item, entries: [] }],
-        turn: Math.random() < .5 ? 0 : 1, catChoice, filters, stage: "ask", pending: null };
+        turn: Math.random() < .5 ? 0 : 1, catChoice, filters, stage: "ask", pending: null, timer: draft.timer || 0 };
   screen = "local"; setStatus(""); lastConsoleKey = "";
   render(); focusInput();
 }
@@ -397,6 +413,18 @@ function localRecord(action, code) {
   if (L.custom && !localOver().over && clueDue(p.item, countR(p.entries)) >= 0) { L.clueFor = asker; L.nextStage = L.stage; L.stage = "clue"; }
   render(); focusInput();
 }
+function localTimeout() {
+  const p = L.players[L.turn];
+  p.entries.push({ kind: "t", text: "Ran out of time", code: "t" });
+  L.last = { pi: L.turn, idx: p.entries.length - 1 };
+  L.pending = null; L.timeupFor = L.turn; setStatus("");
+  if (localOver().over) { L.stage = "ask"; render(); return; }
+  const o = 1 - L.turn;
+  if (countR(L.players[o].entries) < MAX) { L.turn = o; L.stage = "timeup"; }
+  else if (L.custom && clueDue(p.item, countR(p.entries)) >= 0) { L.clueFor = L.turn; L.nextStage = "ask"; L.stage = "clue"; }
+  else L.stage = "ask";
+  render(); focusInput();
+}
 function localVM() {
   const st = localOver();
   return {
@@ -412,6 +440,20 @@ function renderCover() {
   const cv = document.getElementById("cover");
   if (screen !== "local" || !L || L.stage === "ask") { cv.hidden = true; return; }
   if (L.stage === "wpass" || L.stage === "write" || L.stage === "start") { renderWriteCover(cv); return; }
+  if (L.stage === "timeup") {
+    const loser = L.players[L.timeupFor], next = L.players[L.turn];
+    cv.className = "cover p" + (L.turn + 1);
+    cv.innerHTML = `<div class="card"><h2>Time's up, ${esc(loser.name)}</h2><p class="lede" style="margin:0">That turn counts. Pass to ${esc(next.name)}.</p>
+      <button class="go" id="coverGo">I'm ${esc(next.name)}</button></div>`;
+    document.getElementById("coverGo").onclick = () => {
+      const g = L.players[L.timeupFor];
+      if (L.custom && clueDue(g.item, countR(g.entries)) >= 0) { L.clueFor = L.timeupFor; L.nextStage = "ask"; L.stage = "clue"; }
+      else L.stage = "ask";
+      render(); focusInput();
+    };
+    cv.hidden = false; document.getElementById("coverGo").focus();
+    return;
+  }
   if (L.stage === "clue") {
     const g = L.players[L.clueFor], k = clueDue(g.item, countR(g.entries));
     const done = () => { L.stage = L.nextStage || "ask"; render(); focusInput(); };
@@ -492,7 +534,7 @@ function renderWriteCover(cv) {
 const myPid = SS.get("tq:pid") || (() => { const p = rid(12); SS.set("tq:pid", p); return p; })();
 let O = null;
 function freshOnline(code, host) {
-  return { code, host, cat: "Mix", filters: {}, custom: false, g: null, first: 0, partner: null, oc: null, secret: null, myCat: null,
+  return { code, host, cat: "Mix", filters: {}, custom: false, timer: draft.timer || 0, g: null, first: 0, partner: null, oc: null, secret: null, myCat: null,
     myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, oppName: "", ended: false, oppEnded: false };
 }
 function onlineEnter(code, host) {
@@ -568,7 +610,7 @@ function sideObj() {
   const s = O.st, st = s.g && s.secret ? onlineState() : null;
   return {
     v: 1, pid: myPid, name: (draft.name || "Player").slice(0, 24), host: !!s.host,
-    cat: s.host ? s.cat : null, flt: s.host ? normalizeFilters(s.cat, s.filters) : null, cust: s.host ? !!s.custom : null, g: s.g, first: s.host ? s.first : null, partner: s.host ? s.partner : null, oc: s.oc,
+    cat: s.host ? s.cat : null, flt: s.host ? normalizeFilters(s.cat, s.filters) : null, cust: s.host ? !!s.custom : null, tmr: s.host ? (+s.timer || 0) : null, g: s.g, first: s.host ? s.first : null, partner: s.host ? s.partner : null, oc: s.oc,
     q: s.myQs.map(x => [x.id, x.kind, x.text]),
     a: Object.keys(s.myAns).map(Number).map(id => [id, s.myAns[id]]),
     h: st ? hintsFor(s.secret, st.R[1 - st.me]) : [],
@@ -585,10 +627,11 @@ function sendSide(force) {
   O.lastSent = str;
   try { O.conn.send({ t: "side", side }); } catch (e) {}
 }
-function newOnlineGame(g, catSetting, first, filters, custom) {
+function newOnlineGame(g, catSetting, first, filters, custom, timer) {
   const s = O.st, d = custom ? { cat: null, item: null } : dealFrom(catSetting, s.host ? 0 : 1, filters);
   O.wDraft = { secret: "", kind: "" };
-  Object.assign(s, { g, first, gameCustom: !!custom, oc: d.cat, secret: d.item, myCat: null, myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, ended: false, oppEnded: false });
+  O.deadline = null; O.oppDeadline = null;
+  Object.assign(s, { g, first, gameCustom: !!custom, gameTimer: TIMERS.some(([v]) => v === +timer) ? +timer : 0, oc: d.cat, secret: d.item, myCat: null, myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, ended: false, oppEnded: false });
   setStatus(""); lastConsoleKey = "";
   sendSide();
 }
@@ -596,17 +639,17 @@ function hostStart() {
   const s = O.st;
   if (!O.opp || O.opp.host) return;
   s.partner = O.opp.pid;
-  newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1, s.filters, s.custom);
+  newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1, s.filters, s.custom, s.timer);
   render();
 }
 function onOppSide() {
   const s = O.st, P = O.opp;
   s.oppName = String(P.name || "Opponent").slice(0, 24);
-  if (!s.host && P.host && P.g && P.partner === myPid && P.g !== s.g) newOnlineGame(P.g, P.cat, P.first === 1 ? 1 : 0, P.flt, P.cust === true);
+  if (!s.host && P.host && P.g && P.partner === myPid && P.g !== s.g) newOnlineGame(P.g, P.cat, P.first === 1 ? 1 : 0, P.flt, P.cust === true, P.tmr);
   if (s.g && P.g === s.g) {
     const okId = id => Number.isInteger(id) && id > 0 && id < 200;
     for (const it of Array.isArray(P.q) ? P.q : []) {
-      if (Array.isArray(it) && okId(it[0]) && !s.oppQs[it[0]]) s.oppQs[it[0]] = { kind: it[1] === "g" ? "g" : "q", text: String(it[2] || "").slice(0, 120) };
+      if (Array.isArray(it) && okId(it[0]) && !s.oppQs[it[0]]) s.oppQs[it[0]] = { kind: it[1] === "g" ? "g" : it[1] === "t" ? "t" : "q", text: String(it[2] || "").slice(0, 120) };
     }
     for (const it of Array.isArray(P.a) ? P.a : []) if (Array.isArray(it) && okId(it[0]) && LABEL[it[1]]) s.ansToMe[it[0]] = it[1];
     s.hintsToMe = (Array.isArray(P.h) ? P.h : []).slice(0, HC).map(x => x == null ? undefined : String(x).slice(0, 240));
@@ -625,8 +668,8 @@ function autoJudge() {
     if (q.kind === "g" && !s.myAns[id] && s.secret && localMatch(q.text, s.secret)) s.myAns[id] = "c";
   }
 }
-const myEntries = () => O.st.myQs.map(x => ({ ...x, code: O.st.ansToMe[x.id] }));
-const oppEntries = () => Object.keys(O.st.oppQs).map(Number).sort((a, b) => a - b).map(id => ({ id, ...O.st.oppQs[id], code: O.st.myAns[id] }));
+const myEntries = () => O.st.myQs.map(x => ({ ...x, code: x.kind === "t" ? "t" : O.st.ansToMe[x.id] }));
+const oppEntries = () => Object.keys(O.st.oppQs).map(Number).sort((a, b) => a - b).map(id => ({ id, ...O.st.oppQs[id], code: O.st.oppQs[id].kind === "t" ? "t" : O.st.myAns[id] }));
 function onlineState() {
   const s = O.st, me = s.host ? 0 : 1;
   const mine = myEntries(), theirs = oppEntries();
@@ -674,7 +717,7 @@ function onlineVM() {
 // ===================================================================
 // RENDER
 // ===================================================================
-function render() { renderScreen(); try { soundCheck(); } catch (e) {} }
+function render() { renderScreen(); try { soundCheck(); } catch (e) {} try { timerTick(); } catch (e) {} }
 function renderScreen() {
   const app = document.getElementById("app"), con = document.getElementById("console");
   document.getElementById("homeBtn").hidden = screen === "home";
@@ -789,6 +832,7 @@ function localSetupHTML() {
       <div class="field p2"><label class="label" for="n2">Player 2</label><input id="n2" maxlength="20" value="${esc(draft.p2)}" autocomplete="off"></div>
     </div>
     <div style="display:grid;gap:10px"><span class="label">Secrets</span><div class="cats" id="modeBox">${modeChips(draft.custom)}</div></div>
+    <div style="display:grid;gap:10px"><span class="label">Turn timer</span><div class="cats" id="tmrBox">${timerChips(draft.timer)}</div></div>
     <div id="catArea" ${draft.custom ? "hidden" : ""} style="display:grid;gap:22px">
       <div style="display:grid;gap:10px"><span class="label">Category</span><div class="cats" id="catBox">${catChips(draft.cat)}</div></div>
       <div id="filterBox">${filtersHTML(draft.cat, draft.filters)}</div>
@@ -808,6 +852,7 @@ function bindLocalSetup() {
   };
   refresh();
   document.getElementById("modeBox").addEventListener("change", e => { draft.custom = e.target.value === "custom"; refresh(); });
+  document.getElementById("tmrBox").addEventListener("change", e => { draft.timer = +e.target.value || 0; LS.set("tq:timer", draft.timer); });
   f.addEventListener("input", () => { draft.p1 = document.getElementById("n1").value; draft.p2 = document.getElementById("n2").value; });
   document.getElementById("catBox").addEventListener("change", e => { draft.cat = e.target.value; draft.filters = {}; refresh(); });
   document.getElementById("filterBox").addEventListener("change", () => { draft.filters = normalizeFilters(draft.cat, readFilters(document.getElementById("filterBox"))); refresh(); });
@@ -837,7 +882,7 @@ function podHTML(vm, p, i) {
   }
   const log = p.entries.length ? `<ol class="log">${p.entries.map(e => {
       const code = e.code || "p";
-      const txt = e.kind === "q" ? esc(e.text) : `Guessed “${esc(e.text)}”`;
+      const txt = e.kind === "q" ? esc(e.text) : e.kind === "t" ? "Ran out of time" : `Guessed “${esc(e.text)}”`;
       const note = e.code === "u" ? "Not a yes-or-no question. Turn not used." : "";
       return `<li><span class="q">${txt}${note ? `<span class="note">${note}</span>` : ""}</span><span class="ans ${code}">${LABEL[code]}</span></li>`;
     }).join("")}</ol>` : `<p class="empty">No questions yet.</p>`;
@@ -869,15 +914,20 @@ function centerHTML(vm) {
     const e = L.players[L.last.pi].entries[L.last.idx];
     if (e) { who = `${names[L.last.pi]} ${e.kind === "q" ? "asked" : "guessed"} · ${names[1 - L.last.pi]} answered`; text = e.text; code = e.code; kind = e.kind; }
   }
+  const clock = (vm.mode === "local" ? L && L.timer : O && O.st.gameTimer) && !vm.over ? `<span class="clock idle" id="clockEl" role="timer"></span>` : "";
+  if (kind === "t") {
+    return `<section class="stagebox"><div class="screen">${clock}<span class="who">${esc(who.replace(/ (asked|guessed).*$/, ""))}</span>
+      <p class="bigq">Time's up!</p><span class="sub">The clock ran out, so that turn counts.</span></div></section>`;
+  }
   if (!text) {
     const first = names[vm.turn] || "";
-    return `<section class="stagebox"><div class="screen"><span class="who">Round one</span>
+    return `<section class="stagebox"><div class="screen">${clock}<span class="who">Round one</span>
       <p class="bigq">${esc(first)} goes first</p><span class="sub">Ask a yes-or-no question about your secret.</span></div></section>`;
   }
   const opts = kind === "q" ? [["y", "YES"], ["n", "NO"], ["s", "SORT OF"]] : [["c", "RIGHT"], ["w", "WRONG"]];
   const lights = opts.map(([k, l]) => `<span class="light ${k}${code === k ? " on" : ""}">${l}</span>`).join("");
   if (code === "u") sub = "That wasn't a yes-or-no question. Ask it another way.";
-  return `<section class="stagebox"><div class="screen"><span class="who">${esc(who)}</span>
+  return `<section class="stagebox"><div class="screen">${clock}<span class="who">${esc(who)}</span>
     <p class="bigq">${kind === "q" ? esc(text) : `Is it “${esc(text)}”?`}</p>
     <div class="lights">${lights}</div>${sub ? `<span class="sub">${esc(sub)}</span>` : ""}</div></section>`;
 }
@@ -909,7 +959,7 @@ function bindResult(vm) {
     again.onclick = () => localNew(L.players[0].name, L.players[1].name, L.catChoice, L.filters, L.custom);
     document.getElementById("setupBtn").onclick = () => { screen = "local-setup"; render(); };
   } else if (again) {
-    again.onclick = () => { const s = O.st; newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1, s.filters, s.custom); render(); };
+    again.onclick = () => { const s = O.st; newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1, s.filters, s.custom, s.timer); render(); };
   }
 }
 
@@ -1058,6 +1108,7 @@ function lobbyHTML() {
   const catSel = s.host ? s.cat : (P && P.cat) || "Mix";
   const fltSel = s.host ? s.filters : (P && P.flt) || {};
   const custSel = s.host ? !!s.custom : !!(P && P.cust);
+  const tmrSel = s.host ? (+s.timer || 0) : (P && +P.tmr) || 0;
   const canShare = location.protocol.startsWith("http");
   return `<div class="panel">
     <div class="coderow"><div><span class="label">Match code</span><div class="code">${esc(O.code)}</div></div>
@@ -1065,6 +1116,7 @@ function lobbyHTML() {
     <p class="lede" style="margin:0">${s.host ? (canShare ? "Send your friend the invite link, or have them open this page and enter the code." : "Have your friend open this page and enter the code.") : "You're in. The host picks the category and starts the match."}</p>
     <div style="display:grid;gap:8px"><span class="label">Players</span><ul class="roster">${me}${them}</ul></div>
     <div style="display:grid;gap:10px"><span class="label">Secrets${s.host ? "" : " (host picks)"}</span><div class="cats" id="modeBox">${modeChips(custSel, !s.host)}</div></div>
+    <div style="display:grid;gap:10px"><span class="label">Turn timer${s.host ? "" : " (host picks)"}</span><div class="cats" id="tmrBox">${timerChips(tmrSel, !s.host)}</div></div>
     ${custSel ? `<p class="status" style="margin:0">Each player writes a secret for the other once the match starts, then writes them a clue every 3 turns.</p>` : `
     <div style="display:grid;gap:10px"><span class="label">Category${s.host ? "" : " (host picks)"}</span><div class="cats" id="catBox">${catChips(catSel, !s.host)}</div></div>
     <div id="filterBox">${filtersHTML(catSel, fltSel, !s.host)}</div>`}
@@ -1086,6 +1138,7 @@ function bindLobby() {
   copyBtn("copyLink", inviteLink(), "Copy invite link");
   if (s.host) {
     document.getElementById("modeBox").addEventListener("change", e => { s.custom = e.target.value === "custom"; sendSide(); render(); });
+    document.getElementById("tmrBox").addEventListener("change", e => { s.timer = +e.target.value || 0; draft.timer = s.timer; LS.set("tq:timer", s.timer); sendSide(); render(); });
     const cb = document.getElementById("catBox"), fb = document.getElementById("filterBox");
     if (cb) cb.addEventListener("change", e => { s.cat = e.target.value; s.filters = {}; sendSide(); render(); });
     if (fb) fb.addEventListener("change", () => { s.filters = normalizeFilters(s.cat, readFilters(fb)); sendSide(); render(); });
@@ -1137,6 +1190,56 @@ function paintSoundBtn() {
 document.getElementById("soundBtn").onclick = () => { muted = !muted; LS.set("tq:mute", muted); paintSoundBtn(); if (!muted) play("turn"); };
 paintSoundBtn();
 
+// ---------- Turn timer ----------
+// Only the player whose turn it is gets a clock. It pauses while the device is being passed or a clue
+// is being written, and running out of time uses up the turn.
+SFX.tick = a => tone(a, 1250, 0, .035, "square", .05);
+let lastTickSec = null;
+const fmtClock = ms => { const t = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0"); };
+function timerTick() {
+  const el = document.getElementById("clockEl"), now = Date.now();
+  let left = null, label = "", idle = false;
+  if (screen === "local" && L && L.timer) {
+    const active = L.stage === "ask" && !localOver().over;
+    if (!active) L.deadline = null;
+    else {
+      if (!L.deadline) L.deadline = now + L.timer * 1000;
+      left = L.deadline - now; label = `${L.players[L.turn].name}'s clock`;
+      if (left <= 0) { L.deadline = null; play("w"); localTimeout(); return; }
+    }
+    if (!active && el) { idle = true; label = "Clock paused"; left = L.timer * 1000; }
+  } else if (screen === "online" && O && O.st.gameTimer && O.st.g && O.st.secret && O.st.myCat) {
+    const s = O.st, st = onlineState(), T = s.gameTimer * 1000;
+    const clueBlock = s.gameCustom && clueDue(s.secret, st.R[1 - st.me]) >= 0;
+    const mine = !st.over && O.conn && st.turn === st.me && !st.pending && !st.toAnswer && !clueBlock;
+    const theirs = !st.over && O.conn && st.turn !== st.me && !st.toAnswer;
+    if (!mine) O.deadline = null;
+    if (!theirs) O.oppDeadline = null;
+    if (mine) {
+      if (!O.deadline) O.deadline = now + T;
+      left = O.deadline - now; label = "Your clock";
+      if (left <= 0) { O.deadline = null; play("w"); onlineTimeout(); return; }
+    } else if (theirs) {
+      if (!O.oppDeadline) O.oppDeadline = now + T;
+      left = O.oppDeadline - now; label = `${s.oppName || "Opponent"}'s clock`;
+    } else { idle = true; label = "Clock paused"; left = T; }
+  }
+  if (!el || left === null) return;
+  const sec = Math.max(0, Math.ceil(left / 1000));
+  el.className = "clock" + (idle ? " idle" : sec <= 10 ? " low" : "");
+  el.innerHTML = `<span class="ck">${esc(label)}</span><b>${fmtClock(left)}</b>`;
+  el.setAttribute("aria-label", `${label}: ${sec} seconds left`);
+  if (!idle && sec <= 5 && sec > 0 && sec !== lastTickSec && label !== `${(O && O.st.oppName) || "Opponent"}'s clock`) play("tick");
+  lastTickSec = idle ? null : sec;
+}
+function onlineTimeout() {
+  const s = O.st, id = (s.myQs.length ? s.myQs[s.myQs.length - 1].id : 0) + 1;
+  s.myQs.push({ id, kind: "t", text: "Ran out of time" });
+  clearInput(); setStatus("Time's up. That turn counts.", true);
+  sendSide(); render();
+}
+setInterval(timerTick, 250);
+
 // Watch the game for new answers, clues, turns and endings, and react with sound and confetti.
 let soundPrev = null;
 function gameEvents() {
@@ -1165,7 +1268,8 @@ function soundCheck() {
   let delay = 0;
   const fresh = Object.keys(ev.coded).filter(k => soundPrev.coded[k] !== ev.coded[k]);
   const lastCode = fresh.length ? ev.coded[fresh[fresh.length - 1]] : null;
-  if (lastCode && lastCode !== "c") { play(lastCode); delay = 450; }
+  if (lastCode && lastCode !== "c" && lastCode !== "t") { play(lastCode); delay = 450; }
+  else if (lastCode === "t") delay = 450;
   if (ev.clues > soundPrev.clues) { play("clue", delay); delay += 500; }
   if (ev.over && !soundPrev.over) {
     if (ev.outcome === "win") { play("win", delay); confetti(); }
@@ -1202,10 +1306,37 @@ function confetti() {
 }
 
 // Quick reactions. Online they also go to your opponent.
-const REACTS = ["😂", "😮", "🤔", "🔥", "😬", "👏"];
+// The first 6 sit in the bottom bar; the rest live behind "More". Order matters: online sends the index.
+const REACTS = ["😂", "😮", "🤔", "🔥", "😬", "👏",
+  "🤣", "😅", "😎", "🤯", "😱", "🥳", "😏", "🙄", "😭", "😤",
+  "🤩", "😇", "🫣", "🤫", "🤐", "😴", "🥶", "🥵", "🤡", "👀",
+  "👍", "👎", "🙌", "🤞", "🫡", "💀", "💯", "✨", "🎉", "🏆",
+  "🎯", "🧠", "💡", "❓", "❗", "🚀", "🐐", "🍿", "🎲", "🔮",
+  "🙏", "❤️", "💔", "🫠"];
+const QUICK = 6;
 let lastReactOut = 0, reactIn = [];
-const reactsHTML = () => `<div class="reacts" role="group" aria-label="Send a reaction">${REACTS.map((e, i) => `<button type="button" data-r="${i}" aria-label="React ${e}">${e}</button>`).join("")}</div>`;
-function bindReacts(root) { root.querySelectorAll(".reacts [data-r]").forEach(b => b.onclick = () => sendReact(+b.dataset.r)); }
+const reactsHTML = () => `<div class="reacts" role="group" aria-label="Send a reaction">${REACTS.slice(0, QUICK).map((e, i) => `<button type="button" data-r="${i}" aria-label="React ${e}">${e}</button>`).join("")}<button type="button" class="more" aria-expanded="false" aria-haspopup="true">More</button></div>`;
+function bindReacts(root) {
+  root.querySelectorAll(".reacts [data-r]").forEach(b => b.onclick = () => sendReact(+b.dataset.r));
+  const more = root.querySelector(".reacts .more"); if (!more) return;
+  more.onclick = e => { e.stopPropagation(); togglePicker(root, more); };
+}
+function closePicker() {
+  const p = document.querySelector(".emojipick"); if (p) p.remove();
+  document.querySelectorAll(".reacts .more").forEach(b => b.setAttribute("aria-expanded", "false"));
+}
+function togglePicker(root, more) {
+  if (document.querySelector(".emojipick")) { closePicker(); more.focus(); return; }
+  const pick = document.createElement("div");
+  pick.className = "emojipick"; pick.setAttribute("role", "dialog"); pick.setAttribute("aria-label", "All reactions");
+  pick.innerHTML = REACTS.map((e, i) => `<button type="button" data-r="${i}" aria-label="React ${e}">${e}</button>`).join("");
+  pick.onclick = e => { e.stopPropagation(); const b = e.target.closest("[data-r]"); if (b) { sendReact(+b.dataset.r); closePicker(); } };
+  root.querySelector(".in").appendChild(pick);
+  more.setAttribute("aria-expanded", "true");
+  pick.querySelector("button").focus();
+}
+document.addEventListener("click", e => { if (!e.target.closest(".emojipick")) closePicker(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && document.querySelector(".emojipick")) { closePicker(); const m = document.querySelector(".reacts .more"); if (m) m.focus(); } });
 function sendReact(i) {
   const now = Date.now(); if (now - lastReactOut < 600 || !REACTS[i]) return;
   lastReactOut = now;

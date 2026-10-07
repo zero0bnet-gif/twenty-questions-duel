@@ -6,6 +6,8 @@ A head-to-head guessing game. Each player gets a secret item they can't see. Pla
 - A hint unlocks every 3 turns: 5 hints, from very vague to nearly a giveaway.
 - The end screen reveals both secrets with Wikipedia links.
 - Optional filters narrow a category, like Movies from the 2000s or only Rock songs.
+- **Turn timer:** optional 30, 60, or 90 seconds per turn. Run out of time and the turn counts.
+- **Sounds, confetti, and 50 emoji reactions** (online, reactions show up on your opponent's screen).
 - **Custom secrets:** instead of drawing from the catalog, each player writes the secret their opponent has to guess, then writes them a clue every 3 turns.
 - No accounts, no API keys, no server of your own.
 

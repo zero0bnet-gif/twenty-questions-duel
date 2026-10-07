@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Twenty Questions Duel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: game-show split stage. Two player podiums side by side (stacked on phones), console docked at the bottom. */
+:root{
+  --bg:#e9edf3; --surface:#ffffff; --sunk:#f3f5f9; --ink:#141c29; --muted:#566275; --line:#d3d9e3;
+  --p1:#2453cf; --p1-soft:#e3eafc; --p2:#d9560f; --p2-soft:#fde9dc;
+  --yes:#17824a; --yes-soft:#dcf2e5; --no:#c1302a; --no-soft:#fbe1df; --maybe:#a86a00; --maybe-soft:#fbefd6;
+  --f-display:"Bungee","Arial Black",Impact,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0d121a; --surface:#161e2a; --sunk:#111823; --ink:#e8edf5; --muted:#93a0b3; --line:#283345;
+  --p1:#7f9dff; --p1-soft:#1c2a4d; --p2:#ff9452; --p2-soft:#3d2414;
+  --yes:#4cc785; --yes-soft:#123222; --no:#ff6f66; --no-soft:#3b1716; --maybe:#f0b54a; --maybe-soft:#3a2b0f;
+  color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{min-height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-body);padding-inline:16px}
+.wrap{max-width:1040px;margin:0 auto;padding-block:20px 170px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid var(--p1);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.01em}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.top h1{font-size:clamp(1.4rem,4vw,2rem);line-height:1.1}
+.top h1 .n{color:var(--p2)} .top h1 .v{color:var(--p1)}
+.ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;font-size:.88rem;color:var(--muted)}
+.ghost:hover{color:var(--ink);border-color:var(--muted)}
+.label{font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.banner{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 16px;margin-bottom:16px;color:var(--muted);display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.banner.warn{border-color:var(--no);color:var(--ink)}
+.linkbtn{background:none;border:0;padding:0;color:var(--p1);text-decoration:underline;font-weight:700}
+.status{color:var(--muted)} .status.err{color:var(--no)}
+.dots::after{content:"";animation:dots 1.2s steps(4) infinite}
+@keyframes dots{0%{content:""}25%{content:"."}50%{content:".."}75%{content:"..."}}
+
+/* Panels */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,32px);display:grid;gap:22px}
+.lede{color:var(--muted);max-width:62ch;margin:6px 0 0}
+.field{display:grid;gap:6px}
+.field input{border:2px solid var(--line);background:var(--sunk);border-radius:10px;padding:10px 12px;width:100%}
+.field input:focus{border-color:var(--p1);outline:none}
+.field.p2 input:focus{border-color:var(--p2)}
+.field.p1 .label{color:var(--p1)} .field.p2 .label{color:var(--p2)}
+.names{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.mode{border:2px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px;align-content:start;background:var(--sunk)}
+.mode h3{font-size:1.1rem}
+.mode p{margin:0;color:var(--muted);font-size:.93rem}
+.joinrow{display:flex;gap:8px}
+.joinrow input{flex:1;min-width:0;border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.15em}
+.joinrow input:focus{border-color:var(--p2);outline:none}
+.cats{display:flex;flex-wrap:wrap;gap:8px}
+.cats input{position:absolute;opacity:0;pointer-events:none}
+.cats label{border:2px solid var(--line);border-radius:999px;padding:7px 15px;cursor:pointer;background:var(--sunk);font-weight:700;font-size:.95rem}
+.cats input:checked+label{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.cats input:focus-visible+label{outline:3px solid var(--p1);outline-offset:2px}
+.cats input:disabled+label{cursor:default;opacity:.65}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 22px;margin:0;padding:0;list-style:none;color:var(--muted);font-size:.93rem}
+.rules b{color:var(--ink)}
+.go{font-family:var(--f-display);font-size:1.1rem;background:var(--ink);color:var(--surface);border:0;border-radius:12px;padding:13px 24px;justify-self:start}
+.go.alt{background:var(--p2)} .go.blue{background:var(--p1)}
+.go:disabled{opacity:.4;cursor:not-allowed}
+.code{font-family:var(--f-display);font-size:clamp(2.2rem,9vw,3.4rem);letter-spacing:.12em;color:var(--p2);line-height:1}
+.coderow{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+.roster{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.roster li{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--sunk);flex-wrap:wrap}
+.roster .who{font-weight:700;overflow-wrap:anywhere;min-width:0}
+.tag{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:3px 9px;background:var(--yes-soft);color:var(--yes)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* Stage */
+.stage{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.stage{grid-template-columns:1fr}}
+.pod{background:var(--surface);border:2px solid var(--line);border-radius:18px;overflow:hidden;min-width:0;display:flex;flex-direction:column;transition:border-color .2s,box-shadow .2s}
+.pod.p1{--c:var(--p1);--cs:var(--p1-soft)} .pod.p2{--c:var(--p2);--cs:var(--p2-soft)}
+.pod.active{border-color:var(--c);box-shadow:0 0 0 4px var(--cs)}
+.pod.out{opacity:.62}
+.podhead{background:var(--cs);padding:14px 16px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.podhead h2{font-size:1.3rem;color:var(--c);overflow-wrap:anywhere}
+.secret{font-family:var(--f-mono);font-size:.82rem;color:var(--muted);margin-top:2px}
+.secret b{color:var(--ink)}
+.count{text-align:right;font-family:var(--f-display);color:var(--c);line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+.count .big{font-size:1.9rem} .count .of{font-size:.85rem;color:var(--muted)}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:3px 9px;margin-top:6px;background:var(--c);color:var(--surface)}
+.pill.dim{background:var(--line);color:var(--muted)}
+.podbody{padding:14px 16px;display:grid;gap:16px}
+.hints{display:grid;gap:6px}
+.hint{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:8px 10px;border-radius:10px;background:var(--sunk);font-size:.93rem}
+.meter{display:flex;gap:2px;padding-top:5px}
+.meter i{width:5px;height:12px;border-radius:2px;background:var(--line)}
+.meter i.on{background:var(--c)}
+.hint.locked{color:var(--muted)}
+.hint .t{min-width:0;overflow-wrap:anywhere}
+.log{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.log li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;font-size:.93rem;padding:6px 0;border-bottom:1px solid var(--line)}
+.log li:last-child{border-bottom:0}
+.log .num{font-family:var(--f-mono);color:var(--muted);font-size:.8rem;padding-top:2px;font-variant-numeric:tabular-nums}
+.log .q{min-width:0;overflow-wrap:anywhere}
+.log .note{display:block;color:var(--muted);font-size:.84rem}
+.ans{font-family:var(--f-mono);font-weight:700;font-size:.74rem;border-radius:6px;padding:3px 8px;letter-spacing:.04em;white-space:nowrap}
+.ans.y,.ans.c{background:var(--yes-soft);color:var(--yes)}
+.ans.n,.ans.w{background:var(--no-soft);color:var(--no)}
+.ans.s{background:var(--maybe-soft);color:var(--maybe)}
+.ans.u,.ans.p{background:var(--sunk);color:var(--muted);border:1px solid var(--line)}
+.empty{color:var(--muted);font-size:.92rem;margin:0}
+
+/* Console */
+.console{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:2px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));z-index:5}
+.console .in{max-width:1040px;margin:0 auto;display:grid;gap:8px}
+.console.p1{--c:var(--p1);border-top-color:var(--p1)} .console.p2{--c:var(--p2);border-top-color:var(--p2)}
+.turnline{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.9rem}
+.turnline b{color:var(--c)}
+.row{display:flex;gap:8px}
+.row input{flex:1;min-width:0;border:2px solid var(--line);background:var(--sunk);border-radius:10px;padding:11px 12px}
+.row input:focus{border-color:var(--c);outline:none}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-weight:700;white-space:nowrap}
+.btn.ask{background:var(--c);color:var(--surface)}
+.btn.guess{background:transparent;border:2px solid var(--c);color:var(--c)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.answers{display:flex;gap:8px;flex-wrap:wrap}
+.answers .btn{flex:1 1 110px;font-family:var(--f-mono);letter-spacing:.04em}
+.btn.y{background:var(--yes);color:var(--surface)} .btn.n{background:var(--no);color:var(--surface)}
+.btn.s{background:var(--maybe);color:var(--surface)} .btn.u{background:var(--sunk);color:var(--muted);border:1px solid var(--line)}
+.askedq{font-size:1.1rem;font-weight:700;overflow-wrap:anywhere}
+.yoursecret{font-family:var(--f-mono);font-size:.85rem;color:var(--muted)}
+.yoursecret b{color:var(--ink)}
+
+/* Pass-the-device cover */
+.cover{position:fixed;inset:0;background:var(--bg);z-index:10;display:grid;place-items:center;padding:24px 16px calc(24px + env(safe-area-inset-bottom,0px));overflow:auto}
+.cover .card{background:var(--surface);border:2px solid var(--c,var(--line));border-radius:20px;padding:clamp(20px,5vw,36px);max-width:560px;width:100%;display:grid;gap:18px}
+.cover.p1{--c:var(--p1);--cs:var(--p1-soft)} .cover.p2{--c:var(--p2);--cs:var(--p2-soft)}
+.cover h2{font-size:clamp(1.4rem,5vw,2rem);color:var(--c);line-height:1.15}
+.bigsecret{background:var(--cs);border-radius:14px;padding:14px 16px}
+.bigsecret .what{font-family:var(--f-display);font-size:1.5rem;line-height:1.15;overflow-wrap:anywhere}
+
+/* Results */
+.result{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:clamp(18px,4vw,30px);margin-bottom:16px;display:grid;gap:18px}
+.result h2{font-size:clamp(1.5rem,5vw,2.3rem);line-height:1.1}
+.reveals{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.reveal{border-radius:14px;padding:14px 16px;background:var(--cs)}
+.reveal.p1{--c:var(--p1);--cs:var(--p1-soft)} .reveal.p2{--c:var(--p2);--cs:var(--p2-soft)}
+.reveal .who{color:var(--c);font-weight:700}
+.reveal .what{font-family:var(--f-display);font-size:1.35rem;line-height:1.15;margin:4px 0 8px;overflow-wrap:anywhere}
+.reveal a{color:var(--c);font-weight:700}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1><span class="n">Twenty</span> Questions <span class="v">Duel</span></h1>
+    <button class="ghost" id="homeBtn" hidden>Leave game</button>
+  </header>
+  <div id="app"></div>
+</div>
+<div id="console" class="console" hidden></div>
+<div id="cover" class="cover" hidden></div>
+
+<script src="catalog.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<script>
+"use strict";
+// ---------- Catalog ----------
+const RAW = window.CATALOG || {};
+const okItem = it => it && typeof it.name === "string" && it.name.trim() && Array.isArray(it.hints);
+const CATS = Object.keys(RAW).filter(c => Array.isArray(RAW[c]) && RAW[c].filter(okItem).length >= 2);
+const itemsOf = c => RAW[c].filter(okItem);
+const MAX = 20, HE = 3, HC = 5, PREFIX = "tq-duel-v1-";
+const COUNTS = new Set(["y","n","s","w","c"]);
+const LABEL = { y:"YES", n:"NO", s:"SOMETIMES", w:"WRONG", c:"RIGHT", u:"REPHRASE", p:"…" };
+
+// ---------- Utilities ----------
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const wikiUrl = it => "https://en.wikipedia.org/wiki/Special:Search?go=Go&search=" + encodeURIComponent(it.wiki || it.name);
+const rid = (n, abc = "abcdefghijkmnpqrstuvwxyz23456789") => Array.from({length: n}, () => abc[Math.floor(Math.random() * abc.length)]).join("");
+const CODE_ABC = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const mkStore = s => ({
+  get(k) { try { return JSON.parse(s.getItem(k)); } catch (e) { return null; } },
+  set(k, v) { try { s.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { s.removeItem(k); } catch (e) {} }
+});
+let LS, SS;
+try { LS = mkStore(window.localStorage); } catch (e) { LS = { get(){return null}, set(){}, del(){} }; }
+try { SS = mkStore(window.sessionStorage); } catch (e) { SS = LS; }
+const countR = es => es.filter(e => COUNTS.has(e.code)).length;
+const hasWon = es => es.some(e => e.code === "c");
+const hintsFor = (item, r) => (item ? item.hints : []).slice(0, Math.min(HC, Math.floor(r / HE)));
+
+function norm(s) {
+  return String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/\(.*?\)/g, " ").replace(/&/g, " and ").replace(/[^a-z0-9 ]/g, " ")
+    .replace(/\b(the|a|an)\b/g, " ").replace(/\s+/g, " ").trim();
+}
+function lev(a, b) {
+  const m = a.length, n = b.length; if (!m) return n; if (!n) return m;
+  let prev = Array.from({length: n + 1}, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+function localMatch(guess, item) {
+  const g = norm(guess); if (!g) return false;
+  return [item.name, item.wiki || item.name].map(norm).some(t => {
+    if (g === t || g.replace(/ /g, "") === t.replace(/ /g, "")) return true;
+    const d = lev(g, t);
+    return (t.length >= 5 && d <= 1) || (t.length >= 9 && d <= 2);
+  });
+}
+// Host deals from even positions, guest from odd, so two players never get the same item.
+function dealFrom(catSetting, parity) {
+  const cat = CATS.includes(catSetting) ? catSetting : pick(CATS);
+  const list = itemsOf(cat);
+  const pool = parity == null ? list : list.filter((_, i) => i % 2 === parity);
+  return { cat, item: pick(pool.length ? pool : list) };
+}
+
+// ---------- App state ----------
+let screen = "home";   // home | local-setup | local | online
+const params = new URLSearchParams(location.search);
+const draft = { name: LS.get("tq:name") || "", code: (params.get("join") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6), p1: "Player 1", p2: "Player 2", cat: "Mix" };
+let statusMsg = "", statusErr = false, lastConsoleKey = "";
+const setStatus = (m, err) => { statusMsg = m || ""; statusErr = !!err; };
+const PeerOK = typeof window.Peer === "function";
+
+// ===================================================================
+// SAME-SCREEN MODE (pass the device to answer)
+// ===================================================================
+let L = null;
+function localNew(n1, n2, catChoice) {
+  const a = dealFrom(catChoice, 0), b = dealFrom(catChoice === "Mix" ? "Mix" : a.cat, 1);
+  L = { players: [{ name: n1, cat: a.cat, item: a.item, entries: [] }, { name: n2, cat: b.cat, item: b.item, entries: [] }],
+        turn: Math.random() < .5 ? 0 : 1, catChoice, stage: "ask", pending: null };
+  screen = "local"; setStatus(""); lastConsoleKey = "";
+  render(); focusInput();
+}
+function localOver() {
+  const w = L.players.findIndex(p => hasWon(p.entries));
+  if (w >= 0) return { over: true, winner: w };
+  if (L.players.every(p => countR(p.entries) >= MAX)) return { over: true, winner: null };
+  return { over: false, winner: null };
+}
+function localAct(kind) {
+  const input = document.getElementById("qInput");
+  const text = (input && input.value || "").trim().slice(0, 120);
+  if (!text || L.stage !== "ask") return;
+  const p = L.players[L.turn];
+  if (kind === "q" && countR(p.entries) >= MAX - 1) { setStatus("Last turn. Make your guess.", true); render(); return; }
+  clearInput(); setStatus("");
+  if (kind === "g" && localMatch(text, p.item)) { localRecord({ kind, text }, "c"); return; }
+  L.pending = { kind, text };
+  L.stage = countR(L.players[1 - L.turn].entries) >= 0 ? "pass" : "answer";
+  render();
+}
+function localRecord(action, code) {
+  const p = L.players[L.turn];
+  p.entries.push({ kind: action.kind, text: action.text, code });
+  L.pending = null;
+  if (code === "c") { L.stage = "ask"; render(); return; }
+  if (code === "u") { L.stage = "back"; render(); return; }
+  setStatus(action.kind === "q" ? `${p.name} asked. ${LABEL[code]}.` : `${p.name} guessed “${action.text}”. Wrong.`, code === "w");
+  const o = 1 - L.turn;
+  if (countR(L.players[o].entries) < MAX) { L.turn = o; L.stage = "ask"; }
+  else L.stage = localOver().over ? "ask" : "back";
+  render(); focusInput();
+}
+function localVM() {
+  const st = localOver();
+  return {
+    mode: "local", over: st.over, winner: st.winner, turn: L.turn,
+    players: L.players.map(p => {
+      const used = countR(p.entries);
+      return { name: p.name, cat: p.cat, entries: p.entries, used, hints: hintsFor(p.item, used),
+        secretLine: st.over ? `<b>${esc(p.item.name)}</b>` : "<b>hidden</b>", reveal: p.item };
+    })
+  };
+}
+function renderCover() {
+  const cv = document.getElementById("cover");
+  if (screen !== "local" || !L || L.stage === "ask") { cv.hidden = true; return; }
+  const asker = L.players[L.turn], ans = L.players[1 - L.turn];
+  cv.className = "cover p" + (L.stage === "back" ? L.turn + 1 : 2 - L.turn);
+  if (L.stage === "pass") {
+    cv.innerHTML = `<div class="card"><h2>Pass to ${esc(ans.name)}</h2>
+      <p class="lede" style="margin:0">${esc(ans.name)} answers ${esc(asker.name)}'s ${L.pending.kind === "q" ? "question" : "guess"}. ${esc(asker.name)}, look away so you don't see your secret.</p>
+      <button class="go" id="coverGo" style="background:var(--c)">I'm ${esc(ans.name)}. Show me</button></div>`;
+    document.getElementById("coverGo").onclick = () => { L.stage = "answer"; render(); };
+  } else if (L.stage === "answer") {
+    const q = L.pending;
+    const btns = q.kind === "q"
+      ? `<button class="btn y" data-a="y">YES</button><button class="btn n" data-a="n">NO</button><button class="btn s" data-a="s">SOMETIMES</button><button class="btn u" data-a="u">Not a yes/no question</button>`
+      : `<button class="btn y" data-a="c">RIGHT</button><button class="btn n" data-a="w">WRONG</button>`;
+    cv.innerHTML = `<div class="card"><div class="bigsecret"><span class="label">${esc(asker.name)}'s secret</span><div class="what">${esc(asker.item.name)}</div></div>
+      <div><span class="label">${esc(asker.name)} ${q.kind === "q" ? "asks" : "guesses"}</span><div class="askedq">${q.kind === "q" ? esc(q.text) : `“${esc(q.text)}”`}</div></div>
+      <div class="answers">${btns}</div></div>`;
+    cv.querySelectorAll("[data-a]").forEach(b => b.onclick = () => localRecord(q, b.dataset.a));
+  } else {
+    const last = asker.entries[asker.entries.length - 1];
+    const why = last && last.code === "u" ? `${esc(ans.name)} said that wasn't a yes-or-no question. Ask it another way.` : `${esc(ans.name)} is out of turns, so it's ${esc(asker.name)}'s turn again.`;
+    cv.innerHTML = `<div class="card"><h2>Pass back to ${esc(asker.name)}</h2><p class="lede" style="margin:0">${why}</p>
+      <button class="go" id="coverGo" style="background:var(--c)">I'm ${esc(asker.name)}</button></div>`;
+    document.getElementById("coverGo").onclick = () => { L.stage = "ask"; render(); focusInput(); };
+  }
+  cv.hidden = false;
+  const first = cv.querySelector("button"); if (first) first.focus();
+}
+
+// ===================================================================
+// ONLINE MODE (PeerJS, direct browser-to-browser)
+// Each device deals and answers for its OPPONENT's secret, so nobody's
+// device ever holds its own secret until the reveal.
+// ===================================================================
+const myPid = SS.get("tq:pid") || (() => { const p = rid(12); SS.set("tq:pid", p); return p; })();
+let O = null;
+function freshOnline(code, host) {
+  return { code, host, cat: "Mix", g: null, first: 0, partner: null, oc: null, secret: null, myCat: null,
+    myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, oppName: "" };
+}
+function onlineEnter(code, host) {
+  code = code.toUpperCase();
+  const key = "tq:room:" + code;
+  const saved = SS.get(key);
+  const st = saved && saved.code === code ? saved : freshOnline(code, host);
+  O = { code, key, st, peer: null, conn: null, opp: null, phase: "connecting", err: null, lastSent: "", retries: 0 };
+  SS.set("tq:last", code);
+  screen = "online"; setStatus(""); lastConsoleKey = "";
+  render();
+  if (st.host) startHostPeer(); else startGuestPeer();
+}
+function startHostPeer() {
+  const me = O;
+  const peer = new Peer(PREFIX + O.code, { debug: 0 });
+  O.peer = peer;
+  peer.on("open", () => { if (O !== me) return; O.phase = "ready"; render(); });
+  peer.on("connection", c => {
+    c.on("data", d => { if (O !== me) return; onData(c, d); });
+    c.on("close", () => { if (O !== me || O.conn !== c) return; O.conn = null; O.opp = null; render(); });
+  });
+  peer.on("disconnected", () => { if (O === me && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
+  peer.on("error", e => {
+    if (O !== me) return;
+    if (e.type === "unavailable-id") {
+      if (O.st.g && O.retries < 12) { O.retries++; O.phase = "reclaiming"; render(); peer.destroy(); setTimeout(() => { if (O === me) startHostPeer(); }, 4000); return; }
+      if (!O.st.g) { // code collision on a fresh match: pick a new one
+        peer.destroy(); SS.del(O.key); const c = rid(5, CODE_ABC); O.code = c; O.key = "tq:room:" + c; O.st.code = c; SS.set("tq:last", c); startHostPeer(); render(); return;
+      }
+    }
+    if (e.type === "network" || e.type === "server-error" || e.type === "socket-error" || e.type === "socket-closed") { O.err = "Can't reach the connection service. Check your internet and try again."; render(); }
+  });
+}
+function startGuestPeer() {
+  const me = O;
+  const peer = new Peer({ debug: 0 });
+  O.peer = peer;
+  peer.on("open", () => { if (O !== me) return; guestConnect(); });
+  peer.on("disconnected", () => { if (O === me && !peer.destroyed) setTimeout(() => { try { peer.reconnect(); } catch (e) {} }, 1500); });
+  peer.on("error", e => {
+    if (O !== me) return;
+    if (e.type === "peer-unavailable") { O.phase = "nohost"; render(); return; }
+    if (e.type === "network" || e.type === "server-error" || e.type === "socket-error" || e.type === "socket-closed") { O.err = "Can't reach the connection service. Check your internet and try again."; render(); }
+  });
+}
+function guestConnect() {
+  const me = O;
+  O.phase = "connecting"; render();
+  const c = O.peer.connect(PREFIX + O.code, { reliable: true });
+  c.on("open", () => { if (O !== me) return; O.conn = c; O.phase = "ready"; c.send({ t: "hello", pid: myPid }); O.lastSent = ""; sendSide(true); render(); });
+  c.on("data", d => { if (O !== me) return; onData(c, d); });
+  c.on("close", () => { if (O !== me || O.conn !== c) return; O.conn = null; O.opp = null; O.phase = "lost"; render(); });
+}
+function onlineLeave() {
+  if (O) { try { O.conn && O.conn.close(); } catch (e) {} try { O.peer && O.peer.destroy(); } catch (e) {} SS.del(O.key); SS.del("tq:last"); }
+  O = null; screen = "home"; setStatus(""); render();
+}
+function onData(c, d) {
+  if (!d || typeof d !== "object") return;
+  const s = O.st;
+  if (d.t === "hello" && s.host) {
+    const pid = String(d.pid || "");
+    if (s.partner && s.partner !== pid && s.g) { try { c.send({ t: "full" }); } catch (e) {} setTimeout(() => c.close(), 300); return; }
+    if (O.conn && O.conn !== c) { try { O.conn.close(); } catch (e) {} }
+    O.conn = c; O.lastSent = ""; sendSide(true); render(); return;
+  }
+  if (d.t === "full") { O.phase = "full"; render(); return; }
+  if (d.t === "side" && d.side && d.side.v === 1 && c === O.conn) { O.opp = d.side; onOppSide(); }
+}
+function sideObj() {
+  const s = O.st, st = s.g && s.secret ? onlineState() : null;
+  return {
+    v: 1, pid: myPid, name: (draft.name || "Player").slice(0, 24), host: !!s.host,
+    cat: s.host ? s.cat : null, g: s.g, first: s.host ? s.first : null, partner: s.host ? s.partner : null, oc: s.oc,
+    q: s.myQs.map(x => [x.id, x.kind, x.text]),
+    a: Object.keys(s.myAns).map(Number).map(id => [id, s.myAns[id]]),
+    h: st ? hintsFor(s.secret, st.R[1 - st.me]) : [],
+    rv: st && st.over ? [s.secret.name, s.secret.wiki || s.secret.name] : null
+  };
+}
+function sendSide(force) {
+  if (!O) return;
+  SS.set(O.key, O.st);
+  if (!O.conn || !O.conn.open) return;
+  const side = sideObj(), str = JSON.stringify(side);
+  if (!force && str === O.lastSent) return;
+  O.lastSent = str;
+  try { O.conn.send({ t: "side", side }); } catch (e) {}
+}
+function newOnlineGame(g, catSetting, first) {
+  const s = O.st, d = dealFrom(catSetting, s.host ? 0 : 1);
+  Object.assign(s, { g, first, oc: d.cat, secret: d.item, myCat: null, myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null });
+  setStatus(""); lastConsoleKey = "";
+  sendSide();
+}
+function hostStart() {
+  const s = O.st;
+  if (!O.opp || O.opp.host) return;
+  s.partner = O.opp.pid;
+  newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1);
+  render();
+}
+function onOppSide() {
+  const s = O.st, P = O.opp;
+  s.oppName = String(P.name || "Opponent").slice(0, 24);
+  if (!s.host && P.host && P.g && P.partner === myPid && P.g !== s.g) newOnlineGame(P.g, P.cat, P.first === 1 ? 1 : 0);
+  if (s.g && P.g === s.g) {
+    const okId = id => Number.isInteger(id) && id > 0 && id < 200;
+    for (const it of Array.isArray(P.q) ? P.q : []) {
+      if (Array.isArray(it) && okId(it[0]) && !s.oppQs[it[0]]) s.oppQs[it[0]] = { kind: it[1] === "g" ? "g" : "q", text: String(it[2] || "").slice(0, 120) };
+    }
+    for (const it of Array.isArray(P.a) ? P.a : []) if (Array.isArray(it) && okId(it[0]) && LABEL[it[1]]) s.ansToMe[it[0]] = it[1];
+    s.hintsToMe = (Array.isArray(P.h) ? P.h : []).slice(0, HC).map(x => String(x).slice(0, 240));
+    s.oppRv = Array.isArray(P.rv) ? { name: String(P.rv[0]).slice(0, 80), wiki: String(P.rv[1]).slice(0, 120) } : null;
+    if (typeof P.oc === "string") s.myCat = P.oc.slice(0, 40);
+    autoJudge();
+  }
+  sendSide(); render();
+}
+// A guess that obviously matches is marked right without asking.
+function autoJudge() {
+  const s = O.st;
+  for (const id of Object.keys(s.oppQs).map(Number)) {
+    const q = s.oppQs[id];
+    if (q.kind === "g" && !s.myAns[id] && s.secret && localMatch(q.text, s.secret)) s.myAns[id] = "c";
+  }
+}
+const myEntries = () => O.st.myQs.map(x => ({ ...x, code: O.st.ansToMe[x.id] }));
+const oppEntries = () => Object.keys(O.st.oppQs).map(Number).sort((a, b) => a - b).map(id => ({ id, ...O.st.oppQs[id], code: O.st.myAns[id] }));
+function onlineState() {
+  const s = O.st, me = s.host ? 0 : 1;
+  const mine = myEntries(), theirs = oppEntries();
+  const R = [0, 0]; R[me] = countR(mine); R[1 - me] = countR(theirs);
+  const winner = hasWon(mine) ? me : hasWon(theirs) ? 1 - me : null;
+  const over = winner !== null || (R[0] >= MAX && R[1] >= MAX);
+  const f = s.first, b = 1 - f, out = [R[0] >= MAX, R[1] >= MAX];
+  const turn = out[f] ? b : out[b] ? f : (R[f] <= R[b] ? f : b);
+  const last = mine[mine.length - 1];
+  const pending = !!last && !last.code;
+  const toAnswer = theirs.find(e => !e.code) || null;
+  return { me, mine, theirs, R, winner, over, turn, pending, lastCode: last && last.code, toAnswer };
+}
+function onlineAct(kind) {
+  const input = document.getElementById("qInput");
+  const text = (input && input.value || "").trim().slice(0, 120);
+  if (!text || !O) return;
+  const st = onlineState();
+  if (st.over || st.turn !== st.me || st.pending || !O.conn) return;
+  if (kind === "q" && st.R[st.me] >= MAX - 1) { setStatus("Last turn. Make your guess.", true); render(); return; }
+  const s = O.st, id = (s.myQs.length ? s.myQs[s.myQs.length - 1].id : 0) + 1;
+  s.myQs.push({ id, kind, text });
+  clearInput(); setStatus("");
+  sendSide(); render();
+}
+function onlineAnswer(id, code) {
+  const s = O.st;
+  if (!s.oppQs[id] || s.myAns[id]) return;
+  s.myAns[id] = code;
+  sendSide(); render();
+}
+function onlineVM() {
+  const s = O.st, st = onlineState(), oppName = s.oppName || "Opponent";
+  const meP = { name: (draft.name || "You") + " (you)", cat: s.myCat || "?", entries: st.mine, used: st.R[st.me], hints: s.hintsToMe,
+    secretLine: st.over ? `<b>${esc(s.oppRv ? s.oppRv.name : "…")}</b>` : "<b>hidden</b>", reveal: s.oppRv };
+  const themP = { name: oppName, cat: s.oc, entries: st.theirs, used: st.R[1 - st.me], hints: hintsFor(s.secret, st.R[1 - st.me]),
+    secretLine: `<b>${esc(s.secret.name)}</b>${st.over ? "" : " (you answer for this)"}`, reveal: s.secret };
+  const players = []; players[st.me] = meP; players[1 - st.me] = themP;
+  return { mode: "online", over: st.over, winner: st.winner, turn: st.turn, me: st.me, players, st, oppName };
+}
+
+// ===================================================================
+// RENDER
+// ===================================================================
+function render() {
+  const app = document.getElementById("app"), con = document.getElementById("console");
+  document.getElementById("homeBtn").hidden = screen === "home";
+  renderCover();
+  if (screen === "home") { hideConsole(); app.innerHTML = homeHTML(); bindHome(); return; }
+  if (screen === "local-setup") { hideConsole(); app.innerHTML = localSetupHTML(); bindLocalSetup(); return; }
+  if (screen === "local") {
+    const vm = localVM();
+    app.innerHTML = (vm.over ? resultHTML(vm) : "") + stageHTML(vm);
+    if (vm.over) { hideConsole(); bindResult(vm); } else renderConsole(localConsole(vm));
+    return;
+  }
+  if (screen === "online") renderOnline(app);
+}
+function hideConsole() { document.getElementById("console").hidden = true; lastConsoleKey = ""; }
+
+function homeHTML() {
+  const last = SS.get("tq:last");
+  const noCat = CATS.length === 0;
+  return `${noCat ? `<div class="banner warn">The item catalog didn't load. Make sure catalog.js sits next to index.html.</div>` : ""}
+  ${last && PeerOK ? `<div class="banner"><span>You were in match <b>${esc(last)}</b>.</span><button class="linkbtn" id="rejoinBtn">Rejoin</button></div>` : ""}
+  <div class="panel">
+    <div><h2 style="font-size:1.6rem">Pick your game</h2>
+    <p class="lede">Each player gets a secret they can't see. Take turns asking yes-or-no questions; your opponent sees your secret and answers. First to name their own secret wins.</p></div>
+    <div class="field" style="max-width:340px"><label class="label" for="nameIn">Your name</label><input id="nameIn" maxlength="24" value="${esc(draft.name)}" placeholder="Ana" autocomplete="off"></div>
+    <div class="modes">
+      <div class="mode"><h3>Start an online match</h3><p>Get a code or link to send a friend. You each play on your own device.</p>
+        <button class="go" id="createBtn" ${noCat || !PeerOK ? "disabled" : ""}>Create match</button></div>
+      <div class="mode"><h3>Join a friend</h3><p>Enter the code your friend sent you.</p>
+        <form class="joinrow" id="joinForm"><input id="codeIn" maxlength="6" value="${esc(draft.code)}" placeholder="ABCDE" autocomplete="off" aria-label="Match code">
+        <button class="go alt" type="submit" ${noCat || !PeerOK ? "disabled" : ""}>Join</button></form></div>
+      <div class="mode"><h3>Same screen</h3><p>Two players share one device and pass it back and forth to answer.</p>
+        <button class="go blue" id="localBtn" ${noCat ? "disabled" : ""}>Play here</button></div>
+    </div>
+    ${!PeerOK ? `<p class="status err" style="margin:0">Online play couldn't load. Check your internet connection and reload.</p>` : ""}
+    <ul class="rules">
+      <li><b>20 turns each.</b> A question or a guess uses one turn. Turn 20 must be a guess.</li>
+      <li><b>A hint every 3 turns.</b> Five hints, from very vague to nearly a giveaway.</li>
+      <li><b>Wrong guess?</b> Your turn passes. Run out of turns and you're out.</li>
+    </ul>
+  </div>`;
+}
+function bindHome() {
+  const nameIn = document.getElementById("nameIn");
+  nameIn.addEventListener("input", () => { draft.name = nameIn.value; LS.set("tq:name", draft.name); });
+  const codeIn = document.getElementById("codeIn");
+  codeIn.addEventListener("input", () => { draft.code = codeIn.value.toUpperCase().replace(/[^A-Z0-9]/g, ""); });
+  const needName = () => { if (!draft.name.trim()) { nameIn.focus(); nameIn.placeholder = "Enter your name first"; return true; } return false; };
+  document.getElementById("createBtn").addEventListener("click", () => { if (!needName()) onlineEnter(rid(5, CODE_ABC), true); });
+  document.getElementById("joinForm").addEventListener("submit", e => {
+    e.preventDefault(); if (needName()) return;
+    if (draft.code.length < 4) { codeIn.focus(); return; }
+    onlineEnter(draft.code, false);
+  });
+  document.getElementById("localBtn").addEventListener("click", () => { if (draft.name.trim()) draft.p1 = draft.name.trim(); screen = "local-setup"; render(); });
+  const rj = document.getElementById("rejoinBtn");
+  if (rj) rj.addEventListener("click", () => { const c = SS.get("tq:last"), sv = SS.get("tq:room:" + c); onlineEnter(c, !!(sv && sv.host)); });
+  if (draft.code && !draft.name) nameIn.focus();
+}
+function catChips(selected, disabled) {
+  return ["Mix", ...CATS].map(c => `<input type="radio" name="cat" id="cat-${esc(c)}" value="${esc(c)}" ${selected === c ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="cat-${esc(c)}">${c === "Mix" ? "Mix it up" : esc(c)}</label>`).join("");
+}
+function localSetupHTML() {
+  return `<form class="panel" id="setupForm">
+    <div><h2 style="font-size:1.6rem">Same-screen match</h2><p class="lede">When it's time to answer, the game asks you to pass the device so only the answerer sees the secret.</p></div>
+    <div class="names">
+      <div class="field p1"><label class="label" for="n1">Player 1</label><input id="n1" maxlength="20" value="${esc(draft.p1)}" autocomplete="off"></div>
+      <div class="field p2"><label class="label" for="n2">Player 2</label><input id="n2" maxlength="20" value="${esc(draft.p2)}" autocomplete="off"></div>
+    </div>
+    <div style="display:grid;gap:10px"><span class="label">Category</span><div class="cats">${catChips(draft.cat)}</div>
+      <span class="status" style="font-size:.88rem">“Mix it up” gives each player a different random category.</span></div>
+    <button class="go" type="submit">Deal secrets</button>
+  </form>`;
+}
+function bindLocalSetup() {
+  const f = document.getElementById("setupForm");
+  f.addEventListener("input", () => {
+    draft.p1 = document.getElementById("n1").value; draft.p2 = document.getElementById("n2").value;
+    draft.cat = (f.querySelector("input[name=cat]:checked") || {}).value || "Mix";
+  });
+  f.addEventListener("submit", e => { e.preventDefault(); localNew(draft.p1.trim() || "Player 1", draft.p2.trim() || "Player 2", draft.cat); });
+}
+
+function podHTML(vm, p, i) {
+  const active = !vm.over && vm.turn === i && p.used < MAX;
+  const hints = [0,1,2,3,4].map(k => {
+    const meter = `<span class="meter" aria-label="Precision ${k + 1} of 5">${[0,1,2,3,4].map(m => `<i class="${m <= k ? "on" : ""}"></i>`).join("")}</span>`;
+    const t = p.hints[k];
+    const unlocked = p.used >= HE * (k + 1);
+    const body = t ? esc(t) : unlocked ? "No hint written for this one." : `Hint ${k + 1} unlocks after turn ${(k + 1) * HE}`;
+    return `<div class="hint${t ? "" : " locked"}">${meter}<span class="t">${body}</span></div>`;
+  }).join("");
+  const log = p.entries.length ? `<ol class="log">${p.entries.map((e, k) => {
+      const code = e.code || "p";
+      const txt = e.kind === "q" ? esc(e.text) : `Guessed “${esc(e.text)}”`;
+      const note = e.code === "u" ? "Not a yes-or-no question. Turn not used." : "";
+      return `<li><span class="num">${String(k + 1).padStart(2, "0")}</span><span class="q">${txt}${note ? `<span class="note">${note}</span>` : ""}</span><span class="ans ${code}">${LABEL[code]}</span></li>`;
+    }).join("")}</ol>` : `<p class="empty">No questions yet.</p>`;
+  const yourTurn = vm.mode === "local" || i === vm.me;
+  const tag = vm.over ? (vm.winner === i ? `<span class="pill">Winner</span>` : "")
+    : p.used >= MAX ? `<span class="pill dim">Out of turns</span>` : active ? `<span class="pill">${yourTurn ? "Your turn" : "Their turn"}</span>` : `<span class="pill dim">Waiting</span>`;
+  return `<section class="pod p${i + 1}${active ? " active" : ""}${p.used >= MAX && !vm.over ? " out" : ""}">
+    <div class="podhead"><div style="min-width:0"><h2>${esc(p.name)}</h2>
+      <div class="secret">Category: <b>${esc(p.cat)}</b> · Secret: ${p.secretLine}</div>${tag}</div>
+      <div class="count"><span class="big">${p.used}</span><span class="of"> / ${MAX}</span><div class="label" style="margin-top:4px">turns</div></div></div>
+    <div class="podbody">
+      <div class="hints"><span class="label">Hints</span>${hints}</div>
+      <div style="display:grid;gap:6px"><span class="label">Questions</span>${log}</div>
+    </div></section>`;
+}
+const stageHTML = vm => `<div class="stage">${vm.players.map((p, i) => podHTML(vm, p, i)).join("")}</div>`;
+
+function resultHTML(vm) {
+  const w = vm.winner;
+  let head;
+  if (w === null) head = "Nobody cracked it. It's a draw.";
+  else if (vm.mode === "online") head = w === vm.me ? `You win in ${vm.players[w].used} turns!` : `${esc(vm.oppName)} wins in ${vm.players[w].used} turns.`;
+  else head = `${esc(vm.players[w].name)} wins in ${vm.players[w].used} ${vm.players[w].used === 1 ? "turn" : "turns"}!`;
+  const cards = vm.players.map((p, i) => {
+    const owner = vm.mode === "online" ? (i === vm.me ? "Your secret" : `${esc(vm.oppName)}'s secret`) : `${esc(p.name)}'s secret`;
+    return `<div class="reveal p${i + 1}"><div class="who">${owner}</div>
+      <div class="what">${p.reveal ? esc(p.reveal.name) : "Waiting for reveal…"}</div>
+      ${p.reveal ? `<a href="${wikiUrl(p.reveal)}" target="_blank" rel="noopener">Read about it on Wikipedia ↗</a>` : ""}</div>`;
+  }).join("");
+  let actions;
+  if (vm.mode === "local") actions = `<button class="go" id="againBtn">Play again</button><button class="ghost" id="setupBtn">Change players or category</button>`;
+  else if (O.st.host) actions = `<button class="go" id="againBtn" ${O.conn ? "" : "disabled"}>Play again</button>${O.conn ? "" : `<span class="status">Waiting for ${esc(vm.oppName)} to reconnect.</span>`}`;
+  else actions = `<span class="status dots">Waiting for the host to start a rematch</span>`;
+  return `<section class="result"><h2>${head}</h2><div class="reveals">${cards}</div><div class="actions">${actions}</div></section>`;
+}
+function bindResult(vm) {
+  const again = document.getElementById("againBtn");
+  if (vm.mode === "local") {
+    again.onclick = () => localNew(L.players[0].name, L.players[1].name, L.catChoice);
+    document.getElementById("setupBtn").onclick = () => { screen = "local-setup"; render(); };
+  } else if (again) {
+    again.onclick = () => { const s = O.st; newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1); render(); };
+  }
+}
+
+// ---------- Console ----------
+function localConsole(vm) {
+  const p = vm.players[vm.turn], last = p.used >= MAX - 1;
+  return { seat: vm.turn, kind: "ask", canAct: L.stage === "ask", last,
+    lead: `<b>${esc(p.name)}</b>, ${last ? "make your final guess." : "ask about your secret or take a guess."}`,
+    status: statusMsg || (last ? "Last turn: you must guess." : `Turn ${p.used + 1} of ${MAX}`), statusErr: statusMsg ? statusErr : false,
+    onAct: k => localAct(k) };
+}
+function onlineConsole(vm) {
+  const st = vm.st, used = st.R[st.me], last = used >= MAX - 1, s = O.st;
+  if (st.toAnswer) {
+    const q = st.toAnswer;
+    return { seat: st.me, kind: "answer", id: q.id, q,
+      lead: `<b>${esc(vm.oppName)}</b> ${q.kind === "q" ? "asks" : "guesses"}:`, status: "", statusErr: false };
+  }
+  let lead, status = statusMsg, thinking = false;
+  if (used >= MAX) { lead = `You're out of turns. ${esc(vm.oppName)} is still playing.`; }
+  else if (st.pending) { lead = `Waiting for <b>${esc(vm.oppName)}</b> to answer.`; thinking = true; status = "Waiting"; }
+  else if (st.turn === st.me) lead = `<b>Your turn.</b> ${last ? "Make your final guess." : "Ask about your secret or take a guess."}`;
+  else { lead = `<b>${esc(vm.oppName)}</b> is thinking of a question.`; thinking = true; status = "Waiting"; }
+  if (!O.conn) { lead = `${esc(vm.oppName)} is disconnected.`; thinking = false; status = "Waiting for them to reconnect."; }
+  if (!status) status = last ? "Last turn: you must guess." : `Turn ${used + 1} of ${MAX}`;
+  if (st.lastCode === "u" && !st.pending && st.turn === st.me && !statusMsg) status = `${vm.oppName} says that's not a yes-or-no question. Ask another way.`;
+  return { seat: st.me, kind: "ask", canAct: st.turn === st.me && !st.pending && used < MAX && !!O.conn, last, lead, status,
+    statusErr: statusErr || st.lastCode === "u", thinking, onAct: k => onlineAct(k) };
+}
+let consoleHandlers = null;
+function renderConsole(c) {
+  const con = document.getElementById("console");
+  con.hidden = false;
+  con.className = "console p" + (c.seat + 1);
+  consoleHandlers = c;
+  const key = c.kind === "answer" ? `a|${c.id}|${c.seat}` : [c.kind, c.seat, c.canAct, c.last, c.lead].join("|");
+  if (key !== lastConsoleKey) {
+    lastConsoleKey = key;
+    if (c.kind === "answer") {
+      const q = c.q;
+      const btns = q.kind === "q"
+        ? `<button class="btn y" data-a="y">YES</button><button class="btn n" data-a="n">NO</button><button class="btn s" data-a="s">SOMETIMES</button><button class="btn u" data-a="u">Not yes/no</button>`
+        : `<button class="btn y" data-a="c">RIGHT</button><button class="btn n" data-a="w">WRONG</button>`;
+      con.innerHTML = `<div class="in">
+        <div class="turnline"><span>${c.lead}</span><span class="yoursecret">Their secret: <b>${esc(O.st.secret.name)}</b></span></div>
+        <div class="askedq">${q.kind === "q" ? esc(q.text) : `“${esc(q.text)}”`}</div>
+        <div class="answers">${btns}</div></div>`;
+      con.querySelectorAll("[data-a]").forEach(b => b.onclick = () => onlineAnswer(c.id, b.dataset.a));
+      return;
+    }
+    const keep = document.getElementById("qInput")?.value || "";
+    const hadFocus = document.activeElement && document.activeElement.id === "qInput";
+    con.innerHTML = `<div class="in">
+      <div class="turnline"><span>${c.lead}</span><span id="statusEl" class="status" role="status"></span></div>
+      <form class="row" id="qForm">
+        <input id="qInput" placeholder="${c.last ? "Type your guess" : "Is it bigger than a car?"}" autocomplete="off" maxlength="120" ${c.canAct ? "" : "disabled"} aria-label="Question or guess">
+        <button class="btn ask" type="submit" ${c.canAct && !c.last ? "" : "disabled"}>Ask</button>
+        <button class="btn guess" type="button" id="guessBtn" ${c.canAct ? "" : "disabled"}>Guess</button>
+      </form></div>`;
+    const inp = document.getElementById("qInput");
+    inp.value = keep;
+    if (hadFocus && c.canAct) inp.focus();
+    document.getElementById("qForm").onsubmit = e => { e.preventDefault(); consoleHandlers.onAct(consoleHandlers.last ? "g" : "q"); };
+    document.getElementById("guessBtn").onclick = () => consoleHandlers.onAct("g");
+  }
+  const se = document.getElementById("statusEl");
+  if (se) { se.textContent = c.status; se.className = "status" + (c.statusErr ? " err" : "") + (c.thinking ? " dots" : ""); }
+}
+const clearInput = () => { const i = document.getElementById("qInput"); if (i) i.value = ""; };
+const focusInput = () => setTimeout(() => { const i = document.getElementById("qInput"); if (i && !i.disabled && document.getElementById("cover").hidden) i.focus(); }, 40);
+
+// ---------- Online screens ----------
+function renderOnline(app) {
+  const s = O.st;
+  if (O.err || O.phase === "nohost" || O.phase === "full") {
+    hideConsole();
+    const msg = O.err || (O.phase === "full" ? "That match already has two players." : "No match is open with that code. Check the code, and make sure your friend still has the match open.");
+    app.innerHTML = `<div class="panel"><h2 style="font-size:1.5rem">Can't join match ${esc(O.code)}</h2><p class="lede">${esc(msg)}</p>
+      <div class="actions"><button class="go" id="retryJoin">Try again</button><button class="ghost" id="backHome">Back</button></div></div>`;
+    document.getElementById("retryJoin").onclick = () => { const c = O.code, h = O.st.host; try { O.peer && O.peer.destroy(); } catch (e) {} O = null; onlineEnter(c, h); };
+    document.getElementById("backHome").onclick = onlineLeave;
+    return;
+  }
+  if (!(s.g && s.secret && s.myCat)) { hideConsole(); app.innerHTML = lobbyHTML(); bindLobby(); return; }
+  const vm = onlineVM();
+  let banners = "";
+  if (!O.conn) banners = s.host
+    ? `<div class="banner warn"><span>${esc(vm.oppName)} disconnected. The game resumes when they rejoin with code <b>${esc(O.code)}</b>.</span></div>`
+    : `<div class="banner warn"><span>Lost the connection to ${esc(vm.oppName)}.</span><button class="linkbtn" id="reconBtn">Reconnect</button></div>`;
+  app.innerHTML = (vm.over ? resultHTML(vm) : "") + banners + stageHTML(vm);
+  const rb = document.getElementById("reconBtn"); if (rb) rb.onclick = () => { if (O.peer && !O.peer.destroyed && O.peer.open) guestConnect(); else { const c = O.code; try { O.peer && O.peer.destroy(); } catch (e) {} O = null; onlineEnter(c, false); } };
+  if (vm.over) { hideConsole(); bindResult(vm); } else renderConsole(onlineConsole(vm));
+}
+function inviteLink() { return location.origin + location.pathname + "?join=" + O.code; }
+function lobbyHTML() {
+  const s = O.st, P = O.conn ? O.opp : null;
+  const me = `<li><span class="who">${esc(draft.name || "You")} (you)${s.host ? " · host" : ""}</span><span class="tag">Here</span></li>`;
+  const them = P ? `<li><span class="who">${esc(String(P.name || "Player").slice(0, 24))}${P.host ? " · host" : ""}</span><span class="tag">Here</span></li>` : "";
+  let action;
+  if (O.phase === "reclaiming") action = `<span class="status dots">Reopening the match</span>`;
+  else if (O.phase !== "ready") action = `<span class="status dots">Connecting</span>`;
+  else if (s.host && s.g) action = `<span class="status dots">Starting the match</span>`;
+  else if (s.host) action = `<button class="go" id="startBtn" ${P && !P.host ? "" : "disabled"}>Start match</button><span class="status">${P ? `Playing against ${esc(P.name || "your friend")}.` : "Waiting for your friend to join."}</span>`;
+  else action = `<span class="status dots">Waiting for ${esc((P && P.name) || "the host")} to start</span>`;
+  const catSel = s.host ? s.cat : (P && P.cat) || "Mix";
+  const canShare = location.protocol.startsWith("http");
+  return `<div class="panel">
+    <div class="coderow"><div><span class="label">Match code</span><div class="code">${esc(O.code)}</div></div>
+      ${s.host ? `<div class="actions">${canShare ? `<button class="ghost" id="copyLink">Copy invite link</button>` : ""}<button class="ghost" id="copyCode">Copy code</button></div>` : ""}</div>
+    <p class="lede" style="margin:0">${s.host ? (canShare ? "Send your friend the invite link, or have them open this page and enter the code." : "Have your friend open this page and enter the code.") : "You're in. The host picks the category and starts the match."}</p>
+    <div style="display:grid;gap:8px"><span class="label">Players</span><ul class="roster">${me}${them}</ul></div>
+    <div style="display:grid;gap:10px"><span class="label">Category${s.host ? "" : " (host picks)"}</span><div class="cats" id="catBox">${catChips(catSel, !s.host)}</div></div>
+    <div class="actions">${action}</div>
+  </div>`;
+}
+function copyBtn(id, text, label) {
+  const b = document.getElementById(id); if (!b) return;
+  b.onclick = () => {
+    const done = () => { b.textContent = "Copied"; setTimeout(() => { b.textContent = label; }, 1500); };
+    const fail = () => { b.textContent = "Copy failed"; setTimeout(() => { b.textContent = label; }, 1500); };
+    try { navigator.clipboard.writeText(text).then(done, fail); } catch (e) { fail(); }
+  };
+}
+function bindLobby() {
+  const s = O.st;
+  const sb = document.getElementById("startBtn"); if (sb) sb.onclick = hostStart;
+  copyBtn("copyCode", O.code, "Copy code");
+  copyBtn("copyLink", inviteLink(), "Copy invite link");
+  if (s.host) document.getElementById("catBox").addEventListener("change", e => { s.cat = e.target.value; sendSide(); });
+}
+
+document.getElementById("homeBtn").onclick = () => {
+  if (screen === "online") onlineLeave();
+  else { L = null; screen = "home"; setStatus(""); hideConsole(); render(); }
+};
+window.addEventListener("beforeunload", () => { try { O && O.peer && O.peer.destroy(); } catch (e) {} });
+render();
+</script>
+</body>
+</html>

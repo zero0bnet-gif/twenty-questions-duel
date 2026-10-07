@@ -70,7 +70,7 @@ Open `catalog.js`. Copy any `{ name: ..., hints: [...] },` block inside a catego
 - Add `wiki: "Exact Wikipedia title"` only when the name could land on the wrong Wikipedia page, e.g. `wiki: "Titanic (1997 film)"`.
 - To add a new category, add a new key such as `Sports: [ ... ],`. It appears in the game automatically.
 
-After editing, upload the new `catalog.js` (or commit and push) and the live site updates.
+After editing, upload the new `catalog.js` (or commit and push) and the live site updates. To make sure players get the new list right away instead of a cached copy, also bump the number in `catalog.js?v=2` inside `index.html` (to `v=3`, and so on).
 
 ## Good to know
 

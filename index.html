@@ -199,6 +199,22 @@ h1,h2,h3{font-weight:700;text-wrap:balance;margin:0}
 .result.win{animation:marquee .5s steps(2) 10}
 @keyframes marquee{0%{border-color:var(--amber);box-shadow:0 0 30px rgba(255,179,71,.6)}100%{border-color:var(--pink);box-shadow:0 0 30px rgba(255,79,216,.6)}}
 #confetti{position:fixed;inset:0;z-index:25;pointer-events:none}
+/* Rock paper scissors */
+.rpsrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.rpsbtn{--c:var(--blue);display:grid;justify-items:center;gap:4px;padding:16px 8px;border-radius:24px;border:2px solid var(--c);background:var(--panel);color:var(--ink);font-weight:700;font-size:1rem;box-shadow:0 0 14px color-mix(in srgb,var(--c) 35%,transparent);transition:transform .12s}
+.rpsbtn:nth-child(2){--c:var(--pink)} .rpsbtn:nth-child(3){--c:var(--amber)}
+.rpsbtn:hover{transform:translateY(-3px)} .rpsbtn:active{transform:scale(.95)}
+.rpsbtn .h{font-size:clamp(2.4rem,9vw,3.4rem);line-height:1.1}
+.rpsface{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;text-align:center}
+.rpsface .side{display:grid;gap:4px;justify-items:center;min-width:0}
+.rpsface .h{font-size:clamp(3rem,12vw,4.6rem);line-height:1;animation:shake .6s ease-out}
+.rpsface .nm{font-weight:700;overflow-wrap:anywhere}
+.rpsface .vs{font-family:var(--f-logo);color:var(--muted);font-size:1.4rem}
+.rpsface .side.won .h{filter:drop-shadow(0 0 14px var(--amber))}
+.rpsface .side.won .nm{color:var(--amber);text-shadow:0 0 10px rgba(255,179,71,.7)}
+.rpsface .side.lost{opacity:.55}
+@keyframes shake{0%{transform:translateY(-14px) rotate(-12deg)}25%{transform:translateY(6px) rotate(10deg)}50%{transform:translateY(-8px) rotate(-6deg)}100%{transform:none}}
+.rpsmsg{text-align:center;font-weight:700;font-size:1.15rem}
 .reacts .more{width:auto;padding:0 14px;border-radius:999px;font-size:.88rem;font-weight:700;color:var(--soft)}
 .emojipick{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:min(94vw,520px);max-height:min(46vh,300px);overflow:auto;background:var(--panel);border:2px solid var(--amber);border-radius:22px;padding:12px;display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px;box-shadow:0 0 22px rgba(255,179,71,.35);z-index:6}
 .emojipick button{height:44px;border-radius:12px;border:0;background:var(--raise);font-size:1.45rem;line-height:1;padding:0}
@@ -284,6 +300,25 @@ const TIMERS = [[0, "Off"], [30, "30 sec"], [60, "60 sec"], [90, "90 sec"]];
 function timerChips(sel, disabled) {
   return TIMERS.map(([v, l], i) => `<input type="radio" name="tmr" id="tmr-${i}" value="${v}" ${(+sel || 0) === v ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="tmr-${i}">${l}</label>`).join("");
 }
+// Rock paper scissors decides who asks first.
+const RPS = { r: ["✊", "Rock"], p: ["✋", "Paper"], s: ["✌️", "Scissors"] }, BEATS = { r: "s", p: "r", s: "p" };
+const rpsButtonsHTML = () => `<div class="rpsrow">${Object.entries(RPS).map(([k, [h, n]]) => `<button type="button" class="rpsbtn" data-rps="${k}"><span class="h" aria-hidden="true">${h}</span>${n}</button>`).join("")}</div>`;
+// Walk the rounds both players have thrown. Ties roll over to the next round.
+function rpsResolve(mine, theirs) {
+  let ties = 0;
+  for (let r = 0; ; r++) {
+    const a = mine[r], b = theirs[r];
+    if (!a) return { state: "pick", round: r, ties, last: r ? { a: mine[r - 1], b: theirs[r - 1] } : null };
+    if (!b) return { state: "wait", round: r, ties, mine: a };
+    if (a === b) { ties++; continue; }
+    return { state: "done", round: r, ties, a, b, iWin: BEATS[a] === b };
+  }
+}
+function rpsFaceHTML(nameA, a, nameB, b, aWon) {
+  return `<div class="rpsface"><div class="side ${a === b ? "" : aWon ? "won" : "lost"}"><span class="h">${RPS[a][0]}</span><span class="nm">${esc(nameA)}</span></div>
+    <span class="vs">vs</span><div class="side ${a === b ? "" : aWon ? "lost" : "won"}"><span class="h">${RPS[b][0]}</span><span class="nm">${esc(nameB)}</span></div></div>`;
+}
+const rpsWhy = (w, l) => `${RPS[w][1]} beats ${RPS[l][1].toLowerCase()}.`;
 function writeFormHTML(id, forName, secretVal, kindVal) {
   return `<form class="writeform" id="${id}" style="display:grid;gap:14px">
     <div class="field"><label class="label" for="wSecret">Secret for ${esc(forName)}</label>
@@ -375,9 +410,9 @@ function localNew(n1, n2, catChoice, filters, custom) {
   filters = normalizeFilters(catChoice, filters);
   const a = dealFrom(catChoice, 0, filters), b = dealFrom(catChoice === "Mix" ? "Mix" : a.cat, 1, filters);
   L = { players: [{ name: n1, cat: a.cat, item: a.item, entries: [] }, { name: n2, cat: b.cat, item: b.item, entries: [] }],
-        turn: Math.random() < .5 ? 0 : 1, catChoice, filters, stage: "ask", pending: null, timer: draft.timer || 0 };
+        turn: 0, catChoice, filters, stage: "rpsPass", rps: { picks: [null, null], picker: 0 }, pending: null, timer: draft.timer || 0 };
   screen = "local"; setStatus(""); lastConsoleKey = "";
-  render(); focusInput();
+  render();
 }
 function localOver() {
   const w = L.players.findIndex(p => hasWon(p.entries));
@@ -440,6 +475,7 @@ function renderCover() {
   const cv = document.getElementById("cover");
   if (screen !== "local" || !L || L.stage === "ask") { cv.hidden = true; return; }
   if (L.stage === "wpass" || L.stage === "write" || L.stage === "start") { renderWriteCover(cv); return; }
+  if (L.stage === "rpsPass" || L.stage === "rpsPick" || L.stage === "rpsReveal") { renderRpsCover(cv); return; }
   if (L.stage === "timeup") {
     const loser = L.players[L.timeupFor], next = L.players[L.turn];
     cv.className = "cover p" + (L.turn + 1);
@@ -493,6 +529,40 @@ function renderCover() {
   const first = cv.querySelector("button"); if (first) first.focus();
 }
 
+// Same-screen rock paper scissors: each player throws in private, then both are revealed.
+function renderRpsCover(cv) {
+  const R = L.rps, P = L.players;
+  if (L.stage === "rpsPass") {
+    const me = P[R.picker], other = P[1 - R.picker];
+    cv.className = "cover p" + (R.picker + 1);
+    cv.innerHTML = `<div class="card"><h2>Rock, paper, scissors</h2>
+      <p class="lede" style="margin:0">${R.picker === 0 ? "The winner asks first. " : ""}${esc(me.name)} throws ${R.picker === 0 ? "first" : "next"}, in secret. ${esc(other.name)}, look away.</p>
+      <button class="go" id="coverGo">I'm ${esc(me.name)}</button></div>`;
+    document.getElementById("coverGo").onclick = () => { L.stage = "rpsPick"; render(); };
+  } else if (L.stage === "rpsPick") {
+    cv.className = "cover p" + (R.picker + 1);
+    cv.innerHTML = `<div class="card"><h2>${esc(P[R.picker].name)}, pick one</h2>${rpsButtonsHTML()}</div>`;
+    cv.querySelectorAll("[data-rps]").forEach(b => b.onclick = () => {
+      R.picks[R.picker] = b.dataset.rps; play("pop");
+      if (R.picker === 0) { R.picker = 1; L.stage = "rpsPass"; } else L.stage = "rpsReveal";
+      render();
+    });
+  } else {
+    const [a, b] = R.picks, tie = a === b, w = tie ? null : BEATS[a] === b ? 0 : 1;
+    cv.className = "cover p" + ((w === null ? 0 : w) + 1);
+    cv.innerHTML = `<div class="card">${rpsFaceHTML(P[0].name, a, P[1].name, b, w === 0)}
+      <p class="rpsmsg">${tie ? "It's a tie! Throw again." : `${esc(rpsWhy(R.picks[w], R.picks[1 - w]))} ${esc(P[w].name)} asks first.`}</p>
+      <button class="go" id="coverGo">${tie ? "Go again" : `I'm ${esc(P[w].name)}. Let's play`}</button></div>`;
+    play(tie ? "s" : "clue");
+    document.getElementById("coverGo").onclick = () => {
+      if (tie) { L.rps = { picks: [null, null], picker: 0 }; L.stage = "rpsPass"; render(); return; }
+      L.turn = w; L.stage = "ask"; render(); focusInput();
+    };
+  }
+  cv.hidden = false;
+  const first = cv.querySelector("button"); if (first) first.focus();
+}
+
 // Same-screen custom secrets: each player writes the other's secret while the other looks away.
 function renderWriteCover(cv) {
   const w = L.writer, writer = L.players[w], target = L.players[1 - w];
@@ -515,7 +585,7 @@ function renderWriteCover(cv) {
       e.preventDefault();
       const r = readWriteForm(); if (!r) return;
       target.item = r.item; target.cat = r.kind;
-      if (w === 0) { L.writer = 1; L.stage = "wpass"; } else L.stage = "start";
+      if (w === 0) { L.writer = 1; L.stage = "wpass"; } else { L.stage = "rpsPass"; L.rps = { picks: [null, null], picker: 0 }; }
       render();
     };
     cv.hidden = false;
@@ -615,6 +685,7 @@ function sideObj() {
     a: Object.keys(s.myAns).map(Number).map(id => [id, s.myAns[id]]),
     h: st ? hintsFor(s.secret, st.R[1 - st.me]) : [],
     end: !!s.ended,
+    rps: Array.isArray(s.rpsMine) ? s.rpsMine : [],
     rv: st && st.over ? [s.secret.name, s.secret.custom ? "" : (s.secret.wiki || s.secret.name)] : null
   };
 }
@@ -631,7 +702,7 @@ function newOnlineGame(g, catSetting, first, filters, custom, timer) {
   const s = O.st, d = custom ? { cat: null, item: null } : dealFrom(catSetting, s.host ? 0 : 1, filters);
   O.wDraft = { secret: "", kind: "" };
   O.deadline = null; O.oppDeadline = null;
-  Object.assign(s, { g, first, gameCustom: !!custom, gameTimer: TIMERS.some(([v]) => v === +timer) ? +timer : 0, oc: d.cat, secret: d.item, myCat: null, myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, ended: false, oppEnded: false });
+  Object.assign(s, { g, first, gameCustom: !!custom, gameTimer: TIMERS.some(([v]) => v === +timer) ? +timer : 0, oc: d.cat, secret: d.item, myCat: null, myQs: [], oppQs: {}, ansToMe: {}, myAns: {}, hintsToMe: [], oppRv: null, ended: false, oppEnded: false, rpsMine: [], rpsOpp: [], rpsDone: false, rpsRevealAt: 0 });
   setStatus(""); lastConsoleKey = "";
   sendSide();
 }
@@ -655,6 +726,7 @@ function onOppSide() {
     s.hintsToMe = (Array.isArray(P.h) ? P.h : []).slice(0, HC).map(x => x == null ? undefined : String(x).slice(0, 240));
     s.oppRv = Array.isArray(P.rv) ? { name: String(P.rv[0]).slice(0, 80), wiki: String(P.rv[1]).slice(0, 120) } : null;
     if (typeof P.oc === "string") s.myCat = P.oc.slice(0, 40);
+    if (Array.isArray(P.rps)) s.rpsOpp = P.rps.slice(0, 40).map(x => RPS[x] ? x : null);
     s.oppEnded = P.end === true;
     autoJudge();
   }
@@ -722,7 +794,7 @@ function renderScreen() {
   const app = document.getElementById("app"), con = document.getElementById("console");
   document.getElementById("homeBtn").hidden = screen === "home";
   const inPlay = (screen === "local" && L && !localOver().over)
-    || (screen === "online" && O && O.st.g && O.st.secret && O.st.myCat && !onlineState().over);
+    || (screen === "online" && O && O.st.g && O.st.secret && O.st.myCat && O.st.rpsDone !== false && !onlineState().over);
   const eb = document.getElementById("endBtn");
   eb.hidden = !inPlay;
   if (!inPlay) disarmEnd();
@@ -1060,6 +1132,7 @@ function renderOnline(app) {
   }
   if (s.g && s.gameCustom && !(s.secret && s.myCat)) { hideConsole(); renderOnlineWrite(app); return; }
   if (!(s.g && s.secret && s.myCat)) { hideConsole(); app.innerHTML = lobbyHTML(); bindLobby(); return; }
+  if (s.rpsDone === false) { hideConsole(); renderOnlineRps(app); return; }
   const vm = onlineVM();
   let banners = "";
   if (!O.conn) banners = s.host
@@ -1093,6 +1166,38 @@ function renderOnlineWrite(app) {
       <p class="lede">${esc(opp)} will try to guess <b>${esc(s.secret.name)}</b>.</p>
       <span class="status dots">${O.conn ? `Waiting for ${esc(opp)} to write yours` : `Waiting for ${esc(opp)} to reconnect`}</span></div>`;
   }
+}
+// Online rock paper scissors: both throw at once; picks stay hidden until both are in.
+const REVEAL_MS = 2800;
+function renderOnlineRps(app) {
+  const s = O.st, opp = s.oppName || "Opponent", me = draft.name || "You";
+  const r = rpsResolve(s.rpsMine || [], s.rpsOpp || []);
+  let body;
+  if (r.state === "done") {
+    if (!s.rpsRevealAt) {
+      const myIdx = s.host ? 0 : 1;
+      s.first = r.iWin ? myIdx : 1 - myIdx; s.rpsRevealAt = Date.now();
+      play("clue"); sendSide();
+    }
+    const left = s.rpsRevealAt + REVEAL_MS - Date.now();
+    if (left <= 0) { s.rpsDone = true; sendSide(); render(); return; }
+    setTimeout(() => { if (O && O.st === s && s.rpsDone === false) render(); }, left + 30);
+    body = `${rpsFaceHTML(me + " (you)", r.a, opp, r.b, r.iWin)}
+      <p class="rpsmsg">${esc(r.iWin ? rpsWhy(r.a, r.b) : rpsWhy(r.b, r.a))} ${r.iWin ? "You ask first." : `${esc(opp)} asks first.`}</p>
+      <span class="status dots" style="text-align:center">Starting</span>`;
+  } else if (r.state === "wait") {
+    body = `<p class="rpsmsg">You threw ${RPS[r.mine][0]} ${RPS[r.mine][1]}.</p><span class="status dots" style="text-align:center">${O.conn ? `Waiting for ${esc(opp)} to throw` : `Waiting for ${esc(opp)} to reconnect`}</span>`;
+  } else {
+    const tieNote = r.last ? `<p class="rpsmsg">Tie! You both threw ${RPS[r.last.a][0]}. Throw again.</p>` : "";
+    body = `${tieNote}${rpsButtonsHTML()}`;
+  }
+  app.innerHTML = `<div class="panel" style="max-width:620px;margin:0 auto"><div><h2>Rock, paper, scissors</h2>
+    <p class="lede">The winner asks first. ${esc(opp)} can't see your pick until you've both thrown.</p></div>${body}</div>`;
+  app.querySelectorAll("[data-rps]").forEach(b => b.onclick = () => {
+    if (rpsResolve(s.rpsMine, s.rpsOpp).state !== "pick") return;
+    s.rpsMine = [...s.rpsMine, b.dataset.rps]; play("pop");
+    sendSide(); render();
+  });
 }
 function inviteLink() { return location.origin + location.pathname + "?join=" + O.code; }
 function lobbyHTML() {
@@ -1208,7 +1313,7 @@ function timerTick() {
       if (left <= 0) { L.deadline = null; play("w"); localTimeout(); return; }
     }
     if (!active && el) { idle = true; label = "Clock paused"; left = L.timer * 1000; }
-  } else if (screen === "online" && O && O.st.gameTimer && O.st.g && O.st.secret && O.st.myCat) {
+  } else if (screen === "online" && O && O.st.gameTimer && O.st.g && O.st.secret && O.st.myCat && O.st.rpsDone !== false) {
     const s = O.st, st = onlineState(), T = s.gameTimer * 1000;
     const clueBlock = s.gameCustom && clueDue(s.secret, st.R[1 - st.me]) >= 0;
     const mine = !st.over && O.conn && st.turn === st.me && !st.pending && !st.toAnswer && !clueBlock;
@@ -1252,7 +1357,7 @@ function gameEvents() {
     });
     return { key: L, coded, clues, myTurn: false, over: st.over, outcome: !st.over ? null : st.winner !== null ? "win" : "draw" };
   }
-  if (screen === "online" && O && O.st.g && O.st.secret && O.st.myCat) {
+  if (screen === "online" && O && O.st.g && O.st.secret && O.st.myCat && O.st.rpsDone !== false) {
     const s = O.st, st = onlineState(), coded = {};
     st.mine.forEach(e => { if (e.code) coded["m" + e.id] = e.code; });
     st.theirs.forEach(e => { if (e.code) coded["t" + e.id] = e.code; });

@@ -585,7 +585,7 @@ function bindHome() {
   if (draft.code && !draft.name) nameIn.focus();
 }
 function catChips(selected, disabled) {
-  return ["Mix", ...CATS].map(c => `<input type="radio" name="cat" id="cat-${esc(c)}" value="${esc(c)}" ${selected === c ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="cat-${esc(c)}">${c === "Mix" ? "Mix it up" : esc(c)}</label>`).join("");
+  return ["Mix", ...CATS].map((c, i) => `<input type="radio" name="cat" id="cat-${i}" value="${esc(c)}" ${selected === c ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="cat-${i}">${c === "Mix" ? "Mix it up" : esc(c)}</label>`).join("");
 }
 function localSetupHTML() {
   return `<form class="panel" id="setupForm">

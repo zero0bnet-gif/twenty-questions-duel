@@ -118,7 +118,7 @@ window.CATALOG = {
       "This person is a woman famous in entertainment and business.",
       "She is a singer from the Caribbean.",
       "She is from Barbados.",
-      "She founded the makeup brand Fenty Beauty.",
+      "She founded the makeup line Fenty Beauty.",
       "Her hits include 'Umbrella' and 'Diamonds'."
     ] },
     { name: "Keanu Reeves", hints: [
@@ -877,6 +877,578 @@ window.CATALOG = {
       "It's a classic comfort food for kids.",
       "A famous boxed version comes with a powdered orange sauce mix.",
       "It's elbow pasta in a creamy cheddar sauce."
+    ] }
+  ],
+
+  "TV Shows": [
+    { name: "Friends", wiki: "Friends", hints: [
+      "It first aired in the 1990s.",
+      "It's a sitcom set in a big American city.",
+      "It follows six twentysomethings in Manhattan over ten seasons.",
+      "Its characters hang out at a coffee shop called Central Perk.",
+      "Ross, Rachel, Monica, Chandler, Joey, and Phoebe star in it."
+    ] },
+    { name: "The Office", wiki: "The Office (American TV series)", hints: [
+      "It first aired in the 2000s.",
+      "It's a comedy filmed like a documentary.",
+      "It's an American remake of a British series created by Ricky Gervais.",
+      "It's set at a paper company in Scranton, Pennsylvania.",
+      "Steve Carell plays regional manager Michael Scott at Dunder Mifflin."
+    ] },
+    { name: "Breaking Bad", hints: [
+      "It first aired in the 2000s.",
+      "It's a crime drama.",
+      "It's set in Albuquerque, New Mexico.",
+      "A high school chemistry teacher becomes a drug kingpin.",
+      "Bryan Cranston plays Walter White, who goes by the alias Heisenberg."
+    ] },
+    { name: "Game of Thrones", hints: [
+      "It first aired in the 2010s.",
+      "It's a fantasy drama full of violence and politics.",
+      "It aired on HBO and is based on books by George R.R. Martin.",
+      "Noble families fight for control of the Seven Kingdoms of Westeros.",
+      "It features dragons, Jon Snow, and the Night King, and warns that winter is coming."
+    ] },
+    { name: "Stranger Things", hints: [
+      "It first aired in the 2010s.",
+      "It's a sci-fi horror drama with kids as the heroes.",
+      "It's a Netflix original set in the 1980s.",
+      "It's set in Hawkins, Indiana, near a secret government lab.",
+      "A girl named Eleven with psychic powers fights monsters from the Upside Down."
+    ] },
+    { name: "The Simpsons", hints: [
+      "It first aired in the 1980s.",
+      "It's animated.",
+      "It's the longest-running American scripted primetime series.",
+      "It's set in the town of Springfield.",
+      "Homer, Marge, Bart, Lisa, and Maggie are a yellow-skinned family."
+    ] },
+    { name: "SpongeBob SquarePants", hints: [
+      "It first aired in the 1990s.",
+      "It's animated and made for kids.",
+      "It airs on Nickelodeon.",
+      "It's set in the underwater town of Bikini Bottom.",
+      "A sea creature flips Krabby Patties next door to his best friend Patrick the starfish."
+    ] },
+    { name: "Seinfeld", hints: [
+      "It first aired in the 1980s.",
+      "It's a sitcom set in New York City.",
+      "It's famously described as being about nothing.",
+      "Its characters meet at Monk's Café, and one episode features the Soup Nazi.",
+      "Jerry, George, Elaine, and Kramer are four self-absorbed pals."
+    ] },
+    { name: "Grey's Anatomy", hints: [
+      "It first aired in the 2000s.",
+      "It's a medical drama.",
+      "It's set in a Seattle hospital.",
+      "It's the longest-running primetime medical drama in US history.",
+      "Ellen Pompeo plays surgeon Meredith, and Patrick Dempsey plays 'McDreamy'."
+    ] },
+    { name: "The Walking Dead", wiki: "The Walking Dead (TV series)", hints: [
+      "It first aired in the 2010s.",
+      "It's a horror drama based on a comic book.",
+      "It aired on AMC.",
+      "Survivors led by sheriff's deputy Rick Grimes struggle after the world falls apart.",
+      "Flesh-eating zombies overrun the world, and the villain Negan carries a bat named Lucille."
+    ] },
+    { name: "Squid Game", hints: [
+      "It first aired in the 2020s.",
+      "It's a survival thriller.",
+      "It's from South Korea and became Netflix's most-watched series.",
+      "Contestants in green tracksuits compete for a huge cash prize.",
+      "Losing a children's playground challenge like Red Light, Green Light means death."
+    ] },
+    { name: "The Big Bang Theory", hints: [
+      "It first aired in the 2000s.",
+      "It's a sitcom.",
+      "Its main characters are scientists at Caltech in Pasadena.",
+      "One character shouts 'Bazinga!' and insists on his own spot on the couch.",
+      "Sheldon, Leonard, and their neighbor Penny star in it."
+    ] },
+    { name: "Sesame Street", hints: [
+      "It first aired in the 1960s.",
+      "It's an educational program for young children.",
+      "It aired on PBS for decades.",
+      "It's set on a city block filled with puppets from Jim Henson's team.",
+      "Big Bird, Elmo, and Cookie Monster live there."
+    ] },
+    { name: "Survivor", wiki: "Survivor (American TV series)", hints: [
+      "It first aired in the US in 2000.",
+      "It's a reality competition.",
+      "Contestants are stranded in a remote location and split into tribes.",
+      "Contestants vote each other out at Tribal Council.",
+      "Jeff Probst hosts, and the last player standing wins a million dollars."
+    ] },
+    { name: "Saturday Night Live", hints: [
+      "It first aired in the 1970s.",
+      "It's a sketch comedy program.",
+      "It's broadcast from Rockefeller Center in New York.",
+      "Lorne Michaels created it, and each episode has a celebrity host and a musical guest.",
+      "It airs late on weekends on NBC and includes the Weekend Update news segment."
+    ] },
+    { name: "Wednesday", wiki: "Wednesday (TV series)", hints: [
+      "It first aired in the 2020s.",
+      "It's a dark comedy mystery.",
+      "It's a Netflix series directed partly by Tim Burton.",
+      "Its star went viral for a strange, stiff dance in a school ballroom scene.",
+      "Jenna Ortega plays the gloomy daughter of the Addams Family."
+    ] },
+    { name: "The Mandalorian", hints: [
+      "It first aired in 2019.",
+      "It's a science fiction adventure.",
+      "It was the flagship series that launched Disney+.",
+      "It's set in the Star Wars universe after the fall of the Empire.",
+      "A helmeted bounty hunter protects Grogu, nicknamed 'Baby Yoda'."
+    ] },
+    { name: "Bluey", wiki: "Bluey (2018 TV series)", hints: [
+      "It first aired in 2018.",
+      "It's animated and made for preschoolers.",
+      "It's from Australia.",
+      "Parents love it as much as kids for its realistic family moments.",
+      "It follows a playful Blue Heeler puppy, her sister Bingo, and their mom and dad."
+    ] },
+    { name: "Star Trek", wiki: "Star Trek: The Original Series", hints: [
+      "It first aired in the 1960s.",
+      "It's science fiction.",
+      "It launched a franchise with many spin-off series and movies.",
+      "Its crew's mission is to explore strange new worlds aboard a starship.",
+      "Captain Kirk and Mr. Spock serve on the USS Enterprise."
+    ] },
+    { name: "Ted Lasso", hints: [
+      "It first aired in 2020.",
+      "It's a feel-good comedy.",
+      "It's an Apple TV+ series set in England.",
+      "An American college football coach is hired to manage a London soccer team.",
+      "Jason Sudeikis stars, and AFC Richmond's locker room has a 'Believe' sign."
+    ] }
+  ],
+
+  "Video Games": [
+    { name: "Minecraft", hints: [
+      "It came out in the 2010s.",
+      "Players can build almost anything.",
+      "It's the best-selling title of its kind ever.",
+      "It was created by Markus 'Notch' Persson and bought by Microsoft in 2014.",
+      "Its blocky world has creepers, diamonds, and the Ender Dragon."
+    ] },
+    { name: "Super Mario Bros.", hints: [
+      "It came out in the 1980s.",
+      "It was made in Japan.",
+      "It was made by Nintendo for the NES.",
+      "Players stomp on Goombas and grab mushrooms to grow bigger.",
+      "A plumber in a red cap rescues Princess Peach from Bowser."
+    ] },
+    { name: "Tetris", hints: [
+      "It was created in the 1980s.",
+      "It's a puzzle.",
+      "It was invented in the Soviet Union.",
+      "It was famously bundled with Nintendo's first handheld.",
+      "Falling shapes made of four squares must complete full lines."
+    ] },
+    { name: "Fortnite", hints: [
+      "It came out in 2017.",
+      "It's played online with lots of other people.",
+      "It's free to play, from the studio behind Unreal Engine.",
+      "It's famous for in-app dances and live concerts by stars like Travis Scott.",
+      "100 players parachute from a flying bus in a battle royale."
+    ] },
+    { name: "Pac-Man", hints: [
+      "It came out in 1980.",
+      "It started in arcades.",
+      "It's from Japan, made by Namco.",
+      "Its ghosts are named Blinky, Pinky, Inky, and Clyde.",
+      "A yellow circle gobbles dots in a maze."
+    ] },
+    { name: "The Legend of Zelda", hints: [
+      "It first came out in the 1980s.",
+      "It's a fantasy adventure.",
+      "It's a Nintendo series.",
+      "The hero wields the Master Sword and battles Ganon.",
+      "A green-clad hero named Link explores the kingdom of Hyrule."
+    ] },
+    { name: "Pokémon", hints: [
+      "It began in the 1990s.",
+      "It's from Japan.",
+      "It started on Nintendo's handheld and became the highest-grossing media franchise ever.",
+      "Players catch creatures and train them to battle at gyms.",
+      "Ash's partner is the electric mouse Pikachu."
+    ] },
+    { name: "Grand Theft Auto V", hints: [
+      "It came out in the 2010s.",
+      "It's an open-world crime adventure.",
+      "It was made by Rockstar.",
+      "It's set in Los Santos, a fictional version of Los Angeles.",
+      "Players control three criminals: Michael, Franklin, and Trevor."
+    ] },
+    { name: "Mario Kart", hints: [
+      "It first came out in the 1990s.",
+      "It's a racing series.",
+      "It's made by Nintendo.",
+      "The dreaded blue shell targets whoever is in first place.",
+      "Nintendo mascots race each other on tracks like Rainbow Road."
+    ] },
+    { name: "Call of Duty", hints: [
+      "It first came out in the 2000s.",
+      "It's a first-person shooter.",
+      "It's published by Activision, now owned by Microsoft.",
+      "Its 'Modern Warfare' and 'Black Ops' series are hugely popular.",
+      "Its free battle royale mode is called Warzone."
+    ] },
+    { name: "Among Us", hints: [
+      "It came out in 2018 but exploded in popularity in 2020.",
+      "It's a multiplayer social deduction experience.",
+      "It went viral during the 2020 pandemic lockdowns.",
+      "Crewmates call emergency meetings to vote someone out.",
+      "Colorful astronauts try to find the impostor sabotaging their spaceship."
+    ] },
+    { name: "Roblox", hints: [
+      "It launched in the 2000s.",
+      "It's an online platform especially popular with kids.",
+      "Most of what people play on it is made by other users.",
+      "Hits on it include Adopt Me! and Brookhaven.",
+      "Its blocky avatars spend a currency called Robux."
+    ] },
+    { name: "The Sims", wiki: "The Sims (video game)", hints: [
+      "It came out in 2000.",
+      "It's a life simulation.",
+      "It was created by Will Wright, who also made SimCity.",
+      "Players control people's careers, homes, and relationships, and can remove the pool ladder.",
+      "Its characters speak a made-up language called Simlish and have green diamonds over their heads."
+    ] },
+    { name: "Animal Crossing: New Horizons", hints: [
+      "It came out in 2020.",
+      "It's a relaxing life simulation.",
+      "It's a Nintendo Switch exclusive that boomed during pandemic lockdowns.",
+      "Players pay off loans to a raccoon named Tom Nook.",
+      "You build a life on a deserted island with friendly villagers."
+    ] },
+    { name: "Pong", hints: [
+      "It came out in the 1970s.",
+      "It started in arcades.",
+      "It was Atari's first big hit.",
+      "It's often called the first commercially successful title of its kind.",
+      "Two paddles bounce a ball back and forth, like table tennis."
+    ] },
+    { name: "Halo: Combat Evolved", hints: [
+      "It came out in 2001.",
+      "It's a sci-fi first-person shooter.",
+      "It launched alongside Microsoft's first Xbox.",
+      "Humans battle an alien alliance called the Covenant.",
+      "Its armored hero is Master Chief, guided by the AI Cortana."
+    ] },
+    { name: "Street Fighter II", hints: [
+      "It came out in the 1990s.",
+      "It started in arcades.",
+      "It's from Capcom in Japan.",
+      "It popularized one-on-one combat with special move button combos.",
+      "Ryu throws Hadoukens, and Chun-Li has lightning-fast kicks."
+    ] },
+    { name: "Sonic the Hedgehog", wiki: "Sonic the Hedgehog (1991 video game)", hints: [
+      "It came out in the 1990s.",
+      "It's a fast-paced platformer.",
+      "It was Sega's answer to Nintendo's famous mascot.",
+      "The hero collects golden rings and fights Dr. Robotnik.",
+      "A speedy blue hero with red sneakers spins into a ball to attack."
+    ] },
+    { name: "Angry Birds", hints: [
+      "It came out in 2009.",
+      "It started on smartphones.",
+      "It's from Finland, made by Rovio.",
+      "Players use a slingshot to knock down structures.",
+      "Furious feathered heroes attack green pigs who stole their eggs."
+    ] },
+    { name: "Candy Crush Saga", hints: [
+      "It came out in 2012.",
+      "It started on Facebook and phones.",
+      "It's a match-three puzzle made by King.",
+      "It's known for thousands of levels and asking friends for extra lives.",
+      "Players swap colorful sweets to line up three or more."
+    ] }
+  ],
+
+  "Brands & Companies": [
+    { name: "Apple", wiki: "Apple Inc.", hints: [
+      "It was founded in the 1970s.",
+      "It's an American tech business.",
+      "It's based in Cupertino, California.",
+      "It was co-founded by Steve Jobs and Steve Wozniak.",
+      "It makes the iPhone, Mac, and iPad."
+    ] },
+    { name: "Nike", wiki: "Nike, Inc.", hints: [
+      "It was founded in the 1960s.",
+      "It's an American maker of sportswear.",
+      "It's based in Beaverton, Oregon.",
+      "Its slogan is 'Just Do It'.",
+      "Its logo is a swoosh, and it makes Air Jordan sneakers."
+    ] },
+    { name: "McDonald's", hints: [
+      "It traces its roots to the 1940s.",
+      "It's a restaurant chain.",
+      "It's one of the largest fast-food chains in the world.",
+      "Its longtime mascot, Ronald, is a clown.",
+      "It sells Big Macs and Happy Meals under the Golden Arches."
+    ] },
+    { name: "Coca-Cola", wiki: "The Coca-Cola Company", hints: [
+      "Its signature product was invented in the 1880s.",
+      "It sells drinks.",
+      "It's based in Atlanta, Georgia.",
+      "Its secret formula is famously guarded in a vault.",
+      "It makes the world's best-known soda, famous for holiday ads with polar bears and Santa."
+    ] },
+    { name: "Amazon", wiki: "Amazon (company)", hints: [
+      "It was founded in the 1990s.",
+      "It started as an online bookstore.",
+      "It was founded by Jeff Bezos in Seattle.",
+      "It runs AWS, the biggest cloud computing service.",
+      "Its Prime membership gets fast free shipping, and its boxes have a smile logo."
+    ] },
+    { name: "Google", hints: [
+      "It was founded in the 1990s.",
+      "It's an American tech business.",
+      "It was founded by Larry Page and Sergey Brin at Stanford.",
+      "Its parent is called Alphabet, and it owns YouTube.",
+      "Its name became a verb meaning to search the web."
+    ] },
+    { name: "LEGO", wiki: "The Lego Group", hints: [
+      "It was founded in the 1930s.",
+      "It makes toys.",
+      "It's from Denmark.",
+      "Its name comes from Danish words meaning 'play well'.",
+      "Its interlocking plastic bricks are painful to step on."
+    ] },
+    { name: "Disney", wiki: "The Walt Disney Company", hints: [
+      "It was founded in the 1920s.",
+      "It's an entertainment business.",
+      "It owns Pixar, Marvel, and Lucasfilm.",
+      "It runs theme parks in Florida, California, Paris, Tokyo, and more.",
+      "Its mascot is Mickey Mouse."
+    ] },
+    { name: "Tesla", wiki: "Tesla, Inc.", hints: [
+      "It was founded in the 2000s.",
+      "It makes vehicles and energy products.",
+      "It's led by Elon Musk.",
+      "It also sells home batteries and solar roofs.",
+      "It's the best-known electric car maker, with the Model S, 3, X, and Y."
+    ] },
+    { name: "Starbucks", hints: [
+      "It was founded in the 1970s.",
+      "It's a café chain.",
+      "Its first store was in Seattle's Pike Place Market.",
+      "It's known for writing (and misspelling) customers' names on cups.",
+      "Its green logo shows a two-tailed siren, and it sells Frappuccinos."
+    ] },
+    { name: "Netflix", hints: [
+      "It was founded in the 1990s.",
+      "It started by mailing DVDs.",
+      "It's based in Los Gatos, California.",
+      "It made 'Stranger Things' and 'Squid Game'.",
+      "It's the streaming service with the 'ta-dum' sound and a red N logo."
+    ] },
+    { name: "IKEA", hints: [
+      "It was founded in the 1940s.",
+      "It sells home furniture.",
+      "It's from Sweden.",
+      "Its stores have a one-way maze layout and a café that sells meatballs.",
+      "Its flat-pack furniture comes with wordless assembly instructions and an Allen key."
+    ] },
+    { name: "Toyota", wiki: "Toyota", hints: [
+      "It was founded in the 1930s.",
+      "It makes vehicles.",
+      "It's from Japan.",
+      "It pioneered 'just-in-time' manufacturing and makes the Prius hybrid.",
+      "It makes the Camry and the Corolla, one of the best-selling cars ever."
+    ] },
+    { name: "Samsung", hints: [
+      "It was founded in the 1930s.",
+      "It's a giant electronics maker.",
+      "It's from South Korea.",
+      "It started as a small trading business selling dried fish and noodles.",
+      "It makes Galaxy phones and is Apple's biggest smartphone rival."
+    ] },
+    { name: "Walmart", hints: [
+      "It was founded in the 1960s.",
+      "It's a retail chain.",
+      "It was founded by Sam Walton in Arkansas.",
+      "It's the world's largest retailer and largest private employer.",
+      "Its logo is a yellow spark, and its slogan is 'Save money. Live better.'"
+    ] },
+    { name: "Microsoft", hints: [
+      "It was founded in the 1970s.",
+      "It's an American tech business.",
+      "It's based in Redmond, Washington.",
+      "It was co-founded by Bill Gates and Paul Allen.",
+      "It makes Windows, Office, and the Xbox."
+    ] },
+    { name: "Adidas", hints: [
+      "It was founded in the 1940s.",
+      "It makes sportswear.",
+      "It's from Germany.",
+      "Its founder's brother started rival sportswear maker Puma.",
+      "Its logo has three stripes."
+    ] },
+    { name: "Nintendo", hints: [
+      "It was founded in the 1880s.",
+      "It started by making playing cards.",
+      "It's from Japan, based in Kyoto.",
+      "It made the NES, the Game Boy, and the Wii.",
+      "It's home to Mario and Zelda, and its current console is the Switch."
+    ] },
+    { name: "Red Bull", wiki: "Red Bull GmbH", hints: [
+      "It was founded in the 1980s.",
+      "It sells drinks.",
+      "It's from Austria.",
+      "It sponsors extreme sports, a Formula 1 team, and a famous skydive from the edge of space.",
+      "Its energy drink slogan says it gives you wings."
+    ] },
+    { name: "Costco", hints: [
+      "It was founded in the 1980s.",
+      "It's a retail chain.",
+      "It's based in Issaquah, Washington, near Seattle.",
+      "Its $1.50 hot dog and soda combo hasn't changed price since the 1980s.",
+      "It's a members-only warehouse club that sells Kirkland Signature products."
+    ] }
+  ],
+
+  Anime: [
+    { name: "Naruto", hints: [
+      "It first aired in the 2000s.",
+      "It's an action series based on a manga.",
+      "It's about ninjas.",
+      "The hero has a nine-tailed fox sealed inside him.",
+      "An orange-clad ninja from the Hidden Leaf Village dreams of becoming Hokage."
+    ] },
+    { name: "One Piece", hints: [
+      "It first aired in the 1990s.",
+      "It's an adventure series based on a manga.",
+      "It has more than 1,000 episodes and is still going.",
+      "Its hero has a stretchy rubber body after eating a Devil Fruit.",
+      "Monkey D. Luffy and the Straw Hat Pirates hunt for the ultimate treasure."
+    ] },
+    { name: "Dragon Ball Z", hints: [
+      "It first aired in the 1980s.",
+      "It's an action series based on a manga.",
+      "It was created by Akira Toriyama.",
+      "Fighters power up with screaming transformations and battle Frieza and Cell.",
+      "Goku goes Super Saiyan and fires the Kamehameha."
+    ] },
+    { name: "Attack on Titan", hints: [
+      "It first aired in the 2010s.",
+      "It's a dark action series based on a manga.",
+      "Humanity lives behind enormous walls.",
+      "Soldiers use grappling gear to slash the napes of giant monsters' necks.",
+      "Eren Yeager vows to wipe out the man-eating giants."
+    ] },
+    { name: "Death Note", hints: [
+      "It first aired in the 2000s.",
+      "It's a psychological thriller based on a manga.",
+      "A genius student battles a mysterious detective known only as L.",
+      "A grim reaper called Ryuk is obsessed with apples.",
+      "A notebook kills anyone whose name is written in it."
+    ] },
+    { name: "Demon Slayer", wiki: "Demon Slayer: Kimetsu no Yaiba", hints: [
+      "It first aired in 2019.",
+      "It's an action series based on a manga.",
+      "It's set in Japan in the early 1900s.",
+      "Its 'Mugen Train' movie became Japan's highest-grossing film ever.",
+      "Tanjiro fights man-eating creatures to save his sister Nezuko, who wears a bamboo muzzle."
+    ] },
+    { name: "My Hero Academia", hints: [
+      "It first aired in the 2010s.",
+      "It's a superhero action series based on a manga.",
+      "Almost everyone in its world has a superpower called a Quirk.",
+      "Students train at U.A. High School to become pro heroes.",
+      "Deku, born without powers, inherits All Might's power, One For All."
+    ] },
+    { name: "Sailor Moon", hints: [
+      "It first aired in the 1990s.",
+      "It's a magical girl series based on a manga.",
+      "Its heroines transform using magical brooches and wands.",
+      "Each heroine is named after a planet in the solar system.",
+      "Usagi Tsukino and her talking cat Luna lead a team of teen warriors."
+    ] },
+    { name: "Fullmetal Alchemist: Brotherhood", hints: [
+      "It first aired in the 2000s.",
+      "It's a fantasy adventure based on a manga.",
+      "Its magic follows a rule called equivalent exchange.",
+      "Two young siblings lose parts of their bodies trying to bring their mother back to life.",
+      "Edward Elric has a metal arm, and his younger sibling Alphonse lives in a suit of armor."
+    ] },
+    { name: "Neon Genesis Evangelion", hints: [
+      "It first aired in the 1990s.",
+      "It's a sci-fi series about giant robots.",
+      "It's known for its psychological themes and a famously confusing ending.",
+      "Teenagers pilot giant bio-machines to fight beings called Angels.",
+      "Shinji Ikari is ordered by his father to get in the robot."
+    ] },
+    { name: "Cowboy Bebop", hints: [
+      "It first aired in the 1990s.",
+      "It's a sci-fi series with a jazz soundtrack.",
+      "It's set in 2071, across the solar system.",
+      "Its crew travels aboard a spaceship and is always broke.",
+      "Bounty hunter Spike Spiegel smokes, slouches, and does kung fu."
+    ] },
+    { name: "Jujutsu Kaisen", hints: [
+      "It first aired in 2020.",
+      "It's a supernatural action series based on a manga.",
+      "Sorcerers fight cursed spirits born from negative human emotions.",
+      "Its most powerful teacher, Gojo, wears a blindfold.",
+      "Yuji Itadori swallows a finger of the King of Curses, Sukuna."
+    ] },
+    { name: "Spy × Family", wiki: "Spy × Family", hints: [
+      "It first aired in 2022.",
+      "It's an action comedy based on a manga.",
+      "It's set during a cold war between two made-up countries.",
+      "Its stand-in mother is secretly a professional assassin.",
+      "A secret agent's adopted daughter, Anya, can read minds."
+    ] },
+    { name: "Hunter × Hunter", wiki: "Hunter × Hunter", hints: [
+      "It first aired in 1999, with a famous remake in 2011.",
+      "It's an adventure series based on a manga.",
+      "Its creator is known for long breaks between chapters.",
+      "Its power system is called Nen.",
+      "Gon Freecss takes a brutal exam hoping to find his father."
+    ] },
+    { name: "One-Punch Man", hints: [
+      "It first aired in the 2010s.",
+      "It's a superhero comedy.",
+      "It started as a webcomic.",
+      "The hero is bored because no enemy can give him a real fight.",
+      "Bald hero Saitama defeats every enemy with a single hit."
+    ] },
+    { name: "Sword Art Online", hints: [
+      "It first aired in the 2010s.",
+      "It's a sci-fi adventure based on light novels.",
+      "Thousands of players get trapped inside a virtual reality world.",
+      "Dying in the virtual world means dying in real life.",
+      "Kirito fights with two blades alongside Asuna."
+    ] },
+    { name: "Chainsaw Man", hints: [
+      "It first aired in 2022.",
+      "It's a gory action series based on a manga.",
+      "In its world, devils are born from human fears.",
+      "Its hero, Denji, is a poor teenager buried in debt.",
+      "Denji merges with his little devil dog Pochita and sprouts roaring power-tool blades."
+    ] },
+    { name: "Bleach", wiki: "Bleach (TV series)", hints: [
+      "It first aired in the 2000s.",
+      "It's a supernatural action series based on a manga.",
+      "Its warriors carry swords called Zanpakutō.",
+      "Soul Reapers protect the living from evil spirits called Hollows.",
+      "Orange-haired teen Ichigo Kurosaki becomes a Soul Reaper."
+    ] },
+    { name: "Haikyu!!", wiki: "Haikyu!!", hints: [
+      "It first aired in the 2010s.",
+      "It's a sports series based on a manga.",
+      "It follows a high school team in Miyagi Prefecture.",
+      "Its short hero idolizes a former player called 'the Little Giant'.",
+      "Hinata and Kageyama play volleyball for Karasuno High."
+    ] },
+    { name: "Yu-Gi-Oh!", wiki: "Yu-Gi-Oh! Duel Monsters", hints: [
+      "Its best-known version first aired in 2000.",
+      "It's an action series based on a manga.",
+      "It launched a hugely successful trading card franchise.",
+      "The hero solves an ancient Egyptian puzzle and gains a spirit partner.",
+      "Yugi summons the Dark Magician and duels Kaiba's Blue-Eyes White Dragon."
     ] }
   ]
 };

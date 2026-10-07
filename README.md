@@ -5,6 +5,7 @@ A head-to-head guessing game. Each player gets a secret item they can't see. Pla
 - 20 turns each. A question or a guess uses a turn; turn 20 must be a guess.
 - A hint unlocks every 3 turns: 5 hints, from very vague to nearly a giveaway.
 - The end screen reveals both secrets with Wikipedia links.
+- Optional filters narrow a category, like Movies from the 2000s or only Rock songs.
 - No accounts, no API keys, no server of your own.
 
 ## Files
@@ -12,7 +13,8 @@ A head-to-head guessing game. Each player gets a secret item they can't see. Pla
 | File | What it is |
 |---|---|
 | `index.html` | The game |
-| `catalog.js` | The items and hints. Edit this to add more. |
+| `catalog.js` | The items, hints, tags, and filter definitions. Edit this to add more. |
+| `check-catalog.js` | Checks the catalog for missing tags and other mistakes |
 | `README.md` | This file |
 
 Keep `index.html` and `catalog.js` in the same folder.
@@ -56,7 +58,7 @@ Then do step 4 above.
 Open `catalog.js`. Copy any `{ name: ..., hints: [...] },` block inside a category and edit it:
 
 ```js
-{ name: "Mount Fuji", hints: [
+{ name: "Mount Fuji", tags: ["asia", "natural"], hints: [
   "It was formed by nature.",
   "It's in Asia.",
   "It's in Japan.",
@@ -68,9 +70,42 @@ Open `catalog.js`. Copy any `{ name: ..., hints: [...] },` block inside a catego
 - Write exactly 5 hints, from very vague to almost a giveaway.
 - Never use a word from the item's name, and never name the category.
 - Add `wiki: "Exact Wikipedia title"` only when the name could land on the wrong Wikipedia page, e.g. `wiki: "Titanic (1997 film)"`.
-- To add a new category, add a new key such as `Sports: [ ... ],`. It appears in the game automatically.
+- **Tag every new item for filtering** (see below).
+- To add a new category, add a new key such as `Sports: [ ... ],`. It appears in the game automatically. Add its filters to `window.FILTERS` at the bottom of `catalog.js` too.
 
-After editing, upload the new `catalog.js` (or commit and push) and the live site updates. To make sure players get the new list right away instead of a cached copy, also bump the number in `catalog.js?v=2` inside `index.html` (to `v=3`, and so on).
+### Tags for filtering
+
+Each item needs the fields its category's filters use. The full list of tag keys is in `window.FILTERS` at the bottom of `catalog.js`.
+
+| Category | `year` | Tags (pick at least one from each group) |
+|---|---|---|
+| Celebrities | — | Field: `music`, `acting`, `sports` |
+| Places | — | Region: `north_america`, `south_america`, `europe`, `asia`, `africa`, `oceania` · Type: `natural`, `landmark`, `city` |
+| Movies | release year | Genre: `animated`, `action`, `drama`, `comedy` |
+| Songs | release year | Genre: `rock`, `pop`, `rnb`, `hiphop` |
+| Animals | — | Group: `mammal`, `bird`, `sea`, `reptile` |
+| Foods | — | Type: `breakfast`, `mains`, `snacks`, `desserts` · Origin (optional): `american`, `italian`, `asian`, `mexican`, `european` |
+| TV Shows | first aired | Genre: `comedy`, `drama`, `scifi`, `animated`, `reality` |
+| Video Games | release year | Type: `adventure`, `shooter`, `puzzle`, `racing`, `sandbox`, `party` |
+| Anime | first aired | Genre: `action`, `scifi`, `dark`, `comedy`, `sports` |
+| Brands & Companies | year founded | Industry: `tech`, `food`, `retail`, `sportswear`, `entertainment`, `cars` |
+
+Examples:
+
+```js
+{ name: "Inception", year: 2010, tags: ["action"], hints: [ ... ] },
+{ name: "Penguin", tags: ["bird", "sea"], hints: [ ... ] },
+```
+
+Then check your work (needs [Node.js](https://nodejs.org)):
+
+```bash
+node check-catalog.js
+```
+
+It lists any item missing a year or tag, hints that give away the name, and how many items each filter option has. A filter option needs at least 4 matching items before a game can start with it alone.
+
+After editing, upload the new `catalog.js` (or commit and push) and the live site updates. To make sure players get the new list right away instead of a cached copy, also bump the number in `catalog.js?v=3` inside `index.html` (to `v=4`, and so on).
 
 ## Good to know
 

@@ -20,7 +20,7 @@
 }
 *{box-sizing:border-box}
 html,body{min-height:100%;margin:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-body);padding-inline:16px}
+body{background:var(--bg);color:var(--ink);font:1rem/1.5 var(--f-body);padding-inline:16px}
 .wrap{max-width:1280px;margin:0 auto;padding-block:20px 190px}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer}
@@ -199,10 +199,31 @@ h1,h2,h3{font-weight:700;text-wrap:balance;margin:0}
 .result.win{animation:marquee .5s steps(2) 10}
 @keyframes marquee{0%{border-color:var(--amber);box-shadow:0 0 30px rgba(255,179,71,.6)}100%{border-color:var(--pink);box-shadow:0 0 30px rgba(255,79,216,.6)}}
 #confetti{position:fixed;inset:0;z-index:25;pointer-events:none}
+/* Easter eggs */
+.top h1{cursor:default;user-select:none;-webkit-user-select:none}
+.stripes{cursor:pointer}
+.stripes.flash i{animation:stripeflash .55s ease-out both}
+.stripes.flash i:nth-child(2){animation-delay:.12s} .stripes.flash i:nth-child(3){animation-delay:.24s}
+@keyframes stripeflash{0%{filter:none;transform:scaleX(1)}35%{filter:brightness(2.2) drop-shadow(0 0 8px currentColor);transform:scaleX(1.04)}100%{filter:none;transform:scaleX(1)}}
+.eggmodal{position:fixed;inset:0;z-index:40;background:rgba(10,5,24,.86);display:grid;place-items:center;padding:16px}
+.eggmodal .card{background:var(--panel);border:2px solid var(--amber);border-radius:28px;padding:clamp(16px,4vw,26px);width:min(100%,680px);display:grid;gap:14px;box-shadow:0 0 30px rgba(255,179,71,.4)}
+.eggmodal h2{font-family:var(--f-logo);font-weight:400;font-size:clamp(1.2rem,4vw,1.9rem);color:#FFF1DC;text-shadow:0 0 8px var(--amber),0 0 22px var(--amber);line-height:1.2}
+.eggmodal .vid{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:16px;overflow:hidden;background:#000}
+.eggmodal iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.eggtoast{position:fixed;top:18%;left:50%;transform:translateX(-50%);z-index:45;pointer-events:none;font-family:var(--f-logo);font-size:clamp(1.3rem,5vw,2.4rem);color:#DFFFEF;text-shadow:0 0 8px var(--yes),0 0 26px var(--yes);white-space:nowrap;animation:toast 2.2s ease-out forwards}
+@keyframes toast{0%{opacity:0;transform:translate(-50%,10px) scale(.9)}15%{opacity:1;transform:translate(-50%,0) scale(1.05)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-10px)}}
+/* Arcade mode (Konami code) */
+html.arcade{--f-logo:"Press Start 2P",ui-monospace,monospace;--f-body:"Press Start 2P",ui-monospace,monospace;font-size:11px}
+html.arcade body{line-height:1.8}
+html.arcade body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.22) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+html.arcade .panel,html.arcade .pod,html.arcade .mode,html.arcade .stagebox,html.arcade .screen,html.arcade .result,html.arcade .reveal,html.arcade .cover .card,html.arcade .eggmodal .card,html.arcade .hint,html.arcade .filters{border-radius:4px}
+html.arcade .go,html.arcade .btn,html.arcade .ghost,html.arcade .light,html.arcade .cats label,html.arcade .log li,html.arcade .ans,html.arcade .roster li,html.arcade .field input,html.arcade .row input,html.arcade .joinrow input,html.arcade .rpsbtn,html.arcade .clock,html.arcade .reacts button{border-radius:3px}
+html.arcade .go,html.arcade .btn.ask,html.arcade .btn.guess{box-shadow:4px 4px 0 rgba(0,0,0,.55)}
+html.arcade .dig{border-radius:2px}
 /* Rock paper scissors */
-.rpsrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.rpsrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:12px}
 .rpsbtn{--c:var(--blue);display:grid;justify-items:center;gap:4px;padding:16px 8px;border-radius:24px;border:2px solid var(--c);background:var(--panel);color:var(--ink);font-weight:700;font-size:1rem;box-shadow:0 0 14px color-mix(in srgb,var(--c) 35%,transparent);transition:transform .12s}
-.rpsbtn:nth-child(2){--c:var(--pink)} .rpsbtn:nth-child(3){--c:var(--amber)}
+.rpsbtn:nth-child(2){--c:var(--pink)} .rpsbtn:nth-child(3){--c:var(--amber)} .rpsbtn:nth-child(4){--c:var(--yes)} .rpsbtn:nth-child(5){--c:#B79CFF}
 .rpsbtn:hover{transform:translateY(-3px)} .rpsbtn:active{transform:scale(.95)}
 .rpsbtn .h{font-size:clamp(2.4rem,9vw,3.4rem);line-height:1.1}
 .rpsface{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;text-align:center}
@@ -301,8 +322,13 @@ function timerChips(sel, disabled) {
   return TIMERS.map(([v, l], i) => `<input type="radio" name="tmr" id="tmr-${i}" value="${v}" ${(+sel || 0) === v ? "checked" : ""} ${disabled ? "disabled" : ""}><label for="tmr-${i}">${l}</label>`).join("");
 }
 // Rock paper scissors decides who asks first.
-const RPS = { r: ["✊", "Rock"], p: ["✋", "Paper"], s: ["✌️", "Scissors"] }, BEATS = { r: "s", p: "r", s: "p" };
-const rpsButtonsHTML = () => `<div class="rpsrow">${Object.entries(RPS).map(([k, [h, n]]) => `<button type="button" class="rpsbtn" data-rps="${k}"><span class="h" aria-hidden="true">${h}</span>${n}</button>`).join("")}</div>`;
+// Easter egg: after 3 ties in a row, lizard and Spock join (rock paper scissors lizard Spock).
+const RPS = { r: ["✊", "Rock"], p: ["✋", "Paper"], s: ["✌️", "Scissors"], l: ["🦎", "Lizard"], k: ["🖖", "Spock"] };
+const BEAT = { r: { s: "crushes", l: "crushes" }, p: { r: "covers", k: "disproves" }, s: { p: "cuts", l: "decapitates" }, l: { p: "eats", k: "poisons" }, k: { s: "smashes", r: "vaporizes" } };
+const beats = (a, b) => !!(BEAT[a] && BEAT[a][b]);
+const UNIVERSE = 3;
+const universeNote = `<p class="rpsmsg" style="color:var(--yes);text-shadow:0 0 10px rgba(57,255,156,.6)">The universe can't decide. Lizard and Spock have joined the game!</p>`;
+const rpsButtonsHTML = ext => `<div class="rpsrow">${Object.entries(RPS).filter(([k]) => ext || "rps".includes(k)).map(([k, [h, n]]) => `<button type="button" class="rpsbtn" data-rps="${k}"><span class="h" aria-hidden="true">${h}</span>${n}</button>`).join("")}</div>`;
 // Walk the rounds both players have thrown. Ties roll over to the next round.
 function rpsResolve(mine, theirs) {
   let ties = 0;
@@ -311,14 +337,14 @@ function rpsResolve(mine, theirs) {
     if (!a) return { state: "pick", round: r, ties, last: r ? { a: mine[r - 1], b: theirs[r - 1] } : null };
     if (!b) return { state: "wait", round: r, ties, mine: a };
     if (a === b) { ties++; continue; }
-    return { state: "done", round: r, ties, a, b, iWin: BEATS[a] === b };
+    return { state: "done", round: r, ties, a, b, iWin: beats(a, b) };
   }
 }
 function rpsFaceHTML(nameA, a, nameB, b, aWon) {
   return `<div class="rpsface"><div class="side ${a === b ? "" : aWon ? "won" : "lost"}"><span class="h">${RPS[a][0]}</span><span class="nm">${esc(nameA)}</span></div>
     <span class="vs">vs</span><div class="side ${a === b ? "" : aWon ? "lost" : "won"}"><span class="h">${RPS[b][0]}</span><span class="nm">${esc(nameB)}</span></div></div>`;
 }
-const rpsWhy = (w, l) => `${RPS[w][1]} beats ${RPS[l][1].toLowerCase()}.`;
+const rpsWhy = (w, l) => `${RPS[w][1]} ${BEAT[w][l]} ${l === "k" ? "Spock" : RPS[l][1].toLowerCase()}.`;
 function writeFormHTML(id, forName, secretVal, kindVal) {
   return `<form class="writeform" id="${id}" style="display:grid;gap:14px">
     <div class="field"><label class="label" for="wSecret">Secret for ${esc(forName)}</label>
@@ -541,21 +567,23 @@ function renderRpsCover(cv) {
     document.getElementById("coverGo").onclick = () => { L.stage = "rpsPick"; render(); };
   } else if (L.stage === "rpsPick") {
     cv.className = "cover p" + (R.picker + 1);
-    cv.innerHTML = `<div class="card"><h2>${esc(P[R.picker].name)}, pick one</h2>${rpsButtonsHTML()}</div>`;
+    const ext = (L.rpsTies || 0) >= UNIVERSE;
+    cv.innerHTML = `<div class="card"><h2>${esc(P[R.picker].name)}, pick one</h2>${ext && R.picker === 0 && L.rpsTies === UNIVERSE ? universeNote : ""}${rpsButtonsHTML(ext)}</div>`;
     cv.querySelectorAll("[data-rps]").forEach(b => b.onclick = () => {
       R.picks[R.picker] = b.dataset.rps; play("pop");
       if (R.picker === 0) { R.picker = 1; L.stage = "rpsPass"; } else L.stage = "rpsReveal";
       render();
     });
   } else {
-    const [a, b] = R.picks, tie = a === b, w = tie ? null : BEATS[a] === b ? 0 : 1;
+    const [a, b] = R.picks, tie = a === b, w = tie ? null : beats(a, b) ? 0 : 1;
+    const unlocking = tie && (L.rpsTies || 0) + 1 === UNIVERSE;
     cv.className = "cover p" + ((w === null ? 0 : w) + 1);
     cv.innerHTML = `<div class="card">${rpsFaceHTML(P[0].name, a, P[1].name, b, w === 0)}
-      <p class="rpsmsg">${tie ? "It's a tie! Throw again." : `${esc(rpsWhy(R.picks[w], R.picks[1 - w]))} ${esc(P[w].name)} asks first.`}</p>
+      ${unlocking ? universeNote : `<p class="rpsmsg">${tie ? "It's a tie! Throw again." : `${esc(rpsWhy(R.picks[w], R.picks[1 - w]))} ${esc(P[w].name)} asks first.`}</p>`}
       <button class="go" id="coverGo">${tie ? "Go again" : `I'm ${esc(P[w].name)}. Let's play`}</button></div>`;
     play(tie ? "s" : "clue");
     document.getElementById("coverGo").onclick = () => {
-      if (tie) { L.rps = { picks: [null, null], picker: 0 }; L.stage = "rpsPass"; render(); return; }
+      if (tie) { L.rpsTies = (L.rpsTies || 0) + 1; L.rps = { picks: [null, null], picker: 0 }; L.stage = "rpsPass"; render(); return; }
       L.turn = w; L.stage = "ask"; render(); focusInput();
     };
   }
@@ -1188,8 +1216,9 @@ function renderOnlineRps(app) {
   } else if (r.state === "wait") {
     body = `<p class="rpsmsg">You threw ${RPS[r.mine][0]} ${RPS[r.mine][1]}.</p><span class="status dots" style="text-align:center">${O.conn ? `Waiting for ${esc(opp)} to throw` : `Waiting for ${esc(opp)} to reconnect`}</span>`;
   } else {
+    const ext = r.ties >= UNIVERSE;
     const tieNote = r.last ? `<p class="rpsmsg">Tie! You both threw ${RPS[r.last.a][0]}. Throw again.</p>` : "";
-    body = `${tieNote}${rpsButtonsHTML()}`;
+    body = `${tieNote}${r.ties === UNIVERSE ? universeNote : ""}${rpsButtonsHTML(ext)}`;
   }
   app.innerHTML = `<div class="panel" style="max-width:620px;margin:0 auto"><div><h2>Rock, paper, scissors</h2>
     <p class="lede">The winner asks first. ${esc(opp)} can't see your pick until you've both thrown.</p></div>${body}</div>`;
@@ -1264,7 +1293,7 @@ function audio() {
 ["pointerdown", "keydown"].forEach(ev => window.addEventListener(ev, () => { if (!muted) audio(); }, { capture: true }));
 function tone(a, freq, at, dur, type, vol, toFreq) {
   const o = a.createOscillator(), g = a.createGain(), t0 = a.currentTime + at;
-  o.type = type || "sine"; o.frequency.setValueAtTime(freq, t0);
+  o.type = document.documentElement.classList.contains("arcade") ? "square" : (type || "sine"); o.frequency.setValueAtTime(freq, t0);
   if (toFreq) o.frequency.exponentialRampToValueAtTime(toFreq, t0 + dur);
   g.gain.setValueAtTime(0.0001, t0);
   g.gain.exponentialRampToValueAtTime(vol || 0.18, t0 + 0.012);
@@ -1463,6 +1492,65 @@ function floatEmoji(e, who, side) {
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 2500);
 }
+
+// ===================================================================
+// EASTER EGGS
+// ===================================================================
+function eggToast(text) {
+  const t = document.createElement("div"); t.className = "eggtoast"; t.textContent = text;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2300);
+}
+SFX.egg = a => [523, 659, 784, 1046, 1318].forEach((f, i) => tone(a, f, i * .06, .16, "square", .07));
+
+// 1) Konami code: arcade mode with a pixel font, scanlines and 8-bit sounds. Enter it again to turn it off.
+const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
+let konamiAt = 0;
+function setArcade(on, quiet) {
+  if (on && !document.getElementById("arcadeFont")) {
+    const l = document.createElement("link"); l.id = "arcadeFont"; l.rel = "stylesheet";
+    l.href = "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"; document.head.appendChild(l);
+  }
+  document.documentElement.classList.toggle("arcade", on);
+  SS.set("tq:arcade", on);
+  if (!quiet) { eggToast(on ? "ARCADE MODE" : "ARCADE MODE OFF"); play("egg"); }
+}
+window.addEventListener("keydown", e => {
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  konamiAt = k === KONAMI[konamiAt] ? konamiAt + 1 : (k === KONAMI[0] ? 1 : 0);
+  if (konamiAt === KONAMI.length) { konamiAt = 0; setArcade(!document.documentElement.classList.contains("arcade")); }
+});
+if (SS.get("tq:arcade") === true) setArcade(true, true);
+
+// 2) Click the logo 5 times quickly: a "bonus round" that is really a rickroll.
+let logoClicks = [];
+document.querySelector(".top h1").addEventListener("click", () => {
+  const now = Date.now(); logoClicks = logoClicks.filter(t => now - t < 2500); logoClicks.push(now);
+  if (logoClicks.length >= 5) { logoClicks = []; rickroll(); }
+});
+function rickroll() {
+  if (document.querySelector(".eggmodal")) return;
+  const m = document.createElement("div"); m.className = "eggmodal"; m.setAttribute("role", "dialog"); m.setAttribute("aria-label", "Secret bonus round");
+  m.innerHTML = `<div class="card"><h2>Secret bonus round unlocked!</h2>
+    <div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0" title="Never Gonna Give You Up" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+    <div class="actions"><button class="go" type="button" id="eggClose">Back to the game</button><a class="linkbtn" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" rel="noopener">Video not playing? Open it on YouTube</a></div></div>`;
+  const close = () => { m.remove(); document.removeEventListener("keydown", esc_); };
+  const esc_ = e => { if (e.key === "Escape") close(); };
+  m.addEventListener("click", e => { if (e.target === m) close(); });
+  document.body.appendChild(m);
+  document.getElementById("eggClose").onclick = close;
+  document.addEventListener("keydown", esc_);
+  document.getElementById("eggClose").focus();
+}
+
+// 3) Tap a podium's neon stripes: they light up in turn with a little jingle (each podium has its own).
+SFX.jingle1 = a => [659, 784, 1046].forEach((f, i) => tone(a, f, i * .12, .2, "triangle", .14));
+SFX.jingle2 = a => [1046, 880, 698].forEach((f, i) => tone(a, f, i * .12, .2, "triangle", .14));
+document.getElementById("app").addEventListener("click", e => {
+  const st = e.target.closest(".stripes"); if (!st) return;
+  const pod = st.closest(".pod");
+  st.classList.remove("flash"); void st.offsetWidth; st.classList.add("flash");
+  play(pod && pod.classList.contains("p2") ? "jingle2" : "jingle1");
+});
 
 // End match: first tap arms the button, second tap within 4 seconds ends it.
 let endTimer = null;

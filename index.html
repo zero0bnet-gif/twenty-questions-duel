@@ -231,15 +231,17 @@ h1,h2,h3{font-weight:700;text-wrap:balance;margin:0}
 @media (pointer:coarse){.doom-pad{display:flex}.doom-help.keys{display:none}}
 @media (prefers-reduced-motion:reduce){.doom,.doom-intro{animation:none}.doom-intro{display:none}}
 /* Arcade mode (Konami code): a '90s arcade fighting-game look */
-/* Daytime street stage: sky blue, sandstone, jade, signboard red, gold (original backdrop, no game art) */
+/* Night street stage: navy sky, neon signs, lit windows, a crowd on the sidewalk (original backdrop, no game art) */
 html.arcade{--f-logo:"Press Start 2P",ui-monospace,monospace;--f-body:"Press Start 2P",ui-monospace,monospace;font-size:11px;
-  --bg:#5AA6E6;--panel:rgba(18,34,44,.92);--raise:#1F3D47;--line:#2E5A62;--line2:#4AA89A;--ink:#FFFFFF;--muted:#A8C8C2;--soft:#EDE4B8;
+  --bg:#0B1028;--panel:rgba(14,18,42,.92);--raise:#1C2348;--line:#2E3768;--line2:#5A63A8;--ink:#FFFFFF;--muted:#A9B0D8;--soft:#E8E2C4;
   --blue:#3E8EDB;--pink:#D8283A;--amber:#F2C230;--yes:#52C98E;--no:#E8394A;--px:2px 2px 0 #000,-2px 2px 0 #000,2px -2px 0 #000,-2px -2px 0 #000;color-scheme:dark}
 html.arcade body{line-height:1.8;background:
-  radial-gradient(60px 18px at 12% 14%,#fff 98%,transparent),radial-gradient(90px 22px at 17% 12%,#fff 98%,transparent),
-  radial-gradient(70px 16px at 62% 9%,#fff 98%,transparent),radial-gradient(110px 24px at 69% 11%,#fff 98%,transparent),
-  radial-gradient(50px 14px at 88% 22%,#fff 98%,transparent),radial-gradient(80px 18px at 40% 26%,#F4FAFF 98%,transparent),
-  linear-gradient(#3F8FDC 0%,#6DB4EC 45%,#A9D6F4 72%,#D9EEF8 78%) fixed}
+  radial-gradient(circle at 82% 13%,#FFF6D8 0 28px,rgba(255,240,200,.25) 30px,rgba(255,240,200,.08) 60px,transparent 90px),
+  radial-gradient(1.5px 1.5px at 8% 12%,#fff 99%,transparent),radial-gradient(1px 1px at 19% 30%,#fff 99%,transparent),radial-gradient(1.5px 1.5px at 27% 8%,#fff 99%,transparent),
+  radial-gradient(1px 1px at 36% 22%,#fff 99%,transparent),radial-gradient(1.5px 1.5px at 46% 6%,#fff 99%,transparent),radial-gradient(1px 1px at 55% 28%,#fff 99%,transparent),
+  radial-gradient(1px 1px at 63% 16%,#fff 99%,transparent),radial-gradient(1.5px 1.5px at 71% 34%,#fff 99%,transparent),radial-gradient(1px 1px at 91% 30%,#fff 99%,transparent),
+  radial-gradient(1px 1px at 96% 8%,#fff 99%,transparent),radial-gradient(1px 1px at 3% 36%,#fff 99%,transparent),
+  linear-gradient(#060918 0%,#0F1638 40%,#2A1F55 66%,#5A2C66 76%,#0B1028 77%) fixed}
 #arcadeScene{position:fixed;left:0;right:0;bottom:0;width:100%;height:58vh;z-index:-1;pointer-events:none;image-rendering:pixelated;image-rendering:crisp-edges}
 html.arcade body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.12) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
 html.arcade .top h1{text-shadow:3px 3px 0 #B0192A,var(--px)}
@@ -278,6 +280,24 @@ html.arcade .hud{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,
   text-shadow:5px 5px 0 #C8102E,3px 3px 0 #000,-3px 3px 0 #000,3px -3px 0 #000,-3px -3px 0 #000;white-space:nowrap;animation:announce 1.15s steps(10) forwards}
 .announce.red{color:#FF3B3B;text-shadow:5px 5px 0 #6B0000,3px 3px 0 #000,-3px 3px 0 #000,3px -3px 0 #000,-3px -3px 0 #000}
 @keyframes announce{0%{transform:translate(-50%,-50%) scale(2.4);opacity:0}25%{transform:translate(-50%,-50%) scale(1);opacity:1}80%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1.15);opacity:0}}
+/* Fighters arena (under the life bars) */
+.hud .arena{grid-column:1/-1;position:relative;height:clamp(100px,18vh,180px);margin-top:-4px}
+.hud .arenabox{position:absolute;inset:0}
+.hud .arena canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+.combo{position:absolute;top:4px;z-index:2;font-family:"Press Start 2P",ui-monospace,monospace;font-size:clamp(.9rem,2.4vw,1.4rem);color:var(--amber);text-shadow:3px 3px 0 #C8102E,var(--px);white-space:nowrap;pointer-events:none;animation:combo 1.1s steps(8) forwards}
+.combo.l{left:4%} .combo.r{right:4%}
+@keyframes combo{0%{transform:scale(1.8);opacity:0}20%{transform:scale(1);opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(-8px)}}
+/* VS splash */
+.vs{position:fixed;inset:0;z-index:47;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:2vw;padding:4vh 4vw;pointer-events:none;
+  background:linear-gradient(100deg,rgba(30,70,180,.92) 0 49.6%,#000 49.6% 50.4%,rgba(170,20,90,.92) 50.4%);animation:vsOut .35s steps(4) 2.05s forwards}
+.vs .side{display:grid;justify-items:center;gap:2vh;min-width:0}
+.vs .side.l{animation:vsInL .4s steps(5)} .vs .side.r{animation:vsInR .4s steps(5)}
+.vs canvas{height:min(46vh,62vw);aspect-ratio:5/7;image-rendering:pixelated;image-rendering:crisp-edges}
+.vs .nm{font-family:"Press Start 2P",ui-monospace,monospace;font-size:clamp(1rem,3.4vw,2rem);color:#fff;text-shadow:var(--px);max-width:40vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vs .big{font-family:"Press Start 2P",ui-monospace,monospace;font-size:clamp(3rem,13vw,8rem);color:var(--amber);text-shadow:6px 6px 0 #C8102E,4px 4px 0 #000,-4px 4px 0 #000,4px -4px 0 #000,-4px -4px 0 #000;animation:vsBig .5s steps(6) .25s both}
+@keyframes vsInL{from{transform:translateX(-60vw)}} @keyframes vsInR{from{transform:translateX(60vw)}}
+@keyframes vsBig{0%{transform:scale(3);opacity:0}100%{transform:scale(1);opacity:1}} @keyframes vsOut{to{opacity:0}}
+@media (prefers-reduced-motion:reduce){.vs,.vs .side,.vs .big,.combo{animation:none}}
 .stage.shake{animation:shake2 .35s steps(6)}
 @keyframes shake2{0%,100%{transform:none}20%{transform:translate(-6px,2px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-4px,3px)}80%{transform:translate(3px,-1px)}}
 /* Rock paper scissors */
@@ -884,6 +904,7 @@ function onlineVM() {
 // ===================================================================
 function render() {
   renderScreen();
+  try { arenaAttach(); } catch (e) {}
   try { soundCheck(); } catch (e) {}
   try { timerTick(); } catch (e) {}
   // Arcade backdrop: with no bottom bar (home, setup, lobby) the street sits lower and the buildings stand taller.
@@ -1106,7 +1127,7 @@ function hudHTML(vm) {
   if (!document.documentElement.classList.contains("arcade")) return "";
   const bar = (p, i) => { const pct = Math.max(0, (MAX - p.used) / MAX * 100);
     return `<div class="hp p${i + 1}"><div class="bar${pct <= 25 ? " low" : ""}" role="img" aria-label="${esc(p.name)}: ${MAX - p.used} turns left"><i style="width:${pct}%"></i></div><span class="nm">${esc(p.name.replace(/ \(you\)$/, ""))}</span></div>`; };
-  return `<div class="hud">${bar(vm.players[0], 0)}<span class="ko" aria-hidden="true">KO</span>${bar(vm.players[1], 1)}</div>`;
+  return `<div class="hud">${bar(vm.players[0], 0)}<span class="ko" aria-hidden="true">KO</span>${bar(vm.players[1], 1)}<div class="arena" aria-hidden="true"></div></div>`;
 }
 const stageHTML = vm => `${hudHTML(vm)}<div class="stage">${podHTML(vm, vm.players[0], 0)}${centerHTML(vm)}${podHTML(vm, vm.players[1], 1)}</div>`;
 
@@ -1461,7 +1482,8 @@ function gameEvents() {
       p.entries.forEach((e, i) => { if (e.code) coded[pi + ":" + i] = e.code; });
       if (p.item) clues += hintsFor(p.item, countR(p.entries)).filter(Boolean).length;
     });
-    return { key: L, coded, clues, myTurn: false, over: st.over, ready: L.stage === "ask" || Object.keys(coded).length > 0,
+    const seq = L.players.map(p => p.entries.map(e => e.code).filter(c => c && c !== "u"));
+    return { key: L, coded, clues, seq, me: 0, names: L.players.map(p => p.name), winner: st.over ? st.winner : null, myTurn: false, over: st.over, ready: L.stage === "ask" || Object.keys(coded).length > 0,
       outcome: !st.over ? null : st.winner !== null ? "win" : "draw",
       winnerName: st.winner !== null ? L.players[st.winner].name : "", winnerUsed: st.winner !== null ? countR(L.players[st.winner].entries) : 0 };
   }
@@ -1470,7 +1492,10 @@ function gameEvents() {
     st.mine.forEach(e => { if (e.code) coded["m" + e.id] = e.code; });
     st.theirs.forEach(e => { if (e.code) coded["t" + e.id] = e.code; });
     const clues = s.hintsToMe.filter(Boolean).length + hintsFor(s.secret, st.R[1 - st.me]).filter(Boolean).length;
-    return { key: s.g, coded, clues, myTurn: !st.over && st.turn === st.me && !st.pending && !!O.conn, over: st.over, ready: true,
+    const seq = [], names = [];
+    seq[st.me] = st.mine.map(e => e.code).filter(c => c && c !== "u"); seq[1 - st.me] = st.theirs.map(e => e.code).filter(c => c && c !== "u");
+    names[st.me] = (draft.name || "You").slice(0, 24); names[1 - st.me] = s.oppName || "Opponent";
+    return { key: s.g, coded, clues, seq, me: st.me, names, winner: st.over ? st.winner : null, myTurn: !st.over && st.turn === st.me && !st.pending && !!O.conn, over: st.over, ready: true,
       outcome: !st.over ? null : st.winner === st.me ? "win" : st.winner !== null ? "lose" : "draw",
       winnerName: st.winner === null ? "" : st.winner === st.me ? "You" : (s.oppName || "Opponent"), winnerUsed: st.winner === null ? 0 : st.R[st.winner] };
   }
@@ -1488,9 +1513,11 @@ function shakeStage() { const st = document.querySelector(".stage"); if (!st) re
 SFX.fight = a => { tone(a, 196, 0, .18, "square", .1); tone(a, 262, .2, .18, "square", .1); tone(a, 392, .4, .35, "square", .12); };
 function soundCheck() {
   const ev = gameEvents();
+  if (ev && isArcade()) fightSync(ev);
   // Arcade mode: "ROUND 1 ... FIGHT!" once per match, when play actually starts.
   if (ev && isArcade() && ev.ready && !ev.over && announcedKey !== ev.key && !Object.keys(ev.coded).length) {
-    announcedKey = ev.key; announce("ROUND 1"); announce("FIGHT!", 1250, true); play("fight", 1250);
+    announcedKey = ev.key; fightReset(); vsSplash(ev.names);
+    announce("ROUND 1", 2250); announce("FIGHT!", 3500, true); play("fight", 3500);
   }
   if (!ev || !soundPrev || soundPrev.key !== ev.key) { soundPrev = ev; return; }
   let delay = 0;
@@ -1499,12 +1526,16 @@ function soundCheck() {
   if (lastCode && lastCode !== "c" && lastCode !== "t") { play(lastCode); delay = 450; }
   else if (lastCode === "t") delay = 450;
   if (isArcade() && lastCode) {
+    const k = fresh[fresh.length - 1], asker = k[0] === "m" ? ev.me : k[0] === "t" ? 1 - ev.me : +k.split(":")[0];
+    const seq = ev.seq[asker] || []; let streak = 0; for (let i = seq.length - 1; i >= 0 && seq[i] === "y"; i--) streak++;
+    fightHit(asker, lastCode, streak);
     if (lastCode === "n") shakeStage();
     else if (lastCode === "w") { shakeStage(); announce("MISS!", 0, true); }
     else if (lastCode === "t") announce("TIME OVER", 0, true);
   }
   if (ev.clues > soundPrev.clues) { play("clue", delay); delay += 500; }
   if (ev.over && !soundPrev.over) {
+    if (isArcade()) fightOver(ev.winner, lastCode === "c" ? 700 : 0);
     if (isArcade()) {
       if (ev.outcome === "draw") announce("DRAW GAME", 0);
       else {
@@ -1629,7 +1660,126 @@ window.addEventListener("keydown", e => {
   if (konamiAt === KONAMI.length) { konamiAt = 0; setArcade(!document.documentElement.classList.contains("arcade")); }
 });
 
-// Arcade backdrop: an original pixel-art street with buildings and passing cars, drawn on a canvas.
+// Arcade fighters: two original pixel brawlers under the life bars who trade blows on every answer.
+// YES = the asker lands a hit (punch/kick, combos for YES streaks), SORT OF = a jab, NO = the opponent counters,
+// a wrong guess whiffs, and the correct guess is a finishing kick followed by K.O.
+const FIGHTERS = [
+  { skin: "#E3A878", hair: "#17171F", band: "#FFD23F", top: "#2F6FD6", trim: "#FFFFFF", pants: "#262B3A", shoe: "#F4F4F4", glove: "#FFFFFF", hairStyle: "spiky" },
+  { skin: "#9A6440", hair: "#5CFF6A", band: null, top: "#C8288A", trim: "#17171F", pants: "#3A1F4A", shoe: "#17171F", glove: "#F4F0E0", hairStyle: "mohawk", bare: true }
+];
+function drawFighter(g, cx, gy, dir, F, pose, bob, flash) {
+  const R = (x, y, w, h, c) => { g.fillStyle = flash ? "#FFFFFF" : c; g.fillRect(dir > 0 ? cx + x : cx - x - w, gy + y, w, h); };
+  const sleeve = F.bare ? F.skin : F.top;
+  if (pose === "ko") {
+    R(4, -4, 14, 4, F.pants); R(18, -6, 3, 6, F.shoe); R(-8, -6, 12, 6, F.top); if (!F.bare) R(-8, -4, 12, 1, F.trim);
+    R(-15, -7, 7, 7, F.skin); R(-16, -7, 2, 7, F.hair); if (F.band) R(-14, -7, 1, 7, F.band); R(-2, -9, 6, 3, sleeve);
+    return;
+  }
+  const b = pose === "idle" || pose === "win" ? bob : 0, ux = pose === "hit" ? -3 : pose === "punch" ? 2 : pose === "kick" ? -2 : 0;
+  // Legs
+  if (pose === "kick") { R(-6, -18, 4, 16, F.pants); R(-7, -2, 6, 2, F.shoe); R(0, -22, 16, 4, F.pants); R(16, -24, 4, 6, F.shoe); }
+  else { const fx = pose === "punch" ? 5 : 2; R(-9, -18, 4, 16, F.pants); R(-10, -2, 6, 2, F.shoe); R(fx, -18, 4, 16, F.pants); R(fx, -2, 6, 2, F.shoe); }
+  R(-8 + (pose === "kick" ? 2 : 0), -21 + b, 14, 4, F.pants);
+  // Torso
+  R(-6 + ux, -33 + b, 12, 12, F.bare ? F.skin : F.top);
+  if (F.bare) { R(-6 + ux, -33 + b, 4, 12, F.top); R(2 + ux, -33 + b, 4, 12, F.top); } else R(-1 + ux, -33 + b, 2, 12, F.trim);
+  R(-6 + ux, -22 + b, 12, 1, F.trim);
+  // Head
+  const hx = ux + (pose === "hit" ? -1 : 0);
+  R(-3 + hx, -41 + b, 8, 8, F.skin); R(3 + hx, -38 + b, 1, 2, pose === "hit" ? "#FFFFFF" : "#111111"); R(2 + hx, -35 + b, 3, 1, "#6B2E1E");
+  if (F.hairStyle === "spiky") {
+    R(-4 + hx, -43 + b, 9, 3, F.hair); R(-5 + hx, -42 + b, 2, 5, F.hair); R(-4 + hx, -45 + b, 2, 2, F.hair); R(0 + hx, -46 + b, 2, 3, F.hair); R(4 + hx, -45 + b, 2, 2, F.hair);
+    R(-4 + hx, -40 + b, 9, 2, F.band); R(-7 + hx, -40 + b, 3, 1, F.band); R(-9 + hx, -39 + b, 3, 1, F.band);
+  } else { R(-2 + hx, -47 + b, 4, 7, F.hair); R(-3 + hx, -45 + b, 1, 4, F.hair); R(2 + hx, -45 + b, 1, 3, F.hair); R(-3 + hx, -41 + b, 1, 3, "#2A1A12"); }
+  // Arms
+  if (pose === "punch") { R(4 + ux, -32, 13, 3, sleeve); R(17 + ux, -33, 4, 5, F.glove); R(-1 + ux, -31, 3, 5, sleeve); R(1 + ux, -34, 3, 3, F.glove); }
+  else if (pose === "win") { R(4, -47 + b, 3, 16, sleeve); R(3, -51 + b, 5, 4, F.glove); R(-7, -31 + b, 3, 6, sleeve); R(-7, -26 + b, 3, 3, F.glove); }
+  else if (pose === "hit") { R(-9 + ux, -32, 4, 3, sleeve); R(-12 + ux, -35, 3, 4, F.glove); R(5 + ux, -30, 3, 6, sleeve); R(5 + ux, -24, 3, 3, F.glove); }
+  else { R(4 + ux, -32 + b, 4, 3, sleeve); R(7 + ux, -36 + b, 3, 5, sleeve); R(7 + ux, -39 + b, 4, 3, F.glove); R(-1 + ux, -31 + b, 3, 5, sleeve); R(1 + ux, -34 + b, 3, 3, F.glove); }
+}
+const FIGHT = { cv: null, raf: 0, key: null, f: [{}, {}], sparks: [], final: null, timers: [] };
+const nowMs = () => performance.now();
+function fightReset() {
+  FIGHT.timers.forEach(clearTimeout); FIGHT.timers = [];
+  FIGHT.f = [{}, {}]; FIGHT.sparks = []; FIGHT.final = null;
+}
+function fightSync(ev) {
+  if (FIGHT.key === ev.key) return;
+  FIGHT.key = ev.key; fightReset();
+  if (ev.over && ev.winner != null) FIGHT.final = { winner: ev.winner };
+}
+function act(i, pose, delay, dur, lunge) { const t = nowMs() + delay; FIGHT.f[i] = { pose, from: t, to: t + dur, lunge: lunge || 0 }; }
+function spark(i, delay, big) { FIGHT.sparks.push({ i, t: nowMs() + delay, big }); }
+function comboText(i, text) {
+  const a = FIGHT.box; if (!a || !a.isConnected) return;
+  const d = document.createElement("div"); d.className = "combo " + (i ? "r" : "l"); d.textContent = text; a.appendChild(d); setTimeout(() => d.remove(), 1150);
+}
+SFX.hit = a => { tone(a, 150, 0, .07, "square", .13); tone(a, 75, .03, .12, "square", .12); };
+SFX.whiff = a => tone(a, 600, 0, .12, "triangle", .05);
+function fightHit(asker, code, streak) {
+  const def = 1 - asker;
+  if (code === "y") {
+    const kick = streak >= 2 && streak % 2 === 0;
+    act(asker, kick ? "kick" : "punch", 0, 300, 12); act(def, "hit", 90, 380, -7); spark(def, 90, streak >= 2); play("hit", 90);
+    if (streak >= 2) comboText(asker, `${streak} HIT COMBO!`);
+  } else if (code === "s") { act(asker, "punch", 0, 220, 6); act(def, "hit", 80, 240, -3); spark(def, 80, false); play("hit", 80); }
+  else if (code === "n") { act(def, "punch", 0, 300, 12); act(asker, "hit", 90, 380, -7); spark(asker, 90, false); play("hit", 90); }
+  else if (code === "w") { act(asker, "punch", 0, 320, 16); act(def, "idle", 0, 320, -10); play("whiff"); }
+  else if (code === "t") { act(asker, "hit", 0, 500, -4); }
+  else if (code === "c") { act(asker, "kick", 0, 520, 16); act(def, "hit", 110, 600, -12); spark(def, 110, true); play("hit", 110); }
+}
+function fightOver(winner, delay) {
+  FIGHT.timers.push(setTimeout(() => { FIGHT.final = winner == null ? null : { winner }; }, delay));
+}
+function arenaAttach() {
+  const slot = document.querySelector(".hud .arena");
+  if (!slot) { if (FIGHT.raf) { cancelAnimationFrame(FIGHT.raf); FIGHT.raf = 0; } return; }
+  if (!FIGHT.cv) { FIGHT.box = document.createElement("div"); FIGHT.box.className = "arenabox"; FIGHT.cv = document.createElement("canvas"); FIGHT.box.appendChild(FIGHT.cv); }
+  if (FIGHT.box.parentNode !== slot) slot.prepend(FIGHT.box);
+  if (!FIGHT.raf) FIGHT.raf = requestAnimationFrame(arenaFrame);
+}
+function arenaFrame() {
+  FIGHT.raf = 0;
+  const cv = FIGHT.cv; if (!cv || !cv.isConnected) return;
+  const H = 60, W = Math.max(80, Math.round(H * cv.clientWidth / Math.max(1, cv.clientHeight)));
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  const g = cv.getContext("2d"), t = nowMs(), still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  g.clearRect(0, 0, W, H);
+  const gy = H - 6, base = [Math.round(W * .32), Math.round(W * .68)];
+  const fin = FIGHT.final;
+  for (let i = 0; i < 2; i++) {
+    const a = FIGHT.f[i] || {}, live = a.pose && t >= a.from && t < a.to;
+    let pose = live ? a.pose : "idle", dx = 0, flash = false;
+    if (live && !still) { const p = (t - a.from) / (a.to - a.from); dx = a.lunge * (p < .25 ? p / .25 : p > .7 ? (1 - p) / .3 : 1); flash = pose === "hit" && t - a.from < 90; }
+    if (fin && !live) pose = fin.winner === i ? "win" : "ko";
+    const bob = still ? 0 : Math.floor(t / 260 + i) % 2;
+    const x = base[i] + Math.round(dx) * (i ? -1 : 1);
+    g.fillStyle = "rgba(0,0,0,.45)"; g.fillRect(x - 11, gy, 22, 2);
+    drawFighter(g, x, gy, i ? -1 : 1, FIGHTERS[i], pose, bob, flash);
+  }
+  // Hit sparks
+  FIGHT.sparks = FIGHT.sparks.filter(s => t < s.t + 220);
+  for (const s of FIGHT.sparks) {
+    if (t < s.t) continue;
+    const k = (t - s.t) / 220, r = Math.round((s.big ? 9 : 6) * (.4 + k)), x = base[s.i] + (s.i ? 6 : -6), y = gy - 36;
+    g.fillStyle = k < .5 ? "#FFFFFF" : "#FFD23F";
+    for (let d = 0; d < 8; d++) { const ang = d * Math.PI / 4; g.fillRect(Math.round(x + Math.cos(ang) * r) - 1, Math.round(y + Math.sin(ang) * r) - 1, 3, 3); }
+    g.fillStyle = "#FF8A1F"; g.fillRect(x - 2, y - 2, 5, 5);
+  }
+  FIGHT.raf = requestAnimationFrame(arenaFrame);
+}
+function vsSplash(names) {
+  if (document.querySelector(".vs")) return;
+  const v = document.createElement("div"); v.className = "vs"; v.setAttribute("aria-hidden", "true");
+  v.innerHTML = `<div class="side l"><canvas width="50" height="70"></canvas><span class="nm">${esc((names[0] || "").replace(/ \(you\)$/, ""))}</span></div>
+    <span class="big">VS</span><div class="side r"><canvas width="50" height="70"></canvas><span class="nm">${esc((names[1] || "").replace(/ \(you\)$/, ""))}</span></div>`;
+  document.body.appendChild(v);
+  v.querySelectorAll("canvas").forEach((c, i) => drawFighter(c.getContext("2d"), 25, 66, i ? -1 : 1, FIGHTERS[i], "idle", 0, false));
+  play("egg");
+  setTimeout(() => v.remove(), 2450);
+}
+
+// Arcade backdrop: an original pixel-art night street with buildings, neon, a crowd and passing cars, drawn on a canvas.
 const SCENE = { P: 3, raf: 0, cv: null, bg: null, cars: [], last: 0 };
 function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function buildScene() {
@@ -1640,46 +1790,82 @@ function buildScene() {
   const g = bg.getContext("2d"), R = rng(20261007);
   const ground = Math.round(H * (SCENE.low ? .8 : .46)), pick = a => a[(R() * a.length) | 0];
   const rect = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x | 0, y | 0, w | 0, h | 0); };
-  // Buildings
-  const walls = [["#E8DDB5", "#C9BC8E"], ["#C9A97A", "#A88A5E"], ["#7FB7A8", "#5E9488"], ["#B85A4A", "#93463A"], ["#8C9BA8", "#6E7C88"], ["#D9C48A", "#B8A46A"], ["#E6CFC0", "#C4A998"]];
+  const glow = (x, y, w, h, c, alpha) => { g.globalAlpha = alpha; rect(x, y, w, h, c); g.globalAlpha = 1; };
+  // Buildings (night: dark walls, warm and cool lit windows, neon signs)
+  const walls = [["#2B3352", "#1D2339"], ["#3B2F4C", "#2A2137"], ["#22404C", "#172D36"], ["#4A2A33", "#351D24"], ["#30343F", "#22252D"], ["#3A3350", "#29243A"]];
+  const neon = ["#FF3FA4", "#3FF2FF", "#FFE14A", "#7CFF6B", "#FF7A2E"];
   for (let x = -6; x < W;) {
     const w = 26 + ((R() * 34) | 0), h = Math.round(ground * (.35 + R() * .55)), top = ground - h, [wall, shade] = pick(walls);
     rect(x, top, w, h, wall); rect(x + w - 3, top, 3, h, shade); rect(x - 1, top - 2, w + 2, 3, shade);
-    const lit = R() < .5;
+    const lit = R() < .6;
     for (let wy = top + 6; wy < ground - 16; wy += 9)
-      for (let wx = x + 4; wx < x + w - 7; wx += 7) { rect(wx, wy, 4, 5, R() < (lit ? .3 : .12) ? "#F2C230" : "#2A3A44"); rect(wx, wy + 5, 4, 1, shade); }
+      for (let wx = x + 4; wx < x + w - 7; wx += 7) {
+        const on = R() < (lit ? .55 : .2), c = on ? pick(["#FFD36B", "#FFD36B", "#FFE9A8", "#8FE6FF"]) : "#121628";
+        if (on) glow(wx - 1, wy - 1, 6, 7, c, .18);
+        rect(wx, wy, 4, 5, c); rect(wx, wy + 5, 4, 1, shade);
+      }
     const door = x + 4 + ((R() * (w - 14)) | 0);
-    rect(door, ground - 11, 7, 11, "#3A2A20"); rect(door + 5, ground - 6, 1, 1, "#F2C230");
-    if (R() < .55) { const aw = Math.min(w - 4, 20 + ((R() * 10) | 0)), ax = x + 2, [a1, a2] = pick([["#D8283A", "#F4F0E0"], ["#2E8A7C", "#F4F0E0"], ["#3E8EDB", "#F4F0E0"], ["#E89A2E", "#F4F0E0"]]);
-      for (let i = 0; i < aw; i += 2) rect(ax + i, ground - 16, 2, 4, (i / 2) % 2 ? a2 : a1); rect(ax, ground - 12, aw, 1, "#00000044"); }
-    if (R() < .35) { const sx = x + w - 9, sh = 10 + ((R() * 10) | 0); rect(sx, top + 8, 5, sh, pick(["#D8283A", "#2E8A7C", "#E89A2E"])); for (let i = 0; i < sh - 3; i += 4) rect(sx + 1, top + 10 + i, 3, 2, "#F2C230"); }
+    rect(door, ground - 11, 7, 11, "#14101A"); glow(door, ground - 11, 7, 11, "#FFB85A", .35); rect(door + 5, ground - 6, 1, 1, "#FFD36B");
+    if (R() < .5) { const aw = Math.min(w - 4, 20 + ((R() * 10) | 0)), ax = x + 2, [a1, a2] = pick([["#8A1B2A", "#3A3550"], ["#1E5A52", "#3A3550"], ["#27507F", "#3A3550"]]);
+      for (let i = 0; i < aw; i += 2) rect(ax + i, ground - 16, 2, 4, (i / 2) % 2 ? a2 : a1); rect(ax, ground - 12, aw, 1, "#00000066"); }
+    if (R() < .55) { const sx = x + w - 9, sh = 10 + ((R() * 12) | 0), nc = pick(neon);
+      glow(sx - 3, top + 5, 11, sh + 6, nc, .22); rect(sx, top + 8, 5, sh, "#0D0F1C"); rect(sx, top + 8, 5, 1, nc); rect(sx, top + 7 + sh, 5, 1, nc);
+      for (let i = 0; i < sh - 3; i += 4) rect(sx + 1, top + 10 + i, 3, 2, nc); }
+    if (R() < .35 && w > 30) { const nx = x + 5, nw = w - 14, ny = top + 4, nc = pick(neon); glow(nx - 2, ny - 2, nw + 4, 7, nc, .2); rect(nx, ny, nw, 3, "#0D0F1C"); rect(nx, ny + 1, nw, 1, nc); }
     const r = R();
-    if (r < .3) { rect(x + 5, top - 9, 10, 7, "#7A5A3A"); rect(x + 5, top - 9, 10, 1, "#5A4028"); rect(x + 6, top - 2, 1, 2, "#3A2A20"); rect(x + 13, top - 2, 1, 2, "#3A2A20"); }
-    else if (r < .5) { rect(x + w - 8, top - 10, 1, 9, "#3A3A3A"); rect(x + w - 11, top - 8, 7, 1, "#3A3A3A"); }
+    if (r < .3) { rect(x + 5, top - 9, 10, 7, "#2A2230"); rect(x + 5, top - 9, 10, 1, "#1A1420"); rect(x + 6, top - 2, 1, 2, "#14101A"); rect(x + 13, top - 2, 1, 2, "#14101A"); }
+    else if (r < .5) { rect(x + w - 8, top - 10, 1, 9, "#1A1A22"); rect(x + w - 11, top - 8, 7, 1, "#1A1A22"); rect(x + w - 8, top - 11, 1, 1, "#FF3B3B"); }
     x += w + (R() < .25 ? 3 + ((R() * 4) | 0) : 0);
   }
   // Sidewalk and street
-  rect(0, ground, W, 4, "#B8AE88"); rect(0, ground + 4, W, 2, "#8F7F4A");
-  for (let y = ground + 6; y < H; y += 6) { rect(0, y, W, 6, "#E7DDA9"); rect(0, y + 5, W, 1, "#C2B47A"); for (let x = ((y / 6) % 2) * 8; x < W; x += 16) rect(x, y, 1, 5, "#C2B47A"); }
+  rect(0, ground, W, 4, "#3A3F58"); rect(0, ground + 4, W, 2, "#23263A");
+  for (let y = ground + 6; y < H; y += 6) { rect(0, y, W, 6, "#2B2F45"); rect(0, y + 5, W, 1, "#20233A"); for (let x = ((y / 6) % 2) * 8; x < W; x += 16) rect(x, y, 1, 5, "#20233A"); }
+  // Streetlights with pools of light
+  for (let x = 20 + ((R() * 30) | 0); x < W; x += 70 + ((R() * 30) | 0)) {
+    const gr = g.createRadialGradient(x, ground + 3, 1, x, ground + 3, 26); gr.addColorStop(0, "rgba(255,214,140,.38)"); gr.addColorStop(1, "rgba(255,214,140,0)");
+    g.fillStyle = gr; g.fillRect(x - 28, ground - 30, 56, 60);
+    rect(x, ground - 30, 1, 30, "#14161F"); rect(x - 4, ground - 31, 6, 2, "#14161F"); rect(x - 4, ground - 29, 3, 1, "#FFE6A8");
+  }
   SCENE.bg = bg; SCENE.ground = ground;
+  // Crowd on the sidewalk (they bob, and cheer when a hit lands)
+  const shirts = ["#5A3D8C", "#2E6E8C", "#8C2E4E", "#3E7A4A", "#8C6A2E", "#4A4F6E", "#7A2E8C"], skins = ["#E3A878", "#9A6440", "#C68A5A", "#6B4226", "#F0C29A"];
+  SCENE.crowd = [];
+  for (let x = 2; x < W; x += 5 + ((R() * 5) | 0)) if (R() < .7) SCENE.crowd.push({ x, h: 9 + ((R() * 4) | 0), shirt: pick(shirts), skin: pick(skins), hair: pick(["#17171F", "#3A2418", "#C9A24A", "#7A3A1A"]), ph: R() * 6.28, sp: 2 + R() * 3 });
   // Cars: two lanes, opposite directions
-  const colors = ["#D8283A", "#3E8EDB", "#F2C230", "#2E8A7C", "#F4F0E0", "#E89A2E"];
+  const colors = ["#D8283A", "#3E8EDB", "#F2C230", "#2E8A7C", "#E8E4D8", "#E89A2E"];
   SCENE.cars = [0, 1, 2, 3].map(i => ({ x: R() * W, lane: i % 2, speed: (10 + R() * 12) * (i % 2 ? -1 : 1), color: colors[i % colors.length], van: R() < .3 }));
 }
 function drawCar(g, c, y) {
   const x = Math.round(c.x), L = c.van ? 24 : 22, dir = c.speed > 0;
   const f = (dx, dy, w, h, col) => { g.fillStyle = col; g.fillRect(dir ? x + dx : x + L - dx - w, y + dy, w, h); };
-  f(0, 5, L, 5, c.color); f(0, 9, L, 1, "#00000055");
-  if (c.van) { f(2, 0, 18, 6, c.color); f(14, 1, 5, 3, "#BFE6F7"); f(4, 1, 8, 3, "#BFE6F7"); }
-  else { f(5, 1, 11, 5, c.color); f(6, 2, 4, 3, "#BFE6F7"); f(11, 2, 4, 3, "#BFE6F7"); }
-  f(L - 1, 6, 1, 2, "#FFF6B0"); f(0, 6, 1, 2, "#E8394A");
-  f(3, 9, 4, 3, "#1A1A1A"); f(L - 7, 9, 4, 3, "#1A1A1A"); f(4, 10, 2, 1, "#8C8C8C"); f(L - 6, 10, 2, 1, "#8C8C8C");
+  // Headlight beam
+  g.globalAlpha = .22; g.fillStyle = "#FFF3B0";
+  for (let i = 0; i < 18; i++) g.fillRect(dir ? x + L + i : x - i - 1, y + 6 - (i >> 2), 1, 2 + (i >> 1));
+  g.globalAlpha = 1;
+  f(0, 5, L, 5, c.color); f(0, 9, L, 1, "#00000077");
+  if (c.van) { f(2, 0, 18, 6, c.color); f(14, 1, 5, 3, "#5E7FA0"); f(4, 1, 8, 3, "#5E7FA0"); }
+  else { f(5, 1, 11, 5, c.color); f(6, 2, 4, 3, "#5E7FA0"); f(11, 2, 4, 3, "#5E7FA0"); }
+  f(L - 1, 6, 1, 2, "#FFFBD0"); f(0, 6, 1, 2, "#FF2B3B"); g.globalAlpha = .35; f(-2, 5, 3, 4, "#FF2B3B"); g.globalAlpha = 1;
+  f(3, 9, 4, 3, "#0E0E12"); f(L - 7, 9, 4, 3, "#0E0E12"); f(4, 10, 2, 1, "#6C6C78"); f(L - 6, 10, 2, 1, "#6C6C78");
+}
+function drawCrowd(g, t, still) {
+  const cheer = FIGHT.sparks.length > 0 || (FIGHT.final && FIGHT.final.winner != null), gy = SCENE.ground + 2;
+  for (const p of SCENE.crowd || []) {
+    const up = still ? 0 : cheer ? Math.round(Math.abs(Math.sin(t / 90 + p.ph)) * 2) : (Math.sin(t / 1000 * p.sp + p.ph) > .6 ? 1 : 0);
+    const top = gy - p.h - up;
+    g.fillStyle = "#1A1C2A"; g.fillRect(p.x, gy - 4, 3, 4);
+    g.fillStyle = p.shirt; g.fillRect(p.x, top + 3, 3, p.h - 6);
+    g.fillStyle = p.skin; g.fillRect(p.x, top, 3, 3);
+    g.fillStyle = p.hair; g.fillRect(p.x, top, 3, 1);
+    if (cheer && !still) { g.fillStyle = p.skin; g.fillRect(p.x - 1, top - 2 + (up & 1), 1, 3); g.fillRect(p.x + 3, top - 2 + ((up + 1) & 1), 1, 3); }
+  }
 }
 function sceneFrame(t) {
   const cv = SCENE.cv; if (!cv) return;
   const g = cv.getContext("2d"), dt = Math.min(.1, (t - (SCENE.last || t)) / 1000); SCENE.last = t;
   g.clearRect(0, 0, cv.width, cv.height); g.drawImage(SCENE.bg, 0, 0);
   const still = matchMedia("(prefers-reduced-motion: reduce)").matches, W = cv.width;
+  drawCrowd(g, t, still);
   for (const c of SCENE.cars.slice().sort((a, b) => b.lane - a.lane)) {
     if (!still) { c.x += c.speed * dt; if (c.x > W + 30) c.x = -30; if (c.x < -30) c.x = W + 30; }
     drawCar(g, c, SCENE.ground + (c.lane ? 6 : 16));

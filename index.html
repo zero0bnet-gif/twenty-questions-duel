@@ -228,6 +228,8 @@ html.arcade .top h1{text-shadow:3px 3px 0 #B0192A,var(--px)}
 html.arcade .result,html.arcade .screen,html.arcade .stagebox{border-color:var(--amber)}
 html.arcade .stagebox{background:rgba(18,34,44,.55)}
 html.arcade .ghost{background:var(--panel)}
+html.arcade .panel{background:rgba(18,34,44,.74);-webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px)}
+html.arcade #app>.panel{max-width:960px;margin-inline:auto}
 html.arcade .hud .bar{background:#B0192A}
 html.arcade .glow-p,html.arcade .hero h2,html.arcade .result h2,html.arcade .eggmodal h2,html.arcade .code{color:var(--amber);text-shadow:3px 3px 0 #C8102E,var(--px)}
 html.arcade .panel,html.arcade .pod,html.arcade .mode,html.arcade .stagebox,html.arcade .screen,html.arcade .result,html.arcade .reveal,html.arcade .cover .card,html.arcade .eggmodal .card,html.arcade .filters{border-radius:0;border-width:4px;box-shadow:6px 6px 0 rgba(0,0,0,.6)}
@@ -857,7 +859,13 @@ function onlineVM() {
 // ===================================================================
 // RENDER
 // ===================================================================
-function render() { renderScreen(); try { soundCheck(); } catch (e) {} try { timerTick(); } catch (e) {} }
+function render() {
+  renderScreen();
+  try { soundCheck(); } catch (e) {}
+  try { timerTick(); } catch (e) {}
+  // Arcade backdrop: with no bottom bar (home, setup, lobby) the street sits lower and the buildings stand taller.
+  try { if (SCENE.cv) { const low = document.getElementById("console").hidden; if (low !== SCENE.low) { SCENE.low = low; buildScene(); } } } catch (e) {}
+}
 function renderScreen() {
   const app = document.getElementById("app"), con = document.getElementById("console");
   document.getElementById("homeBtn").hidden = screen === "home";
@@ -1606,7 +1614,7 @@ function buildScene() {
   cv.width = W; cv.height = H;
   const bg = document.createElement("canvas"); bg.width = W; bg.height = H;
   const g = bg.getContext("2d"), R = rng(20261007);
-  const ground = Math.round(H * .46), pick = a => a[(R() * a.length) | 0];
+  const ground = Math.round(H * (SCENE.low ? .8 : .46)), pick = a => a[(R() * a.length) | 0];
   const rect = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x | 0, y | 0, w | 0, h | 0); };
   // Buildings
   const walls = [["#E8DDB5", "#C9BC8E"], ["#C9A97A", "#A88A5E"], ["#7FB7A8", "#5E9488"], ["#B85A4A", "#93463A"], ["#8C9BA8", "#6E7C88"], ["#D9C48A", "#B8A46A"], ["#E6CFC0", "#C4A998"]];

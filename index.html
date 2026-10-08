@@ -212,14 +212,45 @@ h1,h2,h3{font-weight:700;text-wrap:balance;margin:0}
 .eggmodal iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .eggtoast{position:fixed;top:18%;left:50%;transform:translateX(-50%);z-index:45;pointer-events:none;font-family:var(--f-logo);font-size:clamp(1.3rem,5vw,2.4rem);color:#DFFFEF;text-shadow:0 0 8px var(--yes),0 0 26px var(--yes);white-space:nowrap;animation:toast 2.2s ease-out forwards}
 @keyframes toast{0%{opacity:0;transform:translate(-50%,10px) scale(.9)}15%{opacity:1;transform:translate(-50%,0) scale(1.05)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-10px)}}
-/* Arcade mode (Konami code) */
-html.arcade{--f-logo:"Press Start 2P",ui-monospace,monospace;--f-body:"Press Start 2P",ui-monospace,monospace;font-size:11px}
-html.arcade body{line-height:1.8}
-html.arcade body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.22) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
-html.arcade .panel,html.arcade .pod,html.arcade .mode,html.arcade .stagebox,html.arcade .screen,html.arcade .result,html.arcade .reveal,html.arcade .cover .card,html.arcade .eggmodal .card,html.arcade .hint,html.arcade .filters{border-radius:4px}
-html.arcade .go,html.arcade .btn,html.arcade .ghost,html.arcade .light,html.arcade .cats label,html.arcade .log li,html.arcade .ans,html.arcade .roster li,html.arcade .field input,html.arcade .row input,html.arcade .joinrow input,html.arcade .rpsbtn,html.arcade .clock,html.arcade .reacts button{border-radius:3px}
-html.arcade .go,html.arcade .btn.ask,html.arcade .btn.guess{box-shadow:4px 4px 0 rgba(0,0,0,.55)}
-html.arcade .dig{border-radius:2px}
+/* Arcade mode (Konami code): a '90s arcade fighting-game look */
+html.arcade{--f-logo:"Press Start 2P",ui-monospace,monospace;--f-body:"Press Start 2P",ui-monospace,monospace;font-size:11px;
+  --bg:#0B0A2A;--panel:rgba(8,6,28,.88);--raise:#1B1748;--line:#2D2870;--line2:#4A44A8;--ink:#FFFFFF;--muted:#A9A6E0;--soft:#DCDAFF;
+  --blue:#3D86FF;--pink:#FF3B3B;--amber:#FFD23F;--yes:#6CFF5A;--no:#FF3B3B;--px:2px 2px 0 #000,-2px 2px 0 #000,2px -2px 0 #000,-2px -2px 0 #000}
+html.arcade body{line-height:1.8;background:linear-gradient(#0B0A2A 0%,#241A63 38%,#7A2A7A 58%,#FF6A3D 72%,#FFC25A 80%,#2B1636 80.4%,#120A1E 100%) fixed}
+html.arcade body::before{content:"";position:fixed;left:0;right:0;bottom:0;height:34vh;z-index:-1;pointer-events:none;background:#1A0E2A;
+  clip-path:polygon(0 62%,8% 40%,15% 55%,24% 22%,33% 50%,41% 35%,50% 58%,58% 28%,66% 47%,74% 18%,83% 44%,91% 30%,100% 52%,100% 100%,0 100%)}
+html.arcade body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.25) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+html.arcade .glow-p,html.arcade .hero h2,html.arcade .result h2,html.arcade .eggmodal h2,html.arcade .code{color:var(--amber);text-shadow:3px 3px 0 #C8102E,var(--px)}
+html.arcade .panel,html.arcade .pod,html.arcade .mode,html.arcade .stagebox,html.arcade .screen,html.arcade .result,html.arcade .reveal,html.arcade .cover .card,html.arcade .eggmodal .card,html.arcade .filters{border-radius:0;border-width:4px;box-shadow:6px 6px 0 rgba(0,0,0,.6)}
+html.arcade .hint,html.arcade .go,html.arcade .btn,html.arcade .ghost,html.arcade .light,html.arcade .cats label,html.arcade .log li,html.arcade .ans,html.arcade .roster li,html.arcade .field input,html.arcade .row input,html.arcade .joinrow input,html.arcade .rpsbtn,html.arcade .clock,html.arcade .reacts button,html.arcade .dig,html.arcade .pill{border-radius:0}
+html.arcade .go,html.arcade .btn.ask,html.arcade .btn.guess{box-shadow:4px 4px 0 #000;text-transform:uppercase}
+html.arcade .go:active,html.arcade .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 #000}
+html.arcade .podhead h2,html.arcade .cover h2,html.arcade .mode h3,html.arcade .screen .bigq{text-shadow:var(--px);text-transform:uppercase}
+html.arcade .stripes{display:none}
+html.arcade .stagebox{background:rgba(8,6,28,.55);background-image:none;border-color:var(--amber)}
+html.arcade .screen{background:#000;border-color:var(--amber);box-shadow:6px 6px 0 rgba(0,0,0,.6)}
+html.arcade .screen .who{color:var(--amber)}
+html.arcade .pod.active{box-shadow:6px 6px 0 rgba(0,0,0,.6),0 0 0 4px var(--c)}
+/* Life bars */
+.hud{display:none}
+html.arcade .hud{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:start;gap:12px;margin-bottom:18px}
+.hud .hp{display:grid;gap:6px;min-width:0}
+.hud .bar{height:22px;background:#C8102E;border:3px solid #fff;box-shadow:3px 3px 0 #000;position:relative;overflow:hidden}
+.hud .bar i{position:absolute;top:0;bottom:0;background:linear-gradient(#FFF27A,#FFD23F 45%,#E8A800);transition:width .5s steps(8)}
+.hud .p1 .bar i{right:0} .hud .p2 .bar i{left:0}
+.hud .bar.low i{animation:blink .4s steps(2) infinite}
+@keyframes blink{50%{opacity:.35}}
+.hud .nm{font-size:1rem;color:#fff;text-shadow:var(--px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hud .p2 .nm{text-align:right}
+.hud .p1 .nm{color:#9CC2FF} .hud .p2 .nm{color:#FF9C9C}
+.hud .ko{background:#C8102E;color:var(--amber);font-size:1.3rem;padding:6px 10px;border:3px solid #fff;box-shadow:3px 3px 0 #000;text-shadow:2px 2px 0 #000}
+/* Announcer */
+.announce{position:fixed;left:50%;top:38%;z-index:46;pointer-events:none;font-family:"Press Start 2P",ui-monospace,monospace;font-size:clamp(2.2rem,9vw,5.5rem);color:var(--amber);
+  text-shadow:5px 5px 0 #C8102E,3px 3px 0 #000,-3px 3px 0 #000,3px -3px 0 #000,-3px -3px 0 #000;white-space:nowrap;animation:announce 1.15s steps(10) forwards}
+.announce.red{color:#FF3B3B;text-shadow:5px 5px 0 #6B0000,3px 3px 0 #000,-3px 3px 0 #000,3px -3px 0 #000,-3px -3px 0 #000}
+@keyframes announce{0%{transform:translate(-50%,-50%) scale(2.4);opacity:0}25%{transform:translate(-50%,-50%) scale(1);opacity:1}80%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1.15);opacity:0}}
+.stage.shake{animation:shake2 .35s steps(6)}
+@keyframes shake2{0%,100%{transform:none}20%{transform:translate(-6px,2px)}40%{transform:translate(5px,-3px)}60%{transform:translate(-4px,3px)}80%{transform:translate(3px,-1px)}}
 /* Rock paper scissors */
 .rpsrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:12px}
 .rpsbtn{--c:var(--blue);display:grid;justify-items:center;gap:4px;padding:16px 8px;border-radius:24px;border:2px solid var(--c);background:var(--panel);color:var(--ink);font-weight:700;font-size:1rem;box-shadow:0 0 14px color-mix(in srgb,var(--c) 35%,transparent);transition:transform .12s}
@@ -1031,7 +1062,13 @@ function centerHTML(vm) {
     <p class="bigq">${kind === "q" ? esc(text) : `Is it “${esc(text)}”?`}</p>
     <div class="lights">${lights}</div>${sub ? `<span class="sub">${esc(sub)}</span>` : ""}</div></section>`;
 }
-const stageHTML = vm => `<div class="stage">${podHTML(vm, vm.players[0], 0)}${centerHTML(vm)}${podHTML(vm, vm.players[1], 1)}</div>`;
+function hudHTML(vm) {
+  if (!document.documentElement.classList.contains("arcade")) return "";
+  const bar = (p, i) => { const pct = Math.max(0, (MAX - p.used) / MAX * 100);
+    return `<div class="hp p${i + 1}"><div class="bar${pct <= 25 ? " low" : ""}" role="img" aria-label="${esc(p.name)}: ${MAX - p.used} turns left"><i style="width:${pct}%"></i></div><span class="nm">${esc(p.name.replace(/ \(you\)$/, ""))}</span></div>`; };
+  return `<div class="hud">${bar(vm.players[0], 0)}<span class="ko" aria-hidden="true">KO</span>${bar(vm.players[1], 1)}</div>`;
+}
+const stageHTML = vm => `${hudHTML(vm)}<div class="stage">${podHTML(vm, vm.players[0], 0)}${centerHTML(vm)}${podHTML(vm, vm.players[1], 1)}</div>`;
 
 function resultHTML(vm) {
   const w = vm.winner;
@@ -1384,28 +1421,58 @@ function gameEvents() {
       p.entries.forEach((e, i) => { if (e.code) coded[pi + ":" + i] = e.code; });
       if (p.item) clues += hintsFor(p.item, countR(p.entries)).filter(Boolean).length;
     });
-    return { key: L, coded, clues, myTurn: false, over: st.over, outcome: !st.over ? null : st.winner !== null ? "win" : "draw" };
+    return { key: L, coded, clues, myTurn: false, over: st.over, ready: L.stage === "ask" || Object.keys(coded).length > 0,
+      outcome: !st.over ? null : st.winner !== null ? "win" : "draw",
+      winnerName: st.winner !== null ? L.players[st.winner].name : "", winnerUsed: st.winner !== null ? countR(L.players[st.winner].entries) : 0 };
   }
   if (screen === "online" && O && O.st.g && O.st.secret && O.st.myCat && O.st.rpsDone !== false) {
     const s = O.st, st = onlineState(), coded = {};
     st.mine.forEach(e => { if (e.code) coded["m" + e.id] = e.code; });
     st.theirs.forEach(e => { if (e.code) coded["t" + e.id] = e.code; });
     const clues = s.hintsToMe.filter(Boolean).length + hintsFor(s.secret, st.R[1 - st.me]).filter(Boolean).length;
-    return { key: s.g, coded, clues, myTurn: !st.over && st.turn === st.me && !st.pending && !!O.conn, over: st.over,
-      outcome: !st.over ? null : st.winner === st.me ? "win" : st.winner !== null ? "lose" : "draw" };
+    return { key: s.g, coded, clues, myTurn: !st.over && st.turn === st.me && !st.pending && !!O.conn, over: st.over, ready: true,
+      outcome: !st.over ? null : st.winner === st.me ? "win" : st.winner !== null ? "lose" : "draw",
+      winnerName: st.winner === null ? "" : st.winner === st.me ? "You" : (s.oppName || "Opponent"), winnerUsed: st.winner === null ? 0 : st.R[st.winner] };
   }
   return null;
 }
+let announcedKey = null;
+const isArcade = () => document.documentElement.classList.contains("arcade");
+function announce(text, delay, red) {
+  setTimeout(() => {
+    const a = document.createElement("div"); a.className = "announce" + (red ? " red" : ""); a.textContent = text;
+    document.body.appendChild(a); setTimeout(() => a.remove(), 1200);
+  }, delay || 0);
+}
+function shakeStage() { const st = document.querySelector(".stage"); if (!st) return; st.classList.remove("shake"); void st.offsetWidth; st.classList.add("shake"); }
+SFX.fight = a => { tone(a, 196, 0, .18, "square", .1); tone(a, 262, .2, .18, "square", .1); tone(a, 392, .4, .35, "square", .12); };
 function soundCheck() {
   const ev = gameEvents();
+  // Arcade mode: "ROUND 1 ... FIGHT!" once per match, when play actually starts.
+  if (ev && isArcade() && ev.ready && !ev.over && announcedKey !== ev.key && !Object.keys(ev.coded).length) {
+    announcedKey = ev.key; announce("ROUND 1"); announce("FIGHT!", 1250, true); play("fight", 1250);
+  }
   if (!ev || !soundPrev || soundPrev.key !== ev.key) { soundPrev = ev; return; }
   let delay = 0;
   const fresh = Object.keys(ev.coded).filter(k => soundPrev.coded[k] !== ev.coded[k]);
   const lastCode = fresh.length ? ev.coded[fresh[fresh.length - 1]] : null;
   if (lastCode && lastCode !== "c" && lastCode !== "t") { play(lastCode); delay = 450; }
   else if (lastCode === "t") delay = 450;
+  if (isArcade() && lastCode) {
+    if (lastCode === "n") shakeStage();
+    else if (lastCode === "w") { shakeStage(); announce("MISS!", 0, true); }
+    else if (lastCode === "t") announce("TIME OVER", 0, true);
+  }
   if (ev.clues > soundPrev.clues) { play("clue", delay); delay += 500; }
   if (ev.over && !soundPrev.over) {
+    if (isArcade()) {
+      if (ev.outcome === "draw") announce("DRAW GAME", 0);
+      else {
+        announce("K.O.", 0, true);
+        const second = ev.outcome === "lose" ? "YOU LOSE" : ev.winnerUsed <= 3 ? "PERFECT!" : ev.winnerName === "You" ? "YOU WIN" : `${ev.winnerName.toUpperCase().slice(0, 12)} WINS`;
+        announce(second, 1300);
+      }
+    }
     if (ev.outcome === "win") { play("win", delay); confetti(); }
     else if (ev.outcome === "lose") play("lose", delay);
   } else if (ev.myTurn && !soundPrev.myTurn && !lastCode) play("turn", delay);
@@ -1512,7 +1579,7 @@ function setArcade(on, quiet) {
   }
   document.documentElement.classList.toggle("arcade", on);
   SS.set("tq:arcade", on);
-  if (!quiet) { eggToast(on ? "ARCADE MODE" : "ARCADE MODE OFF"); play("egg"); }
+  if (!quiet) { eggToast(on ? "INSERT COIN" : "GAME OVER"); play("egg"); lastConsoleKey = ""; render(); }
 }
 window.addEventListener("keydown", e => {
   const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;

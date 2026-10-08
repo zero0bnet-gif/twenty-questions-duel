@@ -9,6 +9,7 @@ A head-to-head guessing game. Each player gets a secret item they can't see. Pla
 - **Rock, paper, scissors** decides who asks first.
 - **Turn timer:** optional 30, 60, or 90 seconds per turn. Run out of time and the turn counts.
 - **Sounds, confetti, and 50 emoji reactions** (online, reactions show up on your opponent's screen).
+- **Vs computer:** play solo against the CPU on Easy, Normal or Hard.
 - **Custom secrets:** instead of drawing from the catalog, each player writes the secret their opponent has to guess, then writes them a clue every 3 turns.
 - No accounts, no API keys, no server of your own.
 
@@ -18,14 +19,17 @@ A head-to-head guessing game. Each player gets a secret item they can't see. Pla
 |---|---|
 | `index.html` | The game |
 | `catalog.js` | The items, hints, tags, and filter definitions. Edit this to add more. |
-| `check-catalog.js` | Checks the catalog for missing tags and other mistakes |
+| `botdata.js` | The computer opponent's question menu and an answer for every item |
+| `check-catalog.js` | Checks the catalog (and the computer's answers) for missing tags and other mistakes |
 | `README.md` | This file |
 
-Keep `index.html` and `catalog.js` in the same folder.
+Keep `index.html`, `catalog.js` and `botdata.js` in the same folder.
 
 ## Ways to play
 
 **Same screen:** two players share one device. When it's time to answer, the game tells you to pass the device so only the answerer sees the secret.
+
+**Vs computer:** you and the CPU each get a secret. On your turn, pick a question from the menu (type to search it) or type a guess; the CPU answers from its table. On its turn, the CPU asks about its own secret and you answer. It can't see its secret; it narrows down the possibilities from your answers. Custom secrets aren't available in this mode.
 
 **Online:** one player taps *Create match* and sends the invite link (or the 5-letter code). The friend opens it on their own device and taps *Join*. Any two people can play; you don't have to be one of them.
 
@@ -109,7 +113,11 @@ node check-catalog.js
 
 It lists any item missing a year or tag, hints that give away the name, and how many items each filter option has (counts are only shown here, not in the game). A game needs at least 4 matching items; until the picks reach that, the next filter stays hidden and the start button reads "Pick more options."
 
-After editing, upload the new `catalog.js` (or commit and push) and the live site updates. To make sure players get the new list right away instead of a cached copy, also bump the number in `catalog.js?v=4` inside `index.html` (to `v=5`, and so on).
+### Computer answers
+
+Every item also needs a row in `botdata.js` so the computer can play with it: one letter per question in that category's menu (`y` yes, `n` no, `s` sort of), in order. Genre, era, region and similar questions come from the item's tags and year automatically, so they don't need letters. Until an item has its row, it still works in games with friends but is left out of computer games; `node check-catalog.js` lists any that are missing.
+
+After editing, upload the changed files (or commit and push) and the live site updates. To make sure players get the new list right away instead of a cached copy, also bump the numbers in `catalog.js?v=5` and `botdata.js?v=1` inside `index.html`.
 
 ## Good to know
 

@@ -54,10 +54,10 @@ h1,h2,h3{font-weight:700;text-wrap:balance;margin:0}
 .field.p1 .label{color:var(--blue)} .field.p2 .label{color:var(--pink)}
 .field.name input{font-weight:700;font-size:1.25rem;color:var(--blue);border-color:var(--blue);text-shadow:0 0 10px rgba(79,195,255,.6)}
 .names{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.modes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px}
 .mode{--c:var(--blue);border:2px solid var(--c);border-radius:26px;padding:16px 20px 20px;display:flex;flex-direction:column;gap:10px;background:var(--panel);box-shadow:0 0 18px color-mix(in srgb,var(--c) 30%,transparent)}
 .mode::before{content:"";height:4px;border-radius:4px;background:var(--c);box-shadow:0 0 8px var(--c)}
-.mode.c-pink{--c:var(--pink)} .mode.c-amber{--c:var(--amber)}
+.mode.c-pink{--c:var(--pink)} .mode.c-amber{--c:var(--amber)} .mode.c-green{--c:var(--yes)}
 .mode h3{font-size:1.4rem;color:var(--c)}
 .mode p{margin:0;color:var(--soft);font-size:.95rem}
 .mode .go{margin-top:auto;align-self:flex-start;background:var(--c)}
@@ -81,6 +81,13 @@ h1,h2,h3{font-weight:700;text-wrap:balance;margin:0}
 .go{--c:var(--blue);font-family:var(--f-body);font-weight:700;font-size:1.05rem;background:var(--c);color:var(--bg);border:0;border-radius:999px;padding:0 26px;min-height:50px;justify-self:start;box-shadow:0 0 18px color-mix(in srgb,var(--c) 55%,transparent)}
 .go.alt{--c:var(--pink);background:var(--pink)} .go.blue{--c:var(--blue)} .go.amber{--c:var(--amber);background:var(--amber)}
 .go:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.go.green{--c:var(--yes);background:var(--yes)}
+/* Question menu (vs computer) */
+.qmenu{display:flex;flex-wrap:wrap;gap:6px;max-height:min(132px,22vh);overflow-y:auto;padding:2px}
+.qmenu button{border:1.5px solid var(--line2);background:var(--raise);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:.88rem;font-weight:600;text-align:left}
+.qmenu button:hover,.qmenu button:focus-visible{border-color:var(--yes);color:var(--yes)}
+.qmenu .none{color:var(--muted);font-size:.88rem;padding:6px 2px}
+html.arcade .qmenu button{border-radius:0}
 .code{font-weight:700;font-size:clamp(2.4rem,9vw,3.6rem);letter-spacing:.18em;color:var(--amber);line-height:1;text-shadow:0 0 14px rgba(255,179,71,.7)}
 .coderow{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
 .roster{display:grid;gap:8px;margin:0;padding:0;list-style:none}
@@ -346,6 +353,7 @@ html.arcade .hud{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,
 <div id="cover" class="cover" hidden></div>
 
 <script src="catalog.js?v=5"></script>
+<script src="botdata.js?v=1"></script>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js"></script>
 <script>
 "use strict";
@@ -494,10 +502,54 @@ function dealFrom(catSetting, parity, filters) {
   return { cat, item: pick(pool.length ? pool : list) };
 }
 
+// ---------- Computer opponent: question menu, answers and guessing ----------
+const BOTQ_CACHE = {};
+function botQs(cat) {
+  if (BOTQ_CACHE[cat]) return BOTQ_CACHE[cat];
+  const B = (window.BOT || {})[cat], A = (window.AUTOQ || {})[cat], qs = [];
+  if (A && A.tags) for (const [t, text] of Object.entries(A.tags)) qs.push({ id: "tag:" + t, text, ans: it => (it.tags || []).includes(t) ? "y" : "n" });
+  if (A && A.years) for (const y of A.years[0]) qs.push({ id: "yr:" + y, text: A.years[1].replace("{y}", y), ans: it => Number.isInteger(it.year) ? (it.year < y ? "y" : "n") : null });
+  if (B) B.q.forEach(([id, text], k) => qs.push({ id, text, ans: it => { const r = B.a[it.name]; return r ? r[k] || null : null; } }));
+  return BOTQ_CACHE[cat] = qs;
+}
+const botReady = (cat, it) => !!(window.BOT && window.BOT[cat] && window.BOT[cat].a[it.name]);
+const BOT_LEVELS = {
+  easy: { label: "Easy", top: 99, rand: .85, conf: .93, hunch: .06 },
+  normal: { label: "Normal", top: 12, rand: .45, conf: .8, hunch: .03 },
+  hard: { label: "Hard", top: 1, rand: 0, conf: .5, hunch: 0 }
+};
+// How well an item fits an answer: FIT[answer given][item's own answer].
+const FIT = { y: { y: 1, s: .5, n: .06 }, n: { n: 1, s: .5, y: .06 }, s: { s: 1, y: .35, n: .35 } };
+function botWeights(pool, cat, entries) {
+  const byId = Object.fromEntries(botQs(cat).map(q => [q.id, q]));
+  return pool.map(it => {
+    let w = 1;
+    for (const e of entries) {
+      if (e.kind === "g" && e.code === "w" && e.text === it.name) w = 0;
+      else if (e.kind === "q" && e.qid && byId[e.qid] && FIT[e.code]) w *= FIT[e.code][byId[e.qid].ans(it) || "s"];
+    }
+    return { it, w };
+  });
+}
+function botDecide(pool, cat, entries, level, used, rnd) {
+  rnd = rnd || Math.random;
+  const lv = BOT_LEVELS[level] || BOT_LEVELS.normal, W = botWeights(pool, cat, entries).filter(x => x.w > 0).sort((a, b) => b.w - a.w);
+  const tot = W.reduce((s, x) => s + x.w, 0) || 1, top = W[0], share = top ? top.w / tot : 0;
+  if (!top) { const left = pool.filter(it => !entries.some(e => e.kind === "g" && e.text === it.name)); return { kind: "g", item: left[(rnd() * left.length) | 0] || pool[0], share: 0 }; }
+  const asked = new Set(entries.map(e => e.qid).filter(Boolean));
+  const scored = botQs(cat).filter(q => !asked.has(q.id)).map(q => {
+    let p = 0; for (const x of W) { const a = q.ans(x.it) || "s"; p += x.w * (a === "y" ? 1 : a === "s" ? .5 : 0); }
+    p /= tot; return { q, s: 1 - Math.abs(2 * p - 1) };
+  }).filter(x => x.s > .03).sort((a, b) => b.s - a.s);
+  if (used >= 19 || !scored.length || share >= lv.conf || (used >= 5 && rnd() < lv.hunch)) return { kind: "g", item: top.it, share };
+  const pool2 = rnd() < lv.rand ? scored : scored.slice(0, lv.top);
+  return { kind: "q", q: pool2[(rnd() * pool2.length) | 0].q, share };
+}
+
 // ---------- App state ----------
-let screen = "home";   // home | local-setup | local | online
+let screen = "home";   // home | local-setup | bot-setup | local | online
 const params = new URLSearchParams(location.search);
-const draft = { name: LS.get("tq:name") || "", code: (params.get("join") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6), p1: "Player 1", p2: "Player 2", cat: "Mix", filters: {}, custom: false, timer: +(LS.get("tq:timer") || 0) };
+const draft = { name: LS.get("tq:name") || "", code: (params.get("join") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6), p1: "Player 1", p2: "Player 2", cat: "Mix", filters: {}, custom: false, timer: +(LS.get("tq:timer") || 0), diff: LS.get("tq:diff") || "normal" };
 let statusMsg = "", statusErr = false, lastConsoleKey = "";
 const setStatus = (m, err) => { statusMsg = m || ""; statusErr = !!err; };
 const PeerOK = typeof window.Peer === "function";
@@ -527,6 +579,58 @@ function localOver() {
   if (L.ended) return { over: true, winner: null, endedBy: "Someone" };
   return { over: false, winner: null };
 }
+// ---------- Vs computer ----------
+// Runs on the same-screen engine: player 0 is you, player 1 is the computer. You pick questions from a menu and the
+// computer answers from its table; it asks about its own secret, you answer, and it narrows down the candidates.
+// It never looks at its own secret, only at your answers (a guess is checked automatically).
+const BOT_NAME = "CPU";
+const BOT_THINK = ["is thinking…", "is scratching its head…", "is crunching the numbers…", "has a hunch…", "is narrowing it down…", "is sizing up the options…"];
+function botDeal(catChoice, filters, avoid) {
+  for (let i = 0; i < 60; i++) { const d = dealFrom(catChoice, null, filters); if (botReady(d.cat, d.item) && (!avoid || d.item.name !== avoid.name)) return d; }
+  for (const cat of CATS) { const it = itemsOf(cat).find(x => botReady(cat, x) && (!avoid || x.name !== avoid.name)); if (it) return { cat, item: it }; }
+  return dealFrom(catChoice, null, filters);
+}
+function botNew(name, diff, catChoice, filters) {
+  filters = normalizeFilters(catChoice, filters);
+  const a = botDeal(catChoice, filters), b = botDeal(catChoice === "Mix" ? "Mix" : a.cat, filters, a.item);
+  L = { players: [{ name, cat: a.cat, item: a.item, entries: [] }, { name: BOT_NAME, cat: b.cat, item: b.item, entries: [] }],
+        turn: 0, catChoice, filters, stage: "rpsPick", rps: { picks: [null, null], picker: 0 }, pending: null, timer: draft.timer || 0, bot: { diff } };
+  screen = "local"; setStatus(""); lastConsoleKey = "";
+  render();
+}
+// The candidates the computer considers for its own secret: its category, narrowed by the match filters.
+function botPool() {
+  const cat = L.players[1].cat;
+  let list = L.catChoice === "Mix" ? itemsOf(cat) : filteredItems(cat, L.filters);
+  if (list.length < 2) list = itemsOf(cat);
+  return list.filter(it => botReady(cat, it));
+}
+// Your question menu, narrowed by what you've typed. Questions you already asked drop off.
+function botMenu(text) {
+  const p = L.players[0], asked = new Set(p.entries.map(e => e.qid).filter(Boolean));
+  const words = norm(text || "").split(" ").filter(w => w.length > 1);
+  return botQs(p.cat).filter(q => !asked.has(q.id) && words.every(w => norm(q.text).includes(w)));
+}
+function botAsk(q) {
+  if (!L || !L.bot || L.turn !== 0 || L.stage !== "ask") return;
+  const me = L, p = L.players[0];
+  if (countR(p.entries) >= MAX - 1) { setStatus("Last turn. Make your guess.", true); render(); return; }
+  clearInput(); setStatus(""); L.stage = "botAnswering"; render();
+  setTimeout(() => { if (L !== me) return; L.stage = "ask"; localRecord({ kind: "q", text: q.text, qid: q.id }, q.ans(p.item) || "s"); }, 550 + Math.random() * 450);
+}
+function botTick() {
+  if (screen !== "local" || !L || !L.bot || L.turn !== 1 || L.stage !== "ask" || localOver().over || L.bot.busy) return;
+  if (countR(L.players[1].entries) >= MAX) return;
+  const me = L; L.bot.busy = true; L.bot.line = pick(BOT_THINK);
+  setTimeout(() => { if (L !== me) return; L.bot.busy = false; botMove(); }, 1100 + Math.random() * 1000);
+}
+function botMove() {
+  if (!L || L.turn !== 1 || L.stage !== "ask" || localOver().over) return;
+  const p = L.players[1], d = botDecide(botPool(), p.cat, p.entries, L.bot.diff, countR(p.entries));
+  if (d.kind === "g") { localRecord({ kind: "g", text: d.item.name }, d.item.name === p.item.name ? "c" : "w"); return; }
+  L.pending = { kind: "q", text: d.q.text, qid: d.q.id };
+  L.stage = "answer"; render();
+}
 function localAct(kind) {
   const input = document.getElementById("qInput");
   const text = (input && input.value || "").trim().slice(0, 120);
@@ -534,6 +638,13 @@ function localAct(kind) {
   const p = L.players[L.turn];
   if (kind === "q" && countR(p.entries) >= MAX - 1) { setStatus("Last turn. Make your guess.", true); render(); return; }
   if (kind === "g" && text === DOOM_PHRASE) { clearInput(); launchDoom(); return; }
+  if (L.bot) {
+    if (L.turn !== 0) return;
+    if (kind === "q") { const q = botMenu(text)[0]; if (!q) { setStatus("No question matches that. Pick one from the list.", true); render(); return; } botAsk(q); return; }
+    const me = L; clearInput(); setStatus(""); L.stage = "botAnswering"; render();
+    setTimeout(() => { if (L !== me) return; L.stage = "ask"; localRecord({ kind, text }, localMatch(text, p.item) ? "c" : "w"); }, 650);
+    return;
+  }
   clearInput(); setStatus("");
   if (kind === "g" && localMatch(text, p.item)) { localRecord({ kind, text }, "c"); return; }
   L.pending = { kind, text };
@@ -542,7 +653,7 @@ function localAct(kind) {
 }
 function localRecord(action, code) {
   const p = L.players[L.turn];
-  p.entries.push({ kind: action.kind, text: action.text, code });
+  p.entries.push(action.qid ? { kind: action.kind, text: action.text, code, qid: action.qid } : { kind: action.kind, text: action.text, code });
   L.last = { pi: L.turn, idx: p.entries.length - 1 };
   L.pending = null;
   if (code === "c") { L.stage = "ask"; render(); return; }
@@ -550,7 +661,7 @@ function localRecord(action, code) {
   setStatus(action.kind === "q" ? `${p.name} asked. ${LABEL[code]}.` : `${p.name} guessed “${action.text}”. Wrong.`, code === "w");
   const asker = L.turn, o = 1 - L.turn;
   if (countR(L.players[o].entries) < MAX) { L.turn = o; L.stage = "ask"; }
-  else L.stage = localOver().over ? "ask" : "back";
+  else L.stage = localOver().over || L.bot ? "ask" : "back";
   // The answerer still holds the device: in a custom game, ask them for a clue when one is due.
   if (L.custom && !localOver().over && clueDue(p.item, countR(p.entries)) >= 0) { L.clueFor = asker; L.nextStage = L.stage; L.stage = "clue"; }
   render(); focusInput();
@@ -570,7 +681,7 @@ function localTimeout() {
 function localVM() {
   const st = localOver();
   return {
-    mode: "local", over: st.over, winner: st.winner, turn: L.turn, endedBy: st.endedBy, custom: !!L.custom,
+    mode: "local", over: st.over, winner: st.winner, turn: L.turn, endedBy: st.endedBy, custom: !!L.custom, bot: !!L.bot,
     players: L.players.map(p => {
       const used = countR(p.entries);
       return { name: p.name, cat: p.cat, entries: p.entries, used, hints: hintsFor(p.item, used),
@@ -580,7 +691,7 @@ function localVM() {
 }
 function renderCover() {
   const cv = document.getElementById("cover");
-  if (screen !== "local" || !L || L.stage === "ask") { cv.hidden = true; return; }
+  if (screen !== "local" || !L || L.stage === "ask" || L.stage === "botAnswering" || (L.bot && L.stage === "answer")) { cv.hidden = true; return; }
   if (L.stage === "wpass" || L.stage === "write" || L.stage === "start") { renderWriteCover(cv); return; }
   if (L.stage === "rpsPass" || L.stage === "rpsPick" || L.stage === "rpsReveal") { renderRpsCover(cv); return; }
   if (L.stage === "timeup") {
@@ -619,9 +730,9 @@ function renderCover() {
   } else if (L.stage === "answer") {
     const q = L.pending;
     const btns = q.kind === "q"
-      ? `<button class="btn y" data-a="y">YES</button><button class="btn n" data-a="n">NO</button><button class="btn s" data-a="s">SOMETIMES</button><button class="btn u" data-a="u">Not a yes/no question</button>`
+      ? `<button class="btn y" data-a="y">YES</button><button class="btn n" data-a="n">NO</button><button class="btn s" data-a="s">SOMETIMES</button>${L.bot ? "" : `<button class="btn u" data-a="u">Not a yes/no question</button>`}`
       : `<button class="btn y" data-a="c">RIGHT</button><button class="btn n" data-a="w">WRONG</button>`;
-    cv.innerHTML = `<div class="card"><div class="bigsecret"><span class="label">${esc(asker.name)}'s secret</span><div class="what">${esc(asker.item.name)}</div>${wikiLinkHTML(asker.item)}</div>
+    cv.innerHTML = `<div class="card">${L.bot ? `<p class="lede" style="margin:0">Answer honestly. The computer can't see its own secret.</p>` : ""}<div class="bigsecret"><span class="label">${esc(asker.name)}'s secret</span><div class="what">${esc(asker.item.name)}</div>${wikiLinkHTML(asker.item)}</div>
       <div><span class="label">${esc(asker.name)} ${q.kind === "q" ? "asks" : "guesses"}</span><div class="askedq">${q.kind === "q" ? esc(q.text) : `“${esc(q.text)}”`}</div></div>
       <div class="answers">${btns}</div></div>`;
     cv.querySelectorAll("[data-a]").forEach(b => b.onclick = () => localRecord(q, b.dataset.a));
@@ -652,7 +763,8 @@ function renderRpsCover(cv) {
     cv.innerHTML = `<div class="card"><h2>${esc(P[R.picker].name)}, pick one</h2>${ext && R.picker === 0 && L.rpsTies === UNIVERSE ? universeNote : ""}${rpsButtonsHTML(ext)}</div>`;
     cv.querySelectorAll("[data-rps]").forEach(b => b.onclick = () => {
       R.picks[R.picker] = b.dataset.rps; play("pop");
-      if (R.picker === 0) { R.picker = 1; L.stage = "rpsPass"; } else L.stage = "rpsReveal";
+      if (L.bot) { const opts = [...cv.querySelectorAll("[data-rps]")].map(x => x.dataset.rps); R.picks[1] = pick(opts); L.stage = "rpsReveal"; }
+      else if (R.picker === 0) { R.picker = 1; L.stage = "rpsPass"; } else L.stage = "rpsReveal";
       render();
     });
   } else {
@@ -661,10 +773,10 @@ function renderRpsCover(cv) {
     cv.className = "cover p" + ((w === null ? 0 : w) + 1);
     cv.innerHTML = `<div class="card">${rpsFaceHTML(P[0].name, a, P[1].name, b, w === 0)}
       ${unlocking ? universeNote : `<p class="rpsmsg">${tie ? "It's a tie! Throw again." : `${esc(rpsWhy(R.picks[w], R.picks[1 - w]))} ${esc(P[w].name)} asks first.`}</p>`}
-      <button class="go" id="coverGo">${tie ? "Go again" : `I'm ${esc(P[w].name)}. Let's play`}</button></div>`;
+      <button class="go" id="coverGo">${tie ? "Go again" : L.bot ? "Let's play" : `I'm ${esc(P[w].name)}. Let's play`}</button></div>`;
     play(tie ? "s" : "clue");
     document.getElementById("coverGo").onclick = () => {
-      if (tie) { L.rpsTies = (L.rpsTies || 0) + 1; L.rps = { picks: [null, null], picker: 0 }; L.stage = "rpsPass"; render(); return; }
+      if (tie) { L.rpsTies = (L.rpsTies || 0) + 1; L.rps = { picks: [null, null], picker: 0 }; L.stage = L.bot ? "rpsPick" : "rpsPass"; render(); return; }
       L.turn = w; L.stage = "ask"; render(); focusInput();
     };
   }
@@ -907,6 +1019,7 @@ function render() {
   try { arenaAttach(); } catch (e) {}
   try { soundCheck(); } catch (e) {}
   try { timerTick(); } catch (e) {}
+  try { botTick(); } catch (e) {}
   // Arcade backdrop: with no bottom bar (home, setup, lobby) the street sits lower and the buildings stand taller.
   try { if (SCENE.cv) { const low = document.getElementById("console").hidden; if (low !== SCENE.low) { SCENE.low = low; buildScene(); } } } catch (e) {}
 }
@@ -921,6 +1034,7 @@ function renderScreen() {
   renderCover();
   if (screen === "home") { hideConsole(); app.innerHTML = homeHTML(); bindHome(); return; }
   if (screen === "local-setup") { hideConsole(); app.innerHTML = localSetupHTML(); bindLocalSetup(); return; }
+  if (screen === "bot-setup") { hideConsole(); app.innerHTML = botSetupHTML(); bindBotSetup(); return; }
   if (screen === "local") {
     const vm = localVM();
     app.innerHTML = (vm.over ? resultHTML(vm) : "") + stageHTML(vm);
@@ -949,6 +1063,8 @@ function homeHTML() {
         <button class="go alt" type="submit" ${noCat || !PeerOK ? "disabled" : ""}>Join</button></form></div>
       <div class="mode c-amber"><h3>Same screen</h3><p>Two players, one device. Pass it over when it's time to answer.</p>
         <button class="go amber" id="localBtn" ${noCat ? "disabled" : ""}>Play here</button></div>
+      <div class="mode c-green"><h3>Vs computer</h3><p>Play solo. Pick questions from a menu while the computer hunts for its own secret.</p>
+        <button class="go green" id="botBtn" ${noCat || !window.BOT ? "disabled" : ""}>Play the computer</button></div>
     </div>
     ${!PeerOK ? `<p class="status err" style="margin:0">Online play couldn't load. Check your internet connection and reload.</p>` : ""}
     <ul class="rules">
@@ -971,6 +1087,7 @@ function bindHome() {
     onlineEnter(draft.code, false);
   });
   document.getElementById("localBtn").addEventListener("click", () => { if (draft.name.trim()) draft.p1 = draft.name.trim(); screen = "local-setup"; render(); });
+  document.getElementById("botBtn").addEventListener("click", () => { screen = "bot-setup"; render(); });
   const rj = document.getElementById("rejoinBtn");
   if (rj) rj.addEventListener("click", () => { const c = SS.get("tq:last"), sv = SS.get("tq:room:" + c); onlineEnter(c, !!(sv && sv.host)); });
   if (draft.code && !draft.name) nameIn.focus();
@@ -1055,11 +1172,45 @@ function bindLocalSetup() {
   });
 }
 
+function botSetupHTML() {
+  const diffs = Object.entries(BOT_LEVELS).map(([k, v], i) => `<input type="radio" name="diff" id="diff-${i}" value="${k}" ${draft.diff === k ? "checked" : ""}><label for="diff-${i}">${v.label}</label>`).join("");
+  return `<form class="panel" id="setupForm">
+    <div><h2 style="font-size:1.6rem">Vs computer</h2><p class="lede">You each get a secret. Pick questions from the menu or type a guess. The computer asks about its own secret and you answer.</p></div>
+    <div class="field p1" style="max-width:320px"><label class="label" for="n1">Your name</label><input id="n1" maxlength="20" value="${esc(draft.name || "")}" placeholder="Player" autocomplete="off"></div>
+    <div style="display:grid;gap:10px"><span class="label">Difficulty</span><div class="cats" id="diffBox">${diffs}</div></div>
+    <div style="display:grid;gap:10px"><span class="label">Turn timer</span><div class="cats" id="tmrBox">${timerChips(draft.timer)}</div></div>
+    <div style="display:grid;gap:22px">
+      <div style="display:grid;gap:10px"><span class="label">Category</span><div class="cats" id="catBox">${catChips(draft.cat)}</div></div>
+      <div id="filterBox">${filtersHTML(draft.cat, draft.filters)}</div>
+    </div>
+    <button class="go green" type="submit" id="dealBtn"></button>
+  </form>`;
+}
+function bindBotSetup() {
+  const f = document.getElementById("setupForm");
+  const refresh = () => {
+    document.getElementById("filterBox").innerHTML = filtersHTML(draft.cat, draft.filters);
+    const ok = poolOK(draft.cat, draft.filters), b = document.getElementById("dealBtn");
+    b.disabled = !ok; b.textContent = ok ? "Deal secrets" : "Pick more options";
+  };
+  refresh();
+  document.getElementById("diffBox").addEventListener("change", e => { draft.diff = e.target.value; LS.set("tq:diff", draft.diff); });
+  document.getElementById("tmrBox").addEventListener("change", e => { draft.timer = +e.target.value || 0; LS.set("tq:timer", draft.timer); });
+  document.getElementById("n1").addEventListener("input", e => { draft.name = e.target.value; LS.set("tq:name", draft.name); });
+  document.getElementById("catBox").addEventListener("change", e => { draft.cat = e.target.value; draft.filters = {}; refresh(); });
+  document.getElementById("filterBox").addEventListener("change", () => { draft.filters = normalizeFilters(draft.cat, readFilters(document.getElementById("filterBox"))); refresh(); });
+  f.addEventListener("submit", e => {
+    e.preventDefault();
+    if (!poolOK(draft.cat, draft.filters)) return;
+    botNew(draft.name.trim() || "Player", draft.diff, draft.cat, draft.filters);
+  });
+}
+
 function podHTML(vm, p, i) {
   const active = !vm.over && vm.turn === i && p.used < MAX;
   const yourTurn = vm.mode === "local" || i === vm.me;
   const tag = vm.over ? (vm.winner === i ? `<span class="pill">Winner</span>` : "")
-    : p.used >= MAX ? `<span class="pill dim">Out of turns</span>` : active ? `<span class="pill">${yourTurn ? "Your turn" : "Their turn"}</span>` : `<span class="pill dim">Up next</span>`;
+    : p.used >= MAX ? `<span class="pill dim">Out of turns</span>` : active ? `<span class="pill">${vm.bot && i === 1 ? "Thinking" : yourTurn ? "Your turn" : "Their turn"}</span>` : `<span class="pill dim">Up next</span>`;
   const n = String(p.used).padStart(2, "0");
   let hints = "";
   for (let k = 0; k < HC; k++) {
@@ -1145,17 +1296,17 @@ function resultHTML(vm) {
       ${hasWiki(p.reveal) ? `<a href="${wikiUrl(p.reveal)}" target="_blank" rel="noopener">Read about it on Wikipedia ↗</a>` : ""}</div>`;
   }).join("");
   let actions;
-  if (vm.mode === "local") actions = `<button class="go" id="againBtn">Play again</button><button class="ghost" id="setupBtn">Change players or category</button>`;
+  if (vm.mode === "local") actions = `<button class="go" id="againBtn">Play again</button><button class="ghost" id="setupBtn">${vm.bot ? "Change settings" : "Change players or category"}</button>`;
   else if (O.st.host) actions = `<button class="go" id="againBtn" ${O.conn ? "" : "disabled"}>Play again</button>${O.conn ? "" : `<span class="status">Waiting for ${esc(vm.oppName)} to reconnect.</span>`}`;
   else actions = `<span class="status dots">Waiting for the host to start a rematch</span>`;
-  const celebrate = w !== null && (vm.mode === "local" || w === vm.me);
+  const celebrate = w !== null && (vm.mode === "local" ? !(vm.bot && w === 1) : w === vm.me);
   return `<section class="result${celebrate ? " win" : ""}"><h2>${head}</h2><div class="reveals">${cards}</div><div class="actions">${actions}</div></section>`;
 }
 function bindResult(vm) {
   const again = document.getElementById("againBtn");
   if (vm.mode === "local") {
-    again.onclick = () => localNew(L.players[0].name, L.players[1].name, L.catChoice, L.filters, L.custom);
-    document.getElementById("setupBtn").onclick = () => { screen = "local-setup"; render(); };
+    again.onclick = () => L.bot ? botNew(L.players[0].name, L.bot.diff, L.catChoice, L.filters) : localNew(L.players[0].name, L.players[1].name, L.catChoice, L.filters, L.custom);
+    document.getElementById("setupBtn").onclick = () => { screen = L.bot ? "bot-setup" : "local-setup"; render(); };
   } else if (again) {
     again.onclick = () => { const s = O.st; newOnlineGame(rid(8), s.cat, Math.random() < .5 ? 0 : 1, s.filters, s.custom, s.timer); render(); };
   }
@@ -1164,6 +1315,13 @@ function bindResult(vm) {
 // ---------- Console ----------
 function localConsole(vm) {
   const p = vm.players[vm.turn], last = p.used >= MAX - 1;
+  if (L.bot && vm.turn === 1 && L.stage === "answer" && L.pending) return { seat: 0, kind: "answer", id: "b" + vm.players[1].entries.length, q: L.pending,
+    lead: `<b>${BOT_NAME}</b> asks about its secret. Answer honestly, it can't peek:`, secret: L.players[1].item, noU: true, onAnswer: a => { const q = L.pending; if (q) localRecord(q, a); } };
+  if (L.bot && vm.turn === 1) return { seat: 1, kind: "ask", canAct: false, last: false, lead: `<b>${BOT_NAME}</b> ${esc(L.bot.line || "is thinking…")}`, status: "Thinking", thinking: true, menu: true, onAct: () => {} };
+  if (L.bot) return { seat: 0, kind: "ask", canAct: L.stage === "ask", last, menu: true,
+    lead: L.stage === "botAnswering" ? `<b>${BOT_NAME}</b> is checking your secret…` : `<b>${esc(p.name)}</b>, ${last ? "make your final guess." : "pick a question below or type a guess."}`,
+    status: statusMsg || (last ? "Last turn: you must guess." : `Turn ${p.used + 1} of ${MAX}`), statusErr: statusMsg ? statusErr : false, thinking: L.stage === "botAnswering",
+    onAct: k => localAct(k) };
   return { seat: vm.turn, kind: "ask", canAct: L.stage === "ask", last,
     lead: `<b>${esc(p.name)}</b>, ${last ? "make your final guess." : "ask about your secret or take a guess."}`,
     status: statusMsg || (last ? "Last turn: you must guess." : `Turn ${p.used + 1} of ${MAX}`), statusErr: statusMsg ? statusErr : false,
@@ -1212,13 +1370,14 @@ function renderConsole(c) {
     if (c.kind === "answer") {
       const q = c.q;
       const btns = q.kind === "q"
-        ? `<button class="btn y" data-a="y">YES</button><button class="btn n" data-a="n">NO</button><button class="btn s" data-a="s">SOMETIMES</button><button class="btn u" data-a="u">Not yes/no</button>`
+        ? `<button class="btn y" data-a="y">YES</button><button class="btn n" data-a="n">NO</button><button class="btn s" data-a="s">SOMETIMES</button>${c.noU ? "" : `<button class="btn u" data-a="u">Not yes/no</button>`}`
         : `<button class="btn y" data-a="c">RIGHT</button><button class="btn n" data-a="w">WRONG</button>`;
+      const sec = c.secret || O.st.secret;
       con.innerHTML = `<div class="in">
-        <div class="turnline"><span>${c.lead}</span><span class="yoursecret">Their secret: <b>${esc(O.st.secret.name)}</b> ${wikiLinkHTML(O.st.secret)}</span></div>
+        <div class="turnline"><span>${c.lead}</span><span class="yoursecret">Their secret: <b>${esc(sec.name)}</b> ${wikiLinkHTML(sec)}</span></div>
         <div class="askedq">${q.kind === "q" ? esc(q.text) : `“${esc(q.text)}”`}</div>
         <div class="answers">${btns}</div>${reactsHTML()}</div>`;
-      con.querySelectorAll("[data-a]").forEach(b => b.onclick = () => onlineAnswer(c.id, b.dataset.a));
+      con.querySelectorAll("[data-a]").forEach(b => b.onclick = () => c.onAnswer ? c.onAnswer(b.dataset.a) : onlineAnswer(c.id, b.dataset.a));
       bindReacts(con);
       return;
     }
@@ -1227,16 +1386,26 @@ function renderConsole(c) {
     con.innerHTML = `<div class="in">
       <div class="turnline"><span>${c.lead}</span><span id="statusEl" class="status" role="status"></span></div>
       <form class="row" id="qForm">
-        <input id="qInput" placeholder="${c.last ? "Type your guess" : "Is it bigger than a car?"}" autocomplete="off" maxlength="120" ${c.canAct ? "" : "disabled"} aria-label="Question or guess">
+        <input id="qInput" placeholder="${c.last ? "Type your guess" : c.menu ? "Search questions, or type a guess" : "Is it bigger than a car?"}" autocomplete="off" maxlength="120" ${c.canAct ? "" : "disabled"} aria-label="${c.menu ? "Search questions or type a guess" : "Question or guess"}">
         <button class="btn ask" type="submit" ${c.canAct && !c.last ? "" : "disabled"}>Ask</button>
         <button class="btn guess" type="button" id="guessBtn" ${c.canAct ? "" : "disabled"}>Guess</button>
-      </form>${reactsHTML()}</div>`;
+      </form>${c.menu && c.canAct && !c.last ? `<div class="qmenu" id="qMenu" aria-label="Questions you can ask"></div>` : ""}${reactsHTML()}</div>`;
     bindReacts(con);
     const inp = document.getElementById("qInput");
     inp.value = keep;
     if (hadFocus && c.canAct) inp.focus();
     document.getElementById("qForm").onsubmit = e => { e.preventDefault(); consoleHandlers.onAct(consoleHandlers.last ? "g" : "q"); };
     document.getElementById("guessBtn").onclick = () => consoleHandlers.onAct("g");
+    const qm = document.getElementById("qMenu");
+    if (qm) {
+      const fill = () => {
+        const list = botMenu(inp.value);
+        qm.innerHTML = list.length ? list.map(q => `<button type="button" data-qid="${esc(q.id)}">${esc(q.text)}</button>`).join("")
+          : `<span class="none">No matching question. Press Guess to guess “${esc(inp.value.trim())}”.</span>`;
+      };
+      fill(); inp.addEventListener("input", fill);
+      qm.onclick = e => { const b = e.target.closest("[data-qid]"); if (!b) return; const q = botQs(L.players[0].cat).find(x => x.id === b.dataset.qid); if (q) botAsk(q); };
+    }
   }
   const se = document.getElementById("statusEl");
   if (se) { se.textContent = c.status; se.className = "status" + (c.statusErr ? " err" : "") + (c.thinking ? " dots" : ""); }
@@ -1432,7 +1601,7 @@ function timerTick() {
   const el = document.getElementById("clockEl"), now = Date.now();
   let left = null, label = "", idle = false;
   if (screen === "local" && L && L.timer) {
-    const active = L.stage === "ask" && !localOver().over;
+    const active = L.stage === "ask" && !localOver().over && !(L.bot && L.turn === 1);
     if (!active) L.deadline = null;
     else {
       if (!L.deadline) L.deadline = now + L.timer * 1000;
@@ -1484,7 +1653,7 @@ function gameEvents() {
     });
     const seq = L.players.map(p => p.entries.map(e => e.code).filter(c => c && c !== "u"));
     return { key: L, coded, clues, seq, me: 0, names: L.players.map(p => p.name), winner: st.over ? st.winner : null, myTurn: false, over: st.over, ready: L.stage === "ask" || Object.keys(coded).length > 0,
-      outcome: !st.over ? null : st.winner !== null ? "win" : "draw",
+      outcome: !st.over ? null : st.winner !== null ? (L.bot && st.winner === 1 ? "lose" : "win") : "draw",
       winnerName: st.winner !== null ? L.players[st.winner].name : "", winnerUsed: st.winner !== null ? countR(L.players[st.winner].entries) : 0 };
   }
   if (screen === "online" && O && O.st.g && O.st.secret && O.st.myCat && O.st.rpsDone !== false) {

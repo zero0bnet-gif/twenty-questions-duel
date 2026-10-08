@@ -3,6 +3,7 @@
 // missing or unknown tags, duplicate names, and filter options with too few items.
 global.window = {};
 require("./catalog.js");
+try { require("./botdata.js"); } catch (e) {}
 const C = window.CATALOG, F = window.FILTERS || {}, B = window.YEAR_BUCKETS || {};
 const MIN = 4;
 const norm = s => String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ");
@@ -38,8 +39,22 @@ for (const [cat, items] of Object.entries(C)) {
   }
 }
 
+// Computer opponent: every item needs an answer string in botdata.js (one letter per question).
+const BOT = window.BOT || {}, botMissing = [];
+for (const [cat, items] of Object.entries(C)) {
+  const B = BOT[cat];
+  if (!B) { botMissing.push(`${cat}: no computer questions yet (category is left out of computer games)`); continue; }
+  for (const it of items) {
+    const a = B.a[it.name];
+    if (!a) botMissing.push(`${cat} › ${it.name}: no computer answers (left out of computer games)`);
+    else if (a.length !== B.q.length || /[^yns]/.test(a)) problems.push(`${cat} › ${it.name}: computer answers need ${B.q.length} letters of y/n/s`);
+  }
+  Object.keys(B.a).filter(n => !items.some(i => i.name === n)).forEach(n => problems.push(`botdata.js › ${cat} › ${n}: not in the catalog (renamed?)`));
+}
+
 console.log(`Items: ${Object.values(C).reduce((n, a) => n + a.length, 0)} in ${Object.keys(C).length} categories\n`);
 console.log("Option counts (an option needs " + MIN + "+ items to start a game on its own):");
 notes.forEach(n => console.log("  " + n));
+console.log(botMissing.length ? `\nComputer opponent: ${botMissing.length} item(s) still need answers:\n  ` + botMissing.join("\n  ") : "\nComputer opponent: every item has answers.");
 console.log(problems.length ? `\n${problems.length} problem(s):\n  ` + problems.join("\n  ") : "\nNo problems found.");
 process.exitCode = problems.length ? 1 : 0;

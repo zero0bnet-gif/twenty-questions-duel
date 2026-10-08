@@ -213,13 +213,24 @@ h1,h2,h3{font-weight:700;text-wrap:balance;margin:0}
 .eggtoast{position:fixed;top:18%;left:50%;transform:translateX(-50%);z-index:45;pointer-events:none;font-family:var(--f-logo);font-size:clamp(1.3rem,5vw,2.4rem);color:#DFFFEF;text-shadow:0 0 8px var(--yes),0 0 26px var(--yes);white-space:nowrap;animation:toast 2.2s ease-out forwards}
 @keyframes toast{0%{opacity:0;transform:translate(-50%,10px) scale(.9)}15%{opacity:1;transform:translate(-50%,0) scale(1.05)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-10px)}}
 /* Arcade mode (Konami code): a '90s arcade fighting-game look */
+/* Daytime street stage: sky blue, sandstone, jade, signboard red, gold (original backdrop, no game art) */
 html.arcade{--f-logo:"Press Start 2P",ui-monospace,monospace;--f-body:"Press Start 2P",ui-monospace,monospace;font-size:11px;
-  --bg:#0B0A2A;--panel:rgba(8,6,28,.88);--raise:#1B1748;--line:#2D2870;--line2:#4A44A8;--ink:#FFFFFF;--muted:#A9A6E0;--soft:#DCDAFF;
-  --blue:#3D86FF;--pink:#FF3B3B;--amber:#FFD23F;--yes:#6CFF5A;--no:#FF3B3B;--px:2px 2px 0 #000,-2px 2px 0 #000,2px -2px 0 #000,-2px -2px 0 #000}
-html.arcade body{line-height:1.8;background:linear-gradient(#0B0A2A 0%,#241A63 38%,#7A2A7A 58%,#FF6A3D 72%,#FFC25A 80%,#2B1636 80.4%,#120A1E 100%) fixed}
-html.arcade body::before{content:"";position:fixed;left:0;right:0;bottom:0;height:34vh;z-index:-1;pointer-events:none;background:#1A0E2A;
-  clip-path:polygon(0 62%,8% 40%,15% 55%,24% 22%,33% 50%,41% 35%,50% 58%,58% 28%,66% 47%,74% 18%,83% 44%,91% 30%,100% 52%,100% 100%,0 100%)}
-html.arcade body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.25) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+  --bg:#5AA6E6;--panel:rgba(18,34,44,.92);--raise:#1F3D47;--line:#2E5A62;--line2:#4AA89A;--ink:#FFFFFF;--muted:#A8C8C2;--soft:#EDE4B8;
+  --blue:#3E8EDB;--pink:#D8283A;--amber:#F2C230;--yes:#52C98E;--no:#E8394A;--px:2px 2px 0 #000,-2px 2px 0 #000,2px -2px 0 #000,-2px -2px 0 #000;color-scheme:dark}
+html.arcade body{line-height:1.8;background:
+  radial-gradient(60px 18px at 12% 14%,#fff 98%,transparent),radial-gradient(90px 22px at 17% 12%,#fff 98%,transparent),
+  radial-gradient(70px 16px at 62% 9%,#fff 98%,transparent),radial-gradient(110px 24px at 69% 11%,#fff 98%,transparent),
+  radial-gradient(50px 14px at 88% 22%,#fff 98%,transparent),radial-gradient(80px 18px at 40% 26%,#F4FAFF 98%,transparent),
+  linear-gradient(#3F8FDC 0%,#6DB4EC 45%,#A9D6F4 72%,#D9EEF8 78%) fixed}
+html.arcade body::before{content:"";position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:-1;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 46px,#C2B47A 46px 48px),repeating-linear-gradient(0deg,#E7DDA9 0 22px,#C2B47A 22px 24px);
+  border-top:6px solid #8F7F4A;box-shadow:0 -4px 0 #6B5C30}
+html.arcade body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.12) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+html.arcade .top h1{text-shadow:3px 3px 0 #B0192A,var(--px)}
+html.arcade .result,html.arcade .screen,html.arcade .stagebox{border-color:var(--amber)}
+html.arcade .stagebox{background:rgba(18,34,44,.55)}
+html.arcade .ghost{background:var(--panel)}
+html.arcade .hud .bar{background:#B0192A}
 html.arcade .glow-p,html.arcade .hero h2,html.arcade .result h2,html.arcade .eggmodal h2,html.arcade .code{color:var(--amber);text-shadow:3px 3px 0 #C8102E,var(--px)}
 html.arcade .panel,html.arcade .pod,html.arcade .mode,html.arcade .stagebox,html.arcade .screen,html.arcade .result,html.arcade .reveal,html.arcade .cover .card,html.arcade .eggmodal .card,html.arcade .filters{border-radius:0;border-width:4px;box-shadow:6px 6px 0 rgba(0,0,0,.6)}
 html.arcade .hint,html.arcade .go,html.arcade .btn,html.arcade .ghost,html.arcade .light,html.arcade .cats label,html.arcade .log li,html.arcade .ans,html.arcade .roster li,html.arcade .field input,html.arcade .row input,html.arcade .joinrow input,html.arcade .rpsbtn,html.arcade .clock,html.arcade .reacts button,html.arcade .dig,html.arcade .pill{border-radius:0}

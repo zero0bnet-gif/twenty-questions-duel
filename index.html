@@ -1759,7 +1759,7 @@ function doomShell(mode, who) {
     <div class="doom-screen">${mode === "play" ? `<canvas width="640" height="400" tabindex="0" aria-label="Doom game"></canvas>` : `<video autoplay playsinline muted aria-label="Live view of Doom"></video>`}
       <div class="doom-intro">IT CAN.</div><div class="doom-load">${mode === "play" ? "" : "Connecting to the feed…"}</div></div>
     ${mode === "play"
-      ? `<p class="doom-help keys">Arrows move · Ctrl fires · Space opens doors · Esc menu · Enter selects</p><div class="doom-pad"><div class="dp">${pad}</div><div class="acts">${acts}</div></div>`
+      ? `<p class="doom-help keys">Click the game to aim with the mouse · WASD move · Click fires · Right-click, E or Space opens doors · Esc menu</p><div class="doom-pad"><div class="dp">${pad}</div><div class="acts">${acts}</div></div>`
       : `<p class="doom-help">You're spectating. Only ${esc(who)} has the controls.</p>`}`;
   document.body.appendChild(m);
   return m;
@@ -1795,12 +1795,37 @@ async function launchDoom() {
     const ex = DOOM.ex = inst.exports; mem = ex.memory;
     ex.initGame();
     ld.textContent = "";
-    DOOM.timer = setInterval(() => { try { ex.tickGame(); } catch (e) { console.warn(e); quitDoom(); } }, 1000 / 35);
-    // Keyboard goes to Doom while it's open (not to the game behind it).
-    const toKey = e => { const n = DOOM_KEYS[e.key]; return n ? ex[n].value ?? ex[n] : (e.key.length === 1 ? e.key.toLowerCase().charCodeAt(0) : null); };
-    const down = e => { if (e.target.id === "doomClose" && (e.key === "Enter" || e.key === " ")) return; const k = toKey(e); if (k == null) return; e.preventDefault(); e.stopPropagation(); if (!e.repeat) ex.reportKeyDown(k); };
-    const up = e => { const k = toKey(e); if (k == null) return; e.preventDefault(); e.stopPropagation(); ex.reportKeyUp(k); };
-    DOOM.keys = [down, up];
+    const K = n => ex[n].value ?? ex[n];
+    // Mouse aiming: this Doom build only takes key input, so mouse movement is turned into left/right turning
+    // (Doom itself only aims side to side). Click the game to lock the pointer; Esc releases it.
+    const PX = 12, held = new Map(); let turnAcc = 0, turning = 0;
+    const press = k => { held.set(k, (held.get(k) || 0) + 1); if (held.get(k) === 1) ex.reportKeyDown(k); };
+    const release = k => { const n = held.get(k) || 0; if (!n) return; if (n === 1) { held.delete(k); ex.reportKeyUp(k); } else held.set(k, n - 1); };
+    DOOM.timer = setInterval(() => {
+      try {
+        const want = turnAcc >= PX / 2 ? 1 : turnAcc <= -PX / 2 ? -1 : 0;
+        if (want !== turning) { if (turning) release(K(turning > 0 ? "KEY_RIGHTARROW" : "KEY_LEFTARROW")); if (want) press(K(want > 0 ? "KEY_RIGHTARROW" : "KEY_LEFTARROW")); turning = want; }
+        turnAcc = want ? turnAcc - want * PX : 0;
+        ex.tickGame();
+      } catch (e) { console.warn(e); quitDoom(); }
+    }, 1000 / 35);
+    // Keyboard goes to Doom while it's open (not to the game behind it). WASD and E work alongside the classic keys;
+    // the letter itself is also sent so cheat codes and Y/N prompts still work.
+    const WASD = { w: "KEY_UPARROW", s: "KEY_DOWNARROW", a: "KEY_STRAFE_L", d: "KEY_STRAFE_R", e: "KEY_USE" };
+    const toKeys = e => { const n = DOOM_KEYS[e.key]; if (n) return [K(n)]; if (e.key.length !== 1) return null;
+      const c = e.key.toLowerCase(); return WASD[c] ? [K(WASD[c]), c.charCodeAt(0)] : [c.charCodeAt(0)]; };
+    const down = e => { if (e.target.id === "doomClose" && (e.key === "Enter" || e.key === " ")) return; const ks = toKeys(e); if (!ks) return; e.preventDefault(); e.stopPropagation(); if (!e.repeat) ks.forEach(press); };
+    const up = e => { const ks = toKeys(e); if (!ks) return; e.preventDefault(); e.stopPropagation(); ks.forEach(release); };
+    const locked = () => document.pointerLockElement === cv;
+    const move = e => { if (locked()) turnAcc = Math.max(-PX * 10, Math.min(PX * 10, turnAcc + e.movementX)); };
+    const mdown = e => { if (!locked()) { if (e.button === 0) { const r = cv.requestPointerLock && cv.requestPointerLock(); if (r && r.catch) r.catch(() => {}); } return; }
+      e.preventDefault(); press(K(e.button === 2 ? "KEY_USE" : "KEY_FIRE")); };
+    const mup = e => { if (locked() || held.size) release(K(e.button === 2 ? "KEY_USE" : "KEY_FIRE")); };
+    const blur = () => { [...held.keys()].forEach(k => { held.delete(k); ex.reportKeyUp(k); }); turning = 0; turnAcc = 0; };
+    cv.addEventListener("mousedown", mdown); cv.addEventListener("contextmenu", e => e.preventDefault());
+    document.addEventListener("mousemove", move); window.addEventListener("mouseup", mup); window.addEventListener("blur", blur);
+    document.addEventListener("pointerlockchange", blur);
+    DOOM.keys = [down, up, move, mup, blur];
     window.addEventListener("keydown", down, true); window.addEventListener("keyup", up, true);
     m.querySelectorAll(".doom-pad button").forEach(b => {
       const k = ex[b.dataset.k].value ?? ex[b.dataset.k];
@@ -1817,7 +1842,9 @@ async function launchDoom() {
 }
 function quitDoom() {
   clearInterval(DOOM.timer); DOOM.timer = 0; DOOM.ex = null;
-  if (DOOM.keys) { window.removeEventListener("keydown", DOOM.keys[0], true); window.removeEventListener("keyup", DOOM.keys[1], true); DOOM.keys = null; }
+  if (DOOM.keys) { const [d, u, mv, mu, bl] = DOOM.keys; window.removeEventListener("keydown", d, true); window.removeEventListener("keyup", u, true);
+    document.removeEventListener("mousemove", mv); window.removeEventListener("mouseup", mu); window.removeEventListener("blur", bl); document.removeEventListener("pointerlockchange", bl); DOOM.keys = null; }
+  if (document.pointerLockElement) { try { document.exitPointerLock(); } catch (e) {} }
   try { DOOM.call && DOOM.call.close(); } catch (e) {} DOOM.call = null;
   if (DOOM.open && screen === "online" && O && O.conn && O.conn.open) { try { O.conn.send({ t: "doom", on: 0 }); } catch (e) {} }
   DOOM.open = false;

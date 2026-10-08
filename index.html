@@ -222,9 +222,7 @@ html.arcade body{line-height:1.8;background:
   radial-gradient(70px 16px at 62% 9%,#fff 98%,transparent),radial-gradient(110px 24px at 69% 11%,#fff 98%,transparent),
   radial-gradient(50px 14px at 88% 22%,#fff 98%,transparent),radial-gradient(80px 18px at 40% 26%,#F4FAFF 98%,transparent),
   linear-gradient(#3F8FDC 0%,#6DB4EC 45%,#A9D6F4 72%,#D9EEF8 78%) fixed}
-html.arcade body::before{content:"";position:fixed;left:0;right:0;bottom:0;height:24vh;z-index:-1;pointer-events:none;
-  background:repeating-linear-gradient(90deg,transparent 0 46px,#C2B47A 46px 48px),repeating-linear-gradient(0deg,#E7DDA9 0 22px,#C2B47A 22px 24px);
-  border-top:6px solid #8F7F4A;box-shadow:0 -4px 0 #6B5C30}
+#arcadeScene{position:fixed;left:0;right:0;bottom:0;width:100%;height:58vh;z-index:-1;pointer-events:none;image-rendering:pixelated;image-rendering:crisp-edges}
 html.arcade body::after{content:"";position:fixed;inset:0;z-index:50;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.12) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
 html.arcade .top h1{text-shadow:3px 3px 0 #B0192A,var(--px)}
 html.arcade .result,html.arcade .screen,html.arcade .stagebox{border-color:var(--amber)}
@@ -1590,6 +1588,7 @@ function setArcade(on, quiet) {
   }
   document.documentElement.classList.toggle("arcade", on);
   SS.set("tq:arcade", on);
+  on ? startScene() : stopScene();
   if (!quiet) { eggToast(on ? "INSERT COIN" : "GAME OVER"); play("egg"); lastConsoleKey = ""; render(); }
 }
 window.addEventListener("keydown", e => {
@@ -1597,6 +1596,74 @@ window.addEventListener("keydown", e => {
   konamiAt = k === KONAMI[konamiAt] ? konamiAt + 1 : (k === KONAMI[0] ? 1 : 0);
   if (konamiAt === KONAMI.length) { konamiAt = 0; setArcade(!document.documentElement.classList.contains("arcade")); }
 });
+
+// Arcade backdrop: an original pixel-art street with buildings and passing cars, drawn on a canvas.
+const SCENE = { P: 3, raf: 0, cv: null, bg: null, cars: [], last: 0 };
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function buildScene() {
+  const cv = SCENE.cv, P = SCENE.P;
+  const W = Math.ceil(innerWidth / P), H = Math.ceil(innerHeight * .58 / P);
+  cv.width = W; cv.height = H;
+  const bg = document.createElement("canvas"); bg.width = W; bg.height = H;
+  const g = bg.getContext("2d"), R = rng(20261007);
+  const ground = Math.round(H * .46), pick = a => a[(R() * a.length) | 0];
+  const rect = (x, y, w, h, c) => { g.fillStyle = c; g.fillRect(x | 0, y | 0, w | 0, h | 0); };
+  // Buildings
+  const walls = [["#E8DDB5", "#C9BC8E"], ["#C9A97A", "#A88A5E"], ["#7FB7A8", "#5E9488"], ["#B85A4A", "#93463A"], ["#8C9BA8", "#6E7C88"], ["#D9C48A", "#B8A46A"], ["#E6CFC0", "#C4A998"]];
+  for (let x = -6; x < W;) {
+    const w = 26 + ((R() * 34) | 0), h = Math.round(ground * (.35 + R() * .55)), top = ground - h, [wall, shade] = pick(walls);
+    rect(x, top, w, h, wall); rect(x + w - 3, top, 3, h, shade); rect(x - 1, top - 2, w + 2, 3, shade);
+    const lit = R() < .5;
+    for (let wy = top + 6; wy < ground - 16; wy += 9)
+      for (let wx = x + 4; wx < x + w - 7; wx += 7) { rect(wx, wy, 4, 5, R() < (lit ? .3 : .12) ? "#F2C230" : "#2A3A44"); rect(wx, wy + 5, 4, 1, shade); }
+    const door = x + 4 + ((R() * (w - 14)) | 0);
+    rect(door, ground - 11, 7, 11, "#3A2A20"); rect(door + 5, ground - 6, 1, 1, "#F2C230");
+    if (R() < .55) { const aw = Math.min(w - 4, 20 + ((R() * 10) | 0)), ax = x + 2, [a1, a2] = pick([["#D8283A", "#F4F0E0"], ["#2E8A7C", "#F4F0E0"], ["#3E8EDB", "#F4F0E0"], ["#E89A2E", "#F4F0E0"]]);
+      for (let i = 0; i < aw; i += 2) rect(ax + i, ground - 16, 2, 4, (i / 2) % 2 ? a2 : a1); rect(ax, ground - 12, aw, 1, "#00000044"); }
+    if (R() < .35) { const sx = x + w - 9, sh = 10 + ((R() * 10) | 0); rect(sx, top + 8, 5, sh, pick(["#D8283A", "#2E8A7C", "#E89A2E"])); for (let i = 0; i < sh - 3; i += 4) rect(sx + 1, top + 10 + i, 3, 2, "#F2C230"); }
+    const r = R();
+    if (r < .3) { rect(x + 5, top - 9, 10, 7, "#7A5A3A"); rect(x + 5, top - 9, 10, 1, "#5A4028"); rect(x + 6, top - 2, 1, 2, "#3A2A20"); rect(x + 13, top - 2, 1, 2, "#3A2A20"); }
+    else if (r < .5) { rect(x + w - 8, top - 10, 1, 9, "#3A3A3A"); rect(x + w - 11, top - 8, 7, 1, "#3A3A3A"); }
+    x += w + (R() < .25 ? 3 + ((R() * 4) | 0) : 0);
+  }
+  // Sidewalk and street
+  rect(0, ground, W, 4, "#B8AE88"); rect(0, ground + 4, W, 2, "#8F7F4A");
+  for (let y = ground + 6; y < H; y += 6) { rect(0, y, W, 6, "#E7DDA9"); rect(0, y + 5, W, 1, "#C2B47A"); for (let x = ((y / 6) % 2) * 8; x < W; x += 16) rect(x, y, 1, 5, "#C2B47A"); }
+  SCENE.bg = bg; SCENE.ground = ground;
+  // Cars: two lanes, opposite directions
+  const colors = ["#D8283A", "#3E8EDB", "#F2C230", "#2E8A7C", "#F4F0E0", "#E89A2E"];
+  SCENE.cars = [0, 1, 2, 3].map(i => ({ x: R() * W, lane: i % 2, speed: (10 + R() * 12) * (i % 2 ? -1 : 1), color: colors[i % colors.length], van: R() < .3 }));
+}
+function drawCar(g, c, y) {
+  const x = Math.round(c.x), L = c.van ? 24 : 22, dir = c.speed > 0;
+  const f = (dx, dy, w, h, col) => { g.fillStyle = col; g.fillRect(dir ? x + dx : x + L - dx - w, y + dy, w, h); };
+  f(0, 5, L, 5, c.color); f(0, 9, L, 1, "#00000055");
+  if (c.van) { f(2, 0, 18, 6, c.color); f(14, 1, 5, 3, "#BFE6F7"); f(4, 1, 8, 3, "#BFE6F7"); }
+  else { f(5, 1, 11, 5, c.color); f(6, 2, 4, 3, "#BFE6F7"); f(11, 2, 4, 3, "#BFE6F7"); }
+  f(L - 1, 6, 1, 2, "#FFF6B0"); f(0, 6, 1, 2, "#E8394A");
+  f(3, 9, 4, 3, "#1A1A1A"); f(L - 7, 9, 4, 3, "#1A1A1A"); f(4, 10, 2, 1, "#8C8C8C"); f(L - 6, 10, 2, 1, "#8C8C8C");
+}
+function sceneFrame(t) {
+  const cv = SCENE.cv; if (!cv) return;
+  const g = cv.getContext("2d"), dt = Math.min(.1, (t - (SCENE.last || t)) / 1000); SCENE.last = t;
+  g.clearRect(0, 0, cv.width, cv.height); g.drawImage(SCENE.bg, 0, 0);
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches, W = cv.width;
+  for (const c of SCENE.cars.slice().sort((a, b) => b.lane - a.lane)) {
+    if (!still) { c.x += c.speed * dt; if (c.x > W + 30) c.x = -30; if (c.x < -30) c.x = W + 30; }
+    drawCar(g, c, SCENE.ground + (c.lane ? 6 : 16));
+  }
+  SCENE.raf = still ? 0 : requestAnimationFrame(sceneFrame);
+}
+function startScene() {
+  if (SCENE.cv) return;
+  const cv = document.createElement("canvas"); cv.id = "arcadeScene"; cv.setAttribute("aria-hidden", "true");
+  document.body.prepend(cv); SCENE.cv = cv; SCENE.last = 0;
+  buildScene(); SCENE.raf = requestAnimationFrame(sceneFrame);
+}
+function stopScene() { cancelAnimationFrame(SCENE.raf); if (SCENE.cv) SCENE.cv.remove(); SCENE.cv = null; }
+let sceneResize;
+window.addEventListener("resize", () => { if (!SCENE.cv) return; clearTimeout(sceneResize); sceneResize = setTimeout(() => { buildScene(); if (!SCENE.raf) SCENE.raf = requestAnimationFrame(sceneFrame); }, 150); });
+
 if (SS.get("tq:arcade") === true) setArcade(true, true);
 
 // 2) Click the logo 5 times quickly: a "bonus round" that is really a rickroll.

@@ -1,7 +1,7 @@
 import NES from "../nes.js";
 import Screen from "./screen.js";
 import Speakers from "./speakers.js";
-import FrameTimer from "./frame-timer.js";
+import FrameTimer from "./frame-timer2.js";
 import KeyboardController from "./keyboard.js";
 import GamepadController from "./gamepad.js";
 

@@ -2265,7 +2265,7 @@ async function launchStb() {
   try {
     ld.textContent = "Loading…";
     const [{ default: Browser }, { default: Controller }, buf] = await Promise.all([
-      import("./stb/jsnes/browser/index.js"), import("./stb/jsnes/controller.js"),
+      import("./stb/jsnes/browser/index.js?v=2"), import("./stb/jsnes/controller.js"),
       fetch("stb/stb.nes").then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); })]);
     if (!STB.open || !m.isConnected) return;
     const u = new Uint8Array(buf); let rom = ""; for (let i = 0; i < u.length; i += 8192) rom += String.fromCharCode.apply(null, u.subarray(i, i + 8192));

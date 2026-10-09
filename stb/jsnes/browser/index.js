@@ -60,8 +60,8 @@ export default class Browser {
 
         // The NES produces ~800 samples per frame at 48kHz. Run two frames
         // to ensure the worklet buffer is refilled.
-        this._frameTimer.generateFrame();
-        this._frameTimer.generateFrame();
+        // Twenty Questions Duel: disabled. Extra frames on underrun made the game run too fast
+        // whenever audio stalled or the browser's audio clock drifted. Timing follows the screen instead.
       },
     });
 

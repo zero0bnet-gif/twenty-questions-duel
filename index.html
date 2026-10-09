@@ -228,6 +228,11 @@ html.arcade .qmenu button{border-radius:0}
 .doom-screen canvas,.doom-screen video{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;outline:0;object-fit:contain;background:#000}
 .doom-intro{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-logo);font-size:clamp(2rem,9vw,5rem);color:#FF3B1F;text-shadow:0 0 12px #FF3B1F,0 0 40px #B00;pointer-events:none;animation:itcan 1.8s ease-out forwards}
 @keyframes itcan{0%{opacity:0;transform:scale(2.4)}18%{opacity:1;transform:scale(1)}75%{opacity:1}100%{opacity:0}}
+.doom.stb .doom-screen{aspect-ratio:256/240;width:min(100%,960px,calc((100vh - 190px) * 1.0667));border-color:#1E3A6B;box-shadow:0 0 30px rgba(60,140,255,.3)}
+.doom.stb .doom-tag{color:#4DB5FF}.doom.stb .doom-intro{color:#4DB5FF;text-shadow:0 0 12px #2A8CFF,0 0 40px #06C}
+.stb-host{position:absolute;inset:0;display:grid;place-items:center}
+.stb-host canvas{image-rendering:pixelated;outline:0}
+.doom.stb .doom-pad button{border-color:#1E3A6B;background:#0A1226;color:#CFE6FF}.doom.stb .doom-pad button:active,.doom.stb .doom-pad button.on{background:#2A8CFF;color:#000}
 .doom-load{position:absolute;left:0;right:0;bottom:14px;text-align:center;color:#C9BFEA;font-size:.9rem;padding:0 12px}
 .doom-help{color:#8B7FB3;font-size:.85rem;text-align:center;margin:0}
 .doom-pad{display:none;width:min(100%,960px);justify-content:space-between;align-items:center;gap:12px;user-select:none;-webkit-user-select:none;touch-action:none}
@@ -638,6 +643,7 @@ function localAct(kind) {
   const p = L.players[L.turn];
   if (kind === "q" && countR(p.entries) >= MAX - 1) { setStatus("Last turn. Make your guess.", true); render(); return; }
   if (kind === "g" && text === DOOM_PHRASE) { clearInput(); launchDoom(); return; }
+  if (kind === "g" && text === ARCADE_PHRASE) { clearInput(); setArcade(!document.documentElement.classList.contains("arcade")); return; }
   if (L.bot) {
     if (L.turn !== 0) return;
     if (kind === "q") { const q = botMenu(text)[0]; if (!q) { setStatus("No question matches that. Pick one from the list.", true); render(); return; } botAsk(q); return; }
@@ -897,7 +903,7 @@ function onData(c, d) {
   }
   if (d.t === "full") { O.phase = "full"; render(); return; }
   if (d.t === "react" && c === O.conn) { receiveReact(d.r); return; }
-  if (d.t === "doom" && c === O.conn) { d.on ? watchDoom(true) : unwatchDoom(); return; }
+  if (d.t === "doom" && c === O.conn) { if (d.on) { DOOM.watchGame = d.g === "stb" ? "stb" : "doom"; watchDoom(true); } else unwatchDoom(); return; }
   if (d.t === "side" && d.side && d.side.v === 1 && c === O.conn) { O.opp = d.side; onOppSide(); }
 }
 function sideObj() {
@@ -989,6 +995,7 @@ function onlineAct(kind) {
   if (st.over || st.turn !== st.me || st.pending || !O.conn) return;
   if (kind === "q" && st.R[st.me] >= MAX - 1) { setStatus("Last turn. Make your guess.", true); render(); return; }
   if (kind === "g" && text === DOOM_PHRASE) { clearInput(); launchDoom(); return; }
+  if (kind === "g" && text === ARCADE_PHRASE) { clearInput(); setArcade(!document.documentElement.classList.contains("arcade")); return; }
   const s = O.st, id = (s.myQs.length ? s.myQs[s.myQs.length - 1].id : 0) + 1;
   s.myQs.push({ id, kind, text });
   clearInput(); setStatus("");
@@ -1809,7 +1816,9 @@ function eggToast(text) {
 }
 SFX.egg = a => [523, 659, 784, 1046, 1318].forEach((f, i) => tone(a, f, i * .06, .16, "square", .07));
 
-// 1) Konami code: arcade mode with a pixel font, scanlines and 8-bit sounds. Enter it again to turn it off.
+// 1) Arcade mode (pixel font, night street, fighters). Guess exactly "insert coin" to turn it on, and again to turn it off.
+// The Konami code launches Super Tilt Bro (egg 6, below).
+const ARCADE_PHRASE = "insert coin";
 const KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
 let konamiAt = 0;
 function setArcade(on, quiet) {
@@ -1823,10 +1832,10 @@ function setArcade(on, quiet) {
   if (!quiet) { eggToast(on ? "INSERT COIN" : "GAME OVER"); play("egg"); lastConsoleKey = ""; render(); }
 }
 window.addEventListener("keydown", e => {
-  if (DOOM.open) return;
+  if (DOOM.open || STB.open) return;
   const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
   konamiAt = k === KONAMI[konamiAt] ? konamiAt + 1 : (k === KONAMI[0] ? 1 : 0);
-  if (konamiAt === KONAMI.length) { konamiAt = 0; setArcade(!document.documentElement.classList.contains("arcade")); }
+  if (konamiAt === KONAMI.length) { konamiAt = 0; launchStb(); }
 });
 
 // Arcade fighters: two original pixel brawlers under the life bars who trade blows on every answer.
@@ -2087,7 +2096,7 @@ document.getElementById("app").addEventListener("click", e => {
 // 5) Guess exactly "but can it play Doom?" to launch Doom (doom.wasm engine + Freedoom: Phase 1 data).
 // It doesn't use a turn. Online, the opponent gets a live video feed of the game but no controls.
 const DOOM_PHRASE = "but can it play Doom?";
-const DOOM = { open: false, mod: null, wad: null, timer: 0, ex: null, call: null, keys: null, watchCall: null, watchStream: null, watchHidden: false };
+const DOOM = { open: false, mod: null, wad: null, timer: 0, ex: null, call: null, keys: null, watchCall: null, watchStream: null, watchHidden: false, watchGame: "doom" };
 const DOOM_KEYS = { ArrowLeft: "KEY_LEFTARROW", ArrowRight: "KEY_RIGHTARROW", ArrowUp: "KEY_UPARROW", ArrowDown: "KEY_DOWNARROW", ",": "KEY_STRAFE_L", ".": "KEY_STRAFE_R",
   Control: "KEY_FIRE", " ": "KEY_USE", Shift: "KEY_SHIFT", Tab: "KEY_TAB", Escape: "KEY_ESCAPE", Enter: "KEY_ENTER", Backspace: "KEY_BACKSPACE", Alt: "KEY_ALT" };
 async function doomAssets(onProg) {
@@ -2102,25 +2111,28 @@ async function doomAssets(onProg) {
   }
   return [await mod, DOOM.wad];
 }
-function doomShell(mode, who) {
+function doomShell(mode, who, g) {
+  const nm = g === "stb" ? "Super Tilt Bro" : "Doom";
   document.querySelectorAll(".doom").forEach(n => n.remove());
-  const m = document.createElement("div"); m.className = "doom"; m.dataset.mode = mode;
-  m.setAttribute("role", "dialog"); m.setAttribute("aria-label", mode === "play" ? "Doom" : `${who} is playing Doom`);
+  const m = document.createElement("div"); m.className = "doom" + (g === "stb" ? " stb" : ""); m.dataset.mode = mode;
+  m.setAttribute("role", "dialog"); m.setAttribute("aria-label", mode === "play" ? nm : `${who} is playing ${nm}`);
   const pad = [["KEY_UPARROW", "▲", "grid-column:2"], ["KEY_LEFTARROW", "◀", "grid-column:1;grid-row:2"], ["KEY_DOWNARROW", "▼", "grid-column:2;grid-row:2"], ["KEY_RIGHTARROW", "▶", "grid-column:3;grid-row:2"]]
     .map(([k, t, st]) => `<button type="button" data-k="${k}" style="${st}" aria-label="${k.slice(4).toLowerCase()}">${t}</button>`).join("");
   const acts = [["KEY_FIRE", "FIRE"], ["KEY_USE", "USE"], ["KEY_ESCAPE", "MENU"], ["KEY_ENTER", "ENTER"]].map(([k, t]) => `<button type="button" data-k="${k}">${t}</button>`).join("");
-  m.innerHTML = `<div class="doom-top"><span class="doom-tag">${mode === "play" ? "Freedoom" : `${esc(who)} is playing Doom`}</span>
-      <button class="ghost" type="button" id="doomClose">${mode === "play" ? "Quit Doom" : "Stop watching"}</button></div>
-    <div class="doom-screen">${mode === "play" ? `<canvas width="640" height="400" tabindex="0" aria-label="Doom game"></canvas>` : `<video autoplay playsinline muted aria-label="Live view of Doom"></video>`}
-      <div class="doom-intro">IT CAN.</div><div class="doom-load">${mode === "play" ? "" : "Connecting to the feed…"}</div></div>
-    ${mode === "play"
+  m.innerHTML = `<div class="doom-top"><span class="doom-tag">${mode === "play" ? (g === "stb" ? "Super Tilt Bro" : "Freedoom") : `${esc(who)} is playing ${nm}`}</span>
+      <button class="ghost" type="button" id="doomClose">${mode === "play" ? "Quit" : "Stop watching"}</button></div>
+    <div class="doom-screen">${mode === "play" ? (g === "stb" ? `<div class="stb-host" aria-label="Super Tilt Bro game"></div>` : `<canvas width="640" height="400" tabindex="0" aria-label="Doom game"></canvas>`) : `<video autoplay playsinline muted aria-label="Live view of ${nm}"></video>`}
+      <div class="doom-intro">${g === "stb" ? "FIGHT!" : "IT CAN."}</div><div class="doom-load">${mode === "play" ? "" : "Connecting to the feed…"}</div></div>
+    ${mode === "play" && g === "stb"
+      ? `<p class="doom-help keys">Pick Local · Player 1: WASD, F attack, G special · Player 2: arrows, K attack, L special · Enter or Space start · Esc quit</p><div class="doom-pad stbpad"><div class="dp">${[["UP","▲","grid-column:2"],["LEFT","◀","grid-column:1;grid-row:2"],["DOWN","▼","grid-column:2;grid-row:2"],["RIGHT","▶","grid-column:3;grid-row:2"]].map(([k,t,st])=>`<button type="button" data-b="${k}" style="${st}">${t}</button>`).join("")}</div><div class="acts">${[["A","A"],["B","B"],["START","START"]].map(([k,t])=>`<button type="button" data-b="${k}">${t}</button>`).join("")}</div></div>`
+      : mode === "play"
       ? `<p class="doom-help keys">Click the game to aim with the mouse · WASD move · Click fires · Right-click, E or Space opens doors · Esc menu</p><div class="doom-pad"><div class="dp">${pad}</div><div class="acts">${acts}</div></div>`
       : `<p class="doom-help">You're spectating. Only ${esc(who)} has the controls.</p>`}`;
   document.body.appendChild(m);
   return m;
 }
 async function launchDoom() {
-  if (DOOM.open) return;
+  if (DOOM.open || STB.open) return;
   DOOM.open = true;
   setStatus(""); render();
   const m = doomShell("play"), cv = m.querySelector("canvas"), ld = m.querySelector(".doom-load"), ctx = cv.getContext("2d");
@@ -2208,12 +2220,12 @@ function quitDoom() {
 }
 // Spectator side
 function watchDoom(fresh) {
-  if (DOOM.open) return;
+  if (DOOM.open || STB.open) return;
   if (fresh) DOOM.watchHidden = false;
   if (DOOM.watchHidden) return;
   let m = document.querySelector('.doom[data-mode="watch"]');
   if (!m) {
-    m = doomShell("watch", (O && O.opp && O.opp.name) || "Your opponent");
+    m = doomShell("watch", (O && O.opp && O.opp.name) || "Your opponent", DOOM.watchGame);
     m.querySelector("#doomClose").onclick = () => { DOOM.watchHidden = true; m.remove(); };
   }
   if (DOOM.watchStream) {
@@ -2233,6 +2245,62 @@ function onDoomCall(call) {
   call.on("stream", s => { if (DOOM.watchCall !== call) return; DOOM.watchStream = s; watchDoom(false); });
   call.on("close", () => { if (DOOM.watchCall === call) unwatchDoom(); });
   call.answer();
+}
+
+// 6) Konami code launches Super Tilt Bro (sgadrat, WTFPL) on the jsnes emulator (Apache-2.0). Two players share the keyboard.
+// Online, the opponent gets the same live video feed as Doom, view only.
+const STB = { open: false, br: null, call: null, esc: null };
+const STB_KEYS = { 87: [1, "UP"], 65: [1, "LEFT"], 83: [1, "DOWN"], 68: [1, "RIGHT"], 70: [1, "A"], 71: [1, "B"], 13: [1, "START"], 16: [1, "SELECT"],
+  38: [2, "UP"], 37: [2, "LEFT"], 40: [2, "DOWN"], 39: [2, "RIGHT"], 75: [2, "A"], 76: [2, "B"], 32: [2, "START"] };
+async function launchStb() {
+  if (STB.open) return;
+  STB.open = true;
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  setStatus(""); render();
+  const m = doomShell("play", null, "stb"), host = m.querySelector(".stb-host"), ld = m.querySelector(".doom-load");
+  m.querySelector("#doomClose").onclick = quitStb;
+  play("egg");
+  const online = screen === "online" && O && O.conn && O.conn.open;
+  if (online) { try { O.conn.send({ t: "doom", on: 1, g: "stb" }); } catch (e) {} }
+  try {
+    ld.textContent = "Loading…";
+    const [{ default: Browser }, { default: Controller }, buf] = await Promise.all([
+      import("./stb/jsnes/browser/index.js"), import("./stb/jsnes/controller.js"),
+      fetch("stb/stb.nes").then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); })]);
+    if (!STB.open || !m.isConnected) return;
+    const u = new Uint8Array(buf); let rom = ""; for (let i = 0; i < u.length; i += 8192) rom += String.fromCharCode.apply(null, u.subarray(i, i + 8192));
+    const br = STB.br = new Browser({ container: host, romData: rom, onError: e => { console.warn(e); quitStb(); } });
+    const BTN = { UP: Controller.BUTTON_UP, DOWN: Controller.BUTTON_DOWN, LEFT: Controller.BUTTON_LEFT, RIGHT: Controller.BUTTON_RIGHT,
+      A: Controller.BUTTON_A, B: Controller.BUTTON_B, START: Controller.BUTTON_START, SELECT: Controller.BUTTON_SELECT };
+    const keys = {}; Object.keys(STB_KEYS).forEach(k => { const [pl, b] = STB_KEYS[k]; keys[k] = [pl, BTN[b], b]; });
+    br.keyboard.keys = keys;
+    const fit = () => { try { br.fitInParent(); } catch (e) {} };
+    fit(); window.addEventListener("resize", fit); STB.fit = fit;
+    ld.textContent = "";
+    STB.esc = e => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); quitStb(); } };
+    window.addEventListener("keydown", STB.esc, true);
+    m.querySelectorAll(".stbpad button").forEach(b => {
+      const k = BTN[b.dataset.b];
+      const press = e => { e.preventDefault(); b.classList.add("on"); br.nes.buttonDown(1, k); };
+      const release = () => { if (!b.classList.contains("on")) return; b.classList.remove("on"); br.nes.buttonUp(1, k); };
+      b.addEventListener("pointerdown", press); ["pointerup", "pointerleave", "pointercancel"].forEach(ev => b.addEventListener(ev, release));
+    });
+    const cv = host.querySelector("canvas");
+    if (online && O && O.peer && O.conn && cv && cv.captureStream) { try { STB.call = O.peer.call(O.conn.peer, cv.captureStream(30)); } catch (e) {} }
+  } catch (e) {
+    console.warn(e);
+    if (m.isConnected) ld.textContent = "Super Tilt Bro couldn't load. Check your connection and try again.";
+  }
+}
+function quitStb() {
+  if (STB.esc) { window.removeEventListener("keydown", STB.esc, true); STB.esc = null; }
+  if (STB.fit) { window.removeEventListener("resize", STB.fit); STB.fit = null; }
+  try { STB.br && STB.br.destroy(); } catch (e) {} STB.br = null;
+  try { STB.call && STB.call.close(); } catch (e) {} STB.call = null;
+  if (STB.open && screen === "online" && O && O.conn && O.conn.open) { try { O.conn.send({ t: "doom", on: 0 }); } catch (e) {} }
+  STB.open = false;
+  document.querySelectorAll('.doom[data-mode="play"]').forEach(n => n.remove());
+  const q = document.getElementById("qInput"); if (q && !q.disabled) q.focus();
 }
 
 // End match: first tap arms the button, second tap within 4 seconds ends it.
